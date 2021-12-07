@@ -6,7 +6,17 @@ navbar:
     - text: "Overview"
       href: food.html
     - text: "States of Choice"
-      href: FL_data_analyzing.html
+      menu:
+      - text: California
+        href: food.html
+      - text: Florida
+        href: FL_data_analyzing.html
+      - text: New York City
+        href: food.html
+      - text: Ohio
+        href: food.html
+    - icon: fa-envelope fa-lg
+      href: mailto:pw2551@cumc.columbia.edu
     - icon: fa-github fa-lg
       href: https://github.com/paulawucu/final_project
       
