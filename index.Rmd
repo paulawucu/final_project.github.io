@@ -3,13 +3,17 @@ output:
   html_document:
     _disableToc: true
 ---
+<body background="images/drug_opc.jpg">
+</body>
 <body>
 <h1>**Drug Overdose Across the US States**</h1>
 <h3>Map and explore drug overdose facts in the US across years</h3>
 <h4>*Jinghan Liu | Paula Wu | Yuxuan Chen | Yuan Meng | Yijia Chen*</h4>
 </body>
 <br>
-```{r, message=FALSE, warning=FALSE, echo = FALSE}
+
+
+```{r setup, include=FALSE}
 library(plotly)
 library(dplyr)
 library(readr)
@@ -36,7 +40,7 @@ img {
   margin-right: auto;
 }
 </style>
-```{r,echo = FALSE, fig.align='center', fig.width=10, fig.height=6}
+```{r,echo = FALSE, fig.align='center', fig.width=10, fig.height=5.5}
 font_style = list(
   size = 15, 
   color = "black"
@@ -58,14 +62,18 @@ death_graph = plot_geo(mine_df,
             text = ~hover,
             hoverinfo = "text") %>% 
   layout(geo = list(scope = "usa"),
-         title = "Death Rate by State in the US\n1999-2019") %>% 
+         title = "\nDeath Rate by State in the US\n1999-2019") %>% 
   style(hoverlabel = label) %>% 
-  config(displayModeBar = FALSE) %>% 
+  plotly::config(displayModeBar = FALSE)
+
+death_graph = death_graph %>% 
   animation_button(
     x = 1, xanchor = "right", y = 0, yanchor = "bottom"
+  ) %>% animation_opts(
+    1000, easing = "elastic", redraw = FALSE
   )
+  
 death_graph
-
 ```
 
 
