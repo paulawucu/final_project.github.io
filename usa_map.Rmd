@@ -38,7 +38,7 @@ death_graph = plot_geo(mine_df,
   layout(geo = list(scope = "usa"),
          title = "Death by state in the US\n2015-2021") %>% 
   style(hoverlabel = label) %>% 
-  config(displayModeBar = FALSE)
+  plotly::config(displayModeBar = FALSE)
 death_graph
 ```
 
