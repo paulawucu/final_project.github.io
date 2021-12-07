@@ -6,13 +6,14 @@ output:
 <body>
 <h1>**Drug Overdose Across the US States**</h1>
 <h3>Map and explore drug overdose facts in the US across years</h3>
-<h4>*Jinghan Liu   Paula Wu   Yuxuan Chen   Yuan Meng   Yijia Chen*</h4>
+<h4>*Jinghan Liu | Paula Wu | Yuxuan Chen | Yuan Meng | Yijia Chen*</h4>
 </body>
 <br>
 ```{r, message=FALSE, warning=FALSE, echo = FALSE}
 library(plotly)
 library(dplyr)
 library(readr)
+library(tidyverse)
 ```
 ```{r,message=FALSE, warning=FALSE,echo = FALSE}
 mine_df = 
@@ -22,7 +23,10 @@ mine_df =
          !(is.na(state))) %>% 
   select(state, year, deaths, population, crude_rate) %>% 
   mutate(state_name= state.abb[match(state, state.name)],
-         hover = paste0(state, "\nDeath:", deaths))
+         hover = paste0(state, "\nDeath:", crude_rate),
+         crude_rate = as.numeric(crude_rate)) %>% 
+  mutate(crude_rate = replace_na(crude_rate, 0))
+
 ```
 
 <style>
@@ -46,15 +50,15 @@ death_graph = plot_geo(mine_df,
                        locationmode = "USA-states",
                        frame = ~year) %>% 
   add_trace(locations = ~state_name,
-            z = ~deaths,
+            z = ~crude_rate,
             zmin = 0,
-            zmax = max(pull(mine_df, deaths)),
-            color = ~deaths,
+            zmax = max(pull(mine_df, crude_rate)),
+            color = ~crude_rate,
             colorscale = "Blue",
             text = ~hover,
             hoverinfo = "text") %>% 
   layout(geo = list(scope = "usa"),
-         title = "Death by state in the US\n1999-2019") %>% 
+         title = "Death Rate by State in the US\n1999-2019") %>% 
   style(hoverlabel = label) %>% 
   config(displayModeBar = FALSE) %>% 
   animation_button(
