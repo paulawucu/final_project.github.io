@@ -6,7 +6,7 @@ navbar:
     - text: "Overview"
       href: food.html
     - text: "States of Choice"
-      href: food.html
+      href: FL_data_analyzing.html
     - icon: fa-github fa-lg
       href: https://github.com/paulawucu/final_project
       

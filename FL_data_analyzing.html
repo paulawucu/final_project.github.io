@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+<meta name="author" content="Paula Wu" />
+
+
+<title>FL_data_analyzing</title>
+
+<script src="site_libs/header-attrs-2.11/header-attrs.js"></script>
+<script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/yeti.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/highlightjs-9.12.0/default.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+<script src="site_libs/htmlwidgets-1.5.4/htmlwidgets.js"></script>
+<script src="site_libs/plotly-binding-4.10.0/plotly.js"></script>
+<script src="site_libs/typedarray-0.1/typedarray.min.js"></script>
+<link href="site_libs/crosstalk-1.1.1/css/crosstalk.css" rel="stylesheet" />
+<script src="site_libs/crosstalk-1.1.1/js/crosstalk.min.js"></script>
+<link href="site_libs/plotly-htmlwidgets-css-2.5.1/plotly-htmlwidgets.css" rel="stylesheet" />
+<script src="site_libs/plotly-main-2.5.1/plotly-latest.min.js"></script>
+<link href="site_libs/font-awesome-5.1.0/css/all.css" rel="stylesheet" />
+<link href="site_libs/font-awesome-5.1.0/css/v4-shims.css" rel="stylesheet" />
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+<style type="text/css">code{white-space: pre;}</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+pre code {
+  padding: 0;
+}
+</style>
+
+
+<style type="text/css">
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #adb5bd;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script type="text/javascript">
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark it active
+  menuAnchor.tab('show');
+
+  // if it's got a parent navbar menu mark it active as well
+  menuAnchor.closest('li.dropdown').addClass('active');
+
+  // Navbar adjustments
+  var navHeight = $(".navbar").first().height() + 15;
+  var style = document.createElement('style');
+  var pt = "padding-top: " + navHeight + "px; ";
+  var mt = "margin-top: -" + navHeight + "px; ";
+  var css = "";
+  // offset scroll position for anchor links (for fixed navbar)
+  for (var i = 1; i <= 6; i++) {
+    css += ".section h" + i + "{ " + pt + mt + "}\n";
+  }
+  style.innerHTML = "body {" + pt + "padding-bottom: 40px; }\n" + css;
+  document.head.appendChild(style);
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "&#xe258;";
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">Home</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li>
+  <a href="food.html">Overview</a>
+</li>
+<li>
+  <a href="FL_data_analyzing.html">States of Choice</a>
+</li>
+<li>
+  <a href="https://github.com/paulawucu/final_project">
+    <span class="fa fa-github fa-lg"></span>
+     
+  </a>
+</li>
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div id="header">
+
+
+
+<h1 class="title toc-ignore">FL_data_analyzing</h1>
+<h4 class="author">Paula Wu</h4>
+<h4 class="date">12/7/2021</h4>
+
+</div>
+
+
+<p>Import the libraries</p>
+<p>It’s hard to find drug-specific data for those state missing specific drug types. Opioids data is much easier to find. We should probably focus on opioids.<br> We drew a map of the opioids to justify our choice.</p>
+<pre><code>## `summarise()` has grouped output by &#39;year&#39;, &#39;month&#39;. You can override using the `.groups` argument.</code></pre>
+<p><img src="FL_data_analyzing_files/figure-html/unnamed-chunk-3-1.png" width="90%" /> <br>If we decided to focus on opioids, this will make my life much easier.</p>
+<p>FL part: Overall review:</p>
+<pre><code>## Adding missing grouping variables: `state_name`</code></pre>
+<p><img src="FL_data_analyzing_files/figure-html/unnamed-chunk-5-1.png" width="90%" /> <img src="FL_data_analyzing_files/figure-html/unnamed-chunk-6-1.png" width="90%" /> We can also focus just on opioids Data source: cdc wonder, request by queries, Drug overdose deaths are identified using underlying cause-of-death codes from the Tenth Revision of ICD (ICD–10): X40–X44 (unintentional), X60–X64 (suicide), X85 (homicide), and Y10–Y14 (undetermined). Opioids identified by selecting T40.0-40.4, 40.6</p>
+<p>data could be suppressed as indicated by the cdc website, the data value also supported by florida government</p>
+<p>But anyway let’s plot<br> First by year, this is the death count <img src="FL_data_analyzing_files/figure-html/unnamed-chunk-8-1.png" width="90%" /> what about each month within a year <img src="FL_data_analyzing_files/figure-html/unnamed-chunk-9-1.png" width="90%" /> It’s climbing, every single month. The 2020 data is less probably because it’s provisional and some data still under investigation</p>
+<p>Let’s analyze the number of death vs median household income</p>
+<pre><code>## Rows: 49 Columns: 7</code></pre>
+<pre><code>## ── Column specification ────────────────────────────────────────────────────────
+## Delimiter: &quot;,&quot;
+## chr (3): Geography, ID Geography, Slug Geography
+## dbl (4): ID Year, Year, Household Income by Race, Household Income by Race Moe</code></pre>
+<pre><code>## 
+## ℹ Use `spec()` to retrieve the full column specification for this data.
+## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+<div id="htmlwidget-4805a64ee3704a7114c7" style="width:90%;height:576px;" class="plotly html-widget"></div>
+<script type="application/json" data-for="htmlwidget-4805a64ee3704a7114c7">{"x":{"visdat":{"d958cc324c0":["function () ","plotlyVisDat"]},"cur_data":"d958cc324c0","attrs":{"d958cc324c0":{"x":{},"y":{},"text":{},"mode":"markers+lines","error_y":{},"color":{},"colors":"viridis","alpha":0.5,"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"scatter"}},"layout":{"margin":{"b":40,"l":60,"t":25,"r":10},"title":"Median Household Income: FLorida vs. The U.S","xaxis":{"domain":[0,1],"automargin":true,"title":"Year","type":"category","categoryorder":"array","categoryarray":["2015","2016","2017","2018","2019"]},"yaxis":{"domain":[0,1],"automargin":true,"title":"Median Household Income"},"hovermode":"closest","showlegend":true},"source":"A","config":{"modeBarButtonsToAdd":["hoverclosest","hovercompare"],"showSendToCloud":false},"data":[{"x":["2019","2018","2017","2016","2015"],"y":[59227,55462,52594,50860,49426],"text":["Year: 2019<br />Median Household Income: $59227<br />Margin of error: ± $443","Year: 2018<br />Median Household Income: $55462<br />Margin of error: ± $384","Year: 2017<br />Median Household Income: $52594<br />Margin of error: ± $364","Year: 2016<br />Median Household Income: $50860<br />Margin of error: ± $241","Year: 2015<br />Median Household Income: $49426<br />Margin of error: ± $331"],"mode":"markers+lines","error_y":{"color":"rgba(68,1,84,0.5)","array":[118,443,680,1173,1146]},"type":"scatter","name":"Florida","marker":{"color":"rgba(68,1,84,0.5)","line":{"color":"rgba(68,1,84,1)"}},"textfont":{"color":"rgba(68,1,84,0.5)"},"error_x":{"color":"rgba(68,1,84,0.5)"},"line":{"color":"rgba(68,1,84,0.5)"},"xaxis":"x","yaxis":"y","frame":null},{"x":["2019","2018","2017","2016","2015"],"y":[60141,56328,54284,51362,50441],"text":["Year: 2019<br />Median Household Income: $60141<br />Margin of error: ± $680","Year: 2018<br />Median Household Income: $56328<br />Margin of error: ± $732","Year: 2017<br />Median Household Income: $54284<br />Margin of error: ± $820","Year: 2016<br />Median Household Income: $51362<br />Margin of error: ± $402","Year: 2015<br />Median Household Income: $50441<br />Margin of error: ± $398"],"mode":"markers+lines","error_y":{"color":"rgba(59,82,139,0.5)","array":[94,384,732,1521,970]},"type":"scatter","name":"Miami-Fort Lauderdale-West Palm Beach, FL","marker":{"color":"rgba(59,82,139,0.5)","line":{"color":"rgba(59,82,139,1)"}},"textfont":{"color":"rgba(59,82,139,0.5)"},"error_x":{"color":"rgba(59,82,139,0.5)"},"line":{"color":"rgba(59,82,139,0.5)"},"xaxis":"x","yaxis":"y","frame":null},{"x":["2019","2018","2017","2016","2015"],"y":[61876,58610,55089,52385,51077],"text":["Year: 2019<br />Median Household Income: $61876<br />Margin of error: ± $1173","Year: 2018<br />Median Household Income: $58610<br />Margin of error: ± $1521","Year: 2017<br />Median Household Income: $55089<br />Margin of error: ± $1026","Year: 2016<br />Median Household Income: $52385<br />Margin of error: ± $963","Year: 2015<br />Median Household Income: $51077<br />Margin of error: ± $824"],"mode":"markers+lines","error_y":{"color":"rgba(33,144,141,0.5)","array":[86,364,820,1026,599]},"type":"scatter","name":"Orlando-Kissimmee-Sanford, FL","marker":{"color":"rgba(33,144,141,0.5)","line":{"color":"rgba(33,144,141,1)"}},"textfont":{"color":"rgba(33,144,141,0.5)"},"error_x":{"color":"rgba(33,144,141,0.5)"},"line":{"color":"rgba(33,144,141,0.5)"},"xaxis":"x","yaxis":"y","frame":null},{"x":["2019","2018","2017","2016","2015"],"y":[57906,54912,52212,51115,48911],"text":["Year: 2019<br />Median Household Income: $57906<br />Margin of error: ± $1146","Year: 2018<br />Median Household Income: $54912<br />Margin of error: ± $970","Year: 2017<br />Median Household Income: $52212<br />Margin of error: ± $599","Year: 2016<br />Median Household Income: $51115<br />Margin of error: ± $514","Year: 2015<br />Median Household Income: $48911<br />Margin of error: ± $891"],"mode":"markers+lines","error_y":{"color":"rgba(93,200,99,0.5)","array":[115,241,402,963,514]},"type":"scatter","name":"Tampa-St. Petersburg-Clearwater, FL","marker":{"color":"rgba(93,200,99,0.5)","line":{"color":"rgba(93,200,99,1)"}},"textfont":{"color":"rgba(93,200,99,0.5)"},"error_x":{"color":"rgba(93,200,99,0.5)"},"line":{"color":"rgba(93,200,99,0.5)"},"xaxis":"x","yaxis":"y","frame":null},{"x":["2019","2018","2017","2016","2015"],"y":[65712,61937,60336,57617,55775],"text":["Year: 2019<br />Median Household Income: $65712<br />Margin of error: ± $118","Year: 2018<br />Median Household Income: $61937<br />Margin of error: ± $94","Year: 2017<br />Median Household Income: $60336<br />Margin of error: ± $86","Year: 2016<br />Median Household Income: $57617<br />Margin of error: ± $115","Year: 2015<br />Median Household Income: $55775<br />Margin of error: ± $85"],"mode":"markers+lines","error_y":{"color":"rgba(253,231,37,0.5)","array":[85,331,398,824,891]},"type":"scatter","name":"United States","marker":{"color":"rgba(253,231,37,0.5)","line":{"color":"rgba(253,231,37,1)"}},"textfont":{"color":"rgba(253,231,37,0.5)"},"error_x":{"color":"rgba(253,231,37,0.5)"},"line":{"color":"rgba(253,231,37,0.5)"},"xaxis":"x","yaxis":"y","frame":null}],"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.2,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":[]}</script>
+<p>Income and drug overdose death percent , by year</p>
+<pre><code>## Joining, by = &quot;year&quot;</code></pre>
+<p><img src="FL_data_analyzing_files/figure-html/unnamed-chunk-11-1.png" width="90%" /> maps maps maps</p>
+<pre><code>## Rows: 50176 Columns: 12</code></pre>
+<pre><code>## ── Column specification ────────────────────────────────────────────────────────
+## Delimiter: &quot;,&quot;
+## chr (3): State, County, Urban/Rural Category
+## dbl (9): FIPS, Year, FIPS State, Population, Model-based Death Rate, Standar...</code></pre>
+<pre><code>## 
+## ℹ Use `spec()` to retrieve the full column specification for this data.
+## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+<pre><code>## # A tibble: 268 × 4
+##    county  year  population death_rate
+##    &lt;chr&gt;   &lt;fct&gt;      &lt;dbl&gt;      &lt;dbl&gt;
+##  1 alachua 2015      259177       12.1
+##  2 alachua 2016      264287       13.5
+##  3 alachua 2017      266820       12.9
+##  4 alachua 2018      269956       11.7
+##  5 baker   2015       27351       21.9
+##  6 baker   2016       27872       21.7
+##  7 baker   2017       28230       24.2
+##  8 baker   2018       28355       23.0
+##  9 bay     2015      181387       17.6
+## 10 bay     2016      183384       24.5
+## # … with 258 more rows</code></pre>
+<p><img src="FL_data_analyzing_files/figure-html/unnamed-chunk-15-1.png" width="90%" /></p>
+<pre><code>## Rows: 50176 Columns: 12</code></pre>
+<pre><code>## ── Column specification ────────────────────────────────────────────────────────
+## Delimiter: &quot;,&quot;
+## chr (3): State, County, Urban/Rural Category
+## dbl (9): FIPS, Year, FIPS State, Population, Model-based Death Rate, Standar...</code></pre>
+<pre><code>## 
+## ℹ Use `spec()` to retrieve the full column specification for this data.
+## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+<pre><code>## # A tibble: 232 × 4
+##    county  year  population death_rate
+##    &lt;chr&gt;   &lt;fct&gt;      &lt;dbl&gt;      &lt;dbl&gt;
+##  1 alameda 2015     1634634      12.3 
+##  2 alameda 2016     1650306      10.5 
+##  3 alameda 2017     1658131       8.79
+##  4 alameda 2018     1666753      12.0 
+##  5 alpine  2015        1087      22.1 
+##  6 alpine  2016        1057      24.8 
+##  7 alpine  2017        1121      26.5 
+##  8 alpine  2018        1101      26.6 
+##  9 amador  2015       37037      23.1 
+## 10 amador  2016       37438      25.3 
+## # … with 222 more rows</code></pre>
+<pre><code>## # A tibble: 58 × 2
+##     fips county      
+##    &lt;int&gt; &lt;chr&gt;       
+##  1  6001 alameda     
+##  2  6003 alpine      
+##  3  6005 amador      
+##  4  6007 butte       
+##  5  6009 calaveras   
+##  6  6011 colusa      
+##  7  6013 contra costa
+##  8  6015 del norte   
+##  9  6017 el dorado   
+## 10  6019 fresno      
+## # … with 48 more rows</code></pre>
+<p><img src="FL_data_analyzing_files/figure-html/unnamed-chunk-17-1.png" width="90%" /></p>
+
+
+
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open');
+  });
+});
+</script>
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
