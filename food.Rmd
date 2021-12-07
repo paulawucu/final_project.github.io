@@ -1,0 +1,72 @@
+---
+title: "Food Hunt NYC"
+output: 
+  html_document:
+    toc: true
+    toc_float: true
+---
+<br>
+
+<style>
+img {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+</style>
+<img src="images/hungry.gif" style="width:50%">
+<center>
+<p><h3><em>Happens to be hungry? Then you've come to the right place!</em></h3></p>
+</center>
+<br>
+
+Okay, since I've been in NYC for a while, I thought it would be cool to share some of the food hunts (aka. restaurant explorations) I did in the past few months. Feel free to use it as a guide when you don't know what to eat in the future. <br><br>
+
+# Szechuan Mountain House
+<div style="height:480px;width:640px;overflow:scroll;">
+<img src="images/IMG_5565.jpeg" style="width:80%"><br>
+<img src="images/IMG_0861.jpeg" style="width:80%">
+</div>
+No body can refuse Szechuan cuisine, well... at least I can't. The numbing chicken is my all time favorite, I ordered it every time I went there. Same for Mao Xue Wang, but it has blood curd in there so be careful about the food restriction and allergies. They don't take reservations so 1.5 hour wait is the norm during weekends. But I'll say "it's worth the wait".
+<br><br>
+
+
+# Olio e Piu
+<div style="height:480px;width:640px;overflow:scroll;">
+<img src="images/IMG_5615.JPG" style="width:80%"><br>
+<img src="images/IMG_5616.JPG" style="width:80%"><br>
+<img src="images/IMG_5617.JPG" style="width:80%">
+</div>
+I discovered this Italian restaurant by chance when I tried to find the French bistro I ate many years ago (FYI, that bistro is called Buvette but I got no pictures for the dishes). The arugula salad was stunning. Paccheri was okay, but if you are a seafood lover I will recommend it.
+<br><br>
+
+
+# Elysian Fields
+<div style="height:480px;width:640px;overflow:scroll;">
+<img src="images/IMG_5405.jpeg" style="width:80%"><br>
+<img src="images/IMG_5407.jpeg" style="width:80%">
+</div>
+This Greek restaurant is about six minute walk from the Morningside Campus. I ordered crispy calamari and chicken gyro. Food was awesome. BUT I've waited for **an hour** to get the food, and the restaurant was not even busy. Try it if you have much spare time. 
+<br><br>
+
+# SakaMai
+<div style="height:480px;width:640px;overflow:scroll;">
+<img src="images/IMG_5890.jpeg" style="width:80%"><br>
+<img src="images/IMG_5893.jpeg" style="width:80%"><br>
+<img src="images/IMG_5895.jpeg" style="width:80%">
+</div>
+The first dish is called "Egg on egg on egg" because it has sea urchin, caviar, and egg as the main ingredients. Brilliant name. The wagyu sandwich was extremely expensive compared to other dishes. But still, I decided to splurge that evening, and I didn't regret it. The black cod with wild rice tastes like Japanese Senbei (crackers with soy sauce). The chef has made soy sauce tastes luxurious, and this dish immediately became the dish of the night.
+<br><br>
+
+# Chikalicious Dessert Bar
+<div style="height:480px;width:640px;overflow:scroll;">
+<img src="images/IMG_5909.jpeg" style="width:80%"><br>
+<img src="images/IMG_5919.jpeg" style="width:80%"><br>
+<img src="images/IMG_5921.jpeg" style="width:80%">
+</div>
+"Stressed" is just "desserts" spelled backward. Let's finish this food hunt with some beautiful desserts. Chikalicous only has a tasting menu that is composed of three courses, including one Amuse Bouche, one main dessert, and a set of Petites Fours. The amuse was a basil sorbet: refreshing but I felt like I was eating pastas with pesto sauce. I got melon panna cotta (seriously I can't remember the name) and my friend got their signature dish "the Fromage Blanc Cheesecake". The panna cotta tasted exactly what it meant by its name: silky, creamy, instantly melt in your mouth. I tried a spoonful of my friend's cheesecake... I'll say it was the best cheesecake I have never had. <br><br>
+
+
+More updates? Hmmmmm, I'm not so sure.. But feel free to try more food on your own!! The least stuff I need to worry about is to answer the question "what to have for dinner?"
+
+Back to [homepage](index.html)

@@ -1,0 +1,68 @@
+---
+output: 
+  html_document:
+    _disableToc: true
+---
+<body>
+<h1>**Drug Overdose Across the US States**</h1>
+<h3>Map and explore drug overdose facts in the US across years</h3>
+<h4>*Jinghan Liu   Paula Wu   Yuxuan Chen   Yuan Meng   Yijia Chen*</h4>
+</body>
+<br>
+```{r, message=FALSE, warning=FALSE, echo = FALSE}
+library(plotly)
+library(dplyr)
+library(readr)
+```
+```{r,message=FALSE, warning=FALSE,echo = FALSE}
+mine_df = 
+  read_csv("./data/usa_99_19.csv") %>% 
+  janitor::clean_names() %>%
+  filter(!(notes %in% "Total"),
+         !(is.na(state))) %>% 
+  select(state, year, deaths, population, crude_rate) %>% 
+  mutate(state_name= state.abb[match(state, state.name)],
+         hover = paste0(state, "\nDeath:", deaths))
+```
+
+<style>
+img {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+</style>
+```{r,echo = FALSE, fig.align='center', fig.width=10, fig.height=6}
+font_style = list(
+  size = 15, 
+  color = "black"
+)
+label = list(
+  bgcolor = "#EEEEEE",
+  bordercolor = "transparent",
+  font = font_style
+)
+death_graph = plot_geo(mine_df, 
+                       locationmode = "USA-states",
+                       frame = ~year) %>% 
+  add_trace(locations = ~state_name,
+            z = ~deaths,
+            zmin = 0,
+            zmax = max(pull(mine_df, deaths)),
+            color = ~deaths,
+            colorscale = "Blue",
+            text = ~hover,
+            hoverinfo = "text") %>% 
+  layout(geo = list(scope = "usa"),
+         title = "Death by state in the US\n1999-2019") %>% 
+  style(hoverlabel = label) %>% 
+  config(displayModeBar = FALSE) %>% 
+  animation_button(
+    x = 1, xanchor = "right", y = 0, yanchor = "bottom"
+  )
+death_graph
+
+```
+
+
+
