@@ -9,12 +9,72 @@ runtime: shiny
 
 ```{r setup, include=FALSE}
 library(flexdashboard)
+library(shiny)
+library(plotly)
+library(tidyverse)
+
+drug_overdose = 
+  read_csv("./data/VSRR_Provisional_Drug_Overdose_Death_Counts.csv") %>% 
+  janitor::clean_names()
+state_level = 
+  c(state.name[1:8], "District of Columbia", state.name[9:32],"New York City", state.name[33:50])
+
+drug_overdose_52 = 
+  drug_overdose %>% 
+  filter(!(state_name %in% c("New York City", "United States"))) %>% 
+  relocate(state_name) %>% 
+  mutate(month = factor(month, levels = month.name), # change month and year to factor
+         year = factor(year),
+         state_name = factor(state_name, levels = state_level)) %>% 
+  arrange(state_name) %>% 
+  select(year, state_name, indicator, deaths = predicted_value, footnote) %>% 
+  filter(str_detect(indicator, "T4")) %>% 
+ mutate(state= state.abb[match(state_name, state.name)],
+         hover = paste0(state_name, "\nDeath:", deaths)) %>%
+filter(!is.na(deaths))
+
+  
+
+
+drug_overdose_52 = 
+  drug_overdose_52 %>%
+  mutate(low_data_quality = ifelse(str_detect(footnote, "low data quality"), 1, 0), # data_value not shown, predicted yes?
+         suppressed = ifelse(str_detect(footnote, "suppressed"), 1, 0),
+         underreported = ifelse(str_detect(footnote, "Underreported"), 1, 0)) %>% 
+  relocate(footnote, .after = last_col()) %>% 
+ungroup() 
 ```
+
+
+
+US drug overdoes death Map
+===================================== 
+
 
 Column {.sidebar}
 -----------------------------------------------------------------------
 
 ```{r}
+# selection from
+drug_choice = 
+  drug_overdose_52 %>% 
+  distinct(indicator) %>% 
+  pull()
+
+year = c(2015:2021)
+
+
+#state select box
+selectInput(
+  "drug_type", 
+  label = h3("Choose Indicator"),
+  choices = drug_choice,
+  selected = "Heroin (T40.1)")
+
+# year select box 
+selectInput("year", label = h3("Choose year"),
+						choices = as.list(year),
+						selected = "2018")
 
 ```
 
@@ -25,6 +85,31 @@ Column {data-width=650}
 
 ```{r}
 
+renderPlotly({
+geo1 <- list(
+	scope = "usa",
+	projection = list(type = "state"),
+	showlakes = TRUE,
+	lakecolor = toRGB("white")
+	)
+
+	drug_overdose_52 %>% 
+	plot_geo(drug_overdose_52, 
+	         locationmode = "USA-states",
+           frame = ~year) %>% 
+  add_trace(locations = ~state,
+            z = ~deaths,
+            zmin = 0,
+            zmax = max(pull(drug_overdose_52, deaths)),
+            color = ~deaths,
+            text = ~hover,
+            hoverinfo = "text") %>% 
+  layout(geo = geo1,
+         title = "Death by state in the US\n2015-2021",
+         legend = list(x = 100, y = 0.5))
+})
+
+
 ```
 
 Column {data-width=350}
@@ -33,6 +118,8 @@ Column {data-width=350}
 ### Chart B
 
 ```{r}
+
+
 
 ```
 
