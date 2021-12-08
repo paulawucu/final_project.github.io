@@ -44,17 +44,10 @@ drug_overdose_52 =
 #for barplot
 age_race_death = read_csv("./data/agegroup_race_state_year_99-19.csv") %>% 
   janitor::clean_names() %>% 
-  select(state, year = year_code, age = ten_year_age_groups_code, race, deaths)
+  select(state, year = year_code, age = ten_year_age_groups_code, race, deaths,population) %>% 
+  drop_na() 
 
-age_race_death_add = read_csv("./data/agegroup_race_state_year_20-21.csv") %>% 
-  janitor::clean_names() %>% 
-  select(state = occurrence_state, year = year_code, age = ten_year_age_groups_code, race = single_race_6, deaths) 
 
-total_ar_death = 
-  bind_rows(age_race_death, age_race_death_add) %>% 
-  drop_na() %>% 
-filter(!(age == "14-May"))%>%
-  mutate(year = factor(year))
 
 # for counties
 county_df = 
@@ -170,11 +163,13 @@ Column {.tabset}
 # plot barplot
 renderPlotly({
   ar = 
-    total_ar_death %>% 
+    age_race_death %>% 
   filter(year == input$year2) %>% 
 	group_by(age, race) %>%
-	summarize(n_deaths = sum(deaths)) %>% 
-  spread(key = race, value = n_deaths) %>%
+	summarize(total_deaths = sum(deaths),
+	          total_population = sum(population)) %>% 
+	mutate(crude_rate = (total_deaths/total_population) * 100000) %>% 
+  spread(key = race, value = crude_rate) %>%
   janitor::clean_names() %>% 
   # barplot
   plot_ly(x = ~age,
@@ -189,7 +184,7 @@ renderPlotly({
   						name = "American Indian or Alaska Native") %>% 
   	layout(barmode = "stack",
   				 xaxis = list(title = "Age Groups"),
-  				 yaxis = list(title = "Drug Overdoes Death")
+  				 yaxis = list(title = "Crude Rate")
   				 )
 
 })
