@@ -12,7 +12,7 @@ navbar:
       - text: Florida
         href: FL_data_analyzing.html
       - text: New York City
-        href: food.html
+        href: NY_data_analyzing.html
       - text: Ohio
         href: Ohio_data_analyzing.html
     - text: "Interactive Maps"
