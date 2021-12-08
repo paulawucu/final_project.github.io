@@ -15,7 +15,7 @@ navbar:
         href: food.html
       - text: Ohio
         href: Ohio_data_analyzing.html
-    - text: "US Overview"
+    - text: "Interactive Maps"
       href: shiny_dashboard.html
     - icon: fa-envelope fa-lg
       href: mailto:pw2551@cumc.columbia.edu
