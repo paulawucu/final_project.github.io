@@ -15,6 +15,8 @@ navbar:
         href: food.html
       - text: Ohio
         href: food.html
+    - text: "US Overview"
+      href: shiny_dashboard.html
     - icon: fa-envelope fa-lg
       href: mailto:pw2551@cumc.columbia.edu
     - icon: fa-github fa-lg

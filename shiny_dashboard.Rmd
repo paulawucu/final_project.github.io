@@ -12,6 +12,9 @@ library(flexdashboard)
 library(tidyverse)
 library(viridis)
 library(plotly)
+library(shiny)
+library(lubridate)
+
 ```
 
 ```{r data_import}
@@ -34,7 +37,26 @@ drug_overdose_52 =
  mutate(state= state.abb[match(state_name, state.name)],
          hover = paste0(state_name, "\nDeath:", deaths)) %>%
   filter(!is.na(deaths))
+
+#for barplot
+age_race_death = read_csv("./data/agegroup_race_state_year_99-19.csv") %>% 
+  janitor::clean_names() %>% 
+  select(state, year = year_code, age = ten_year_age_groups_code, race, deaths)
+
+age_race_death_add = read_csv("./data/agegroup_race_state_year_20-21.csv") %>% 
+  janitor::clean_names() %>% 
+  select(state = occurrence_state, year = year_code, age = ten_year_age_groups_code, race = single_race_6, deaths) 
+
+total_ar_death = 
+  bind_rows(age_race_death, age_race_death_add) %>% 
+  drop_na() %>% 
+filter(!(age == "14-May"))%>%
+  mutate(year = factor(year))
 ```
+
+US drug overdoes death Map
+===================================== 
+
 
 Column {.sidebar}
 -----------------------------------------------------------------------
@@ -62,10 +84,10 @@ selectInput("year", label = h3("Choose year"),
 						selected = "2018")
 ```
 
-Column {data-width=650}
+Column {.tabset}
 -----------------------------------------------------------------------
 
-### Chart A
+### US MAP
 
 ```{r}
 renderPlotly({
@@ -98,18 +120,56 @@ plot_geo(graph_df,
 })
 ```
 
-Column {data-width=350}
+
+Death by Age and Race
+===================================== 
+
+Column {.sidebar}
 -----------------------------------------------------------------------
 
-### Chart B
-
 ```{r}
+year = c(1999:2021)
 
+selectInput("year2", 
+            label = h3("Choose year"),
+						choices = as.list(year),
+						selected = 2015)
 ```
 
-### Chart C
+Column {.tabset}
+-----------------------------------------------------------------------
 
-```{r}
+### Dtug Overdoes Death Across All States by Age Group and Race
+
+```{r barplot_age_race}
+
+# plot barplot
+renderPlotly({
+  ar = 
+    total_ar_death %>% 
+  filter(year == input$year2) %>% 
+	group_by(age, race) %>%
+	summarize(n_deaths = sum(deaths)) %>% 
+  spread(key = race, value = n_deaths) %>%
+  janitor::clean_names() %>% 
+  # barplot
+  plot_ly(x = ~age,
+  				y = ~white,
+  				name = "White",
+  				type = "bar") %>% 
+    	add_trace(y = ~black_or_african_american,
+  						name = "Black or African American") %>%
+  	add_trace(y = ~asian_or_pacific_islander,
+  						name = "Asian or Pacific Islander") %>% 
+  	add_trace(y = ~american_indian_or_alaska_native,
+  						name = "American Indian or Alaska Native") %>% 
+  	layout(barmode = "stack",
+  				 xaxis = list(title = "Age Groups"),
+  				 yaxis = list(title = "Drug Overdoes Death")
+  				 )
+
+})
+
 
 ```
 

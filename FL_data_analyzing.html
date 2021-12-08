@@ -14,8 +14,8 @@
 
 <title>FL_data_analyzing</title>
 
-<script src="site_libs/header-attrs-2.11/header-attrs.js"></script>
-<script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<script src="site_libs/header-attrs-2.10/header-attrs.js"></script>
+<script src="site_libs/jquery-3.5.1/jquery.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link href="site_libs/bootstrap-3.3.5/css/yeti.min.css" rel="stylesheet" />
 <script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
@@ -257,8 +257,35 @@ $(document).ready(function () {
         <li>
   <a href="food.html">Overview</a>
 </li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+    States of Choice
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="food.html">California</a>
+    </li>
+    <li>
+      <a href="FL_data_analyzing.html">Florida</a>
+    </li>
+    <li>
+      <a href="food.html">New York City</a>
+    </li>
+    <li>
+      <a href="food.html">Ohio</a>
+    </li>
+  </ul>
+</li>
 <li>
-  <a href="FL_data_analyzing.html">States of Choice</a>
+  <a href="shiny_dashboard.html">US Overview</a>
+</li>
+<li>
+  <a href="mailto:pw2551@cumc.columbia.edu">
+    <span class="fa fa-envelope fa-lg"></span>
+     
+  </a>
 </li>
 <li>
   <a href="https://github.com/paulawucu/final_project">
@@ -283,6 +310,10 @@ $(document).ready(function () {
 
 
 <p>Import the libraries</p>
+<pre><code>## Warning: package &#39;maps&#39; was built under R version 4.1.2</code></pre>
+<pre><code>## Warning: package &#39;choroplethr&#39; was built under R version 4.1.2</code></pre>
+<pre><code>## Warning: package &#39;acs&#39; was built under R version 4.1.2</code></pre>
+<pre><code>## Warning: package &#39;choroplethrMaps&#39; was built under R version 4.1.2</code></pre>
 <p>It’s hard to find drug-specific data for those state missing specific drug types. Opioids data is much easier to find. We should probably focus on opioids.<br> We drew a map of the opioids to justify our choice.</p>
 <pre><code>## `summarise()` has grouped output by &#39;year&#39;, &#39;month&#39;. You can override using the `.groups` argument.</code></pre>
 <p><img src="FL_data_analyzing_files/figure-html/unnamed-chunk-3-1.png" width="90%" /> <br>If we decided to focus on opioids, this will make my life much easier.</p>
@@ -293,27 +324,27 @@ $(document).ready(function () {
 <p>But anyway let’s plot<br> First by year, this is the death count <img src="FL_data_analyzing_files/figure-html/unnamed-chunk-8-1.png" width="90%" /> what about each month within a year <img src="FL_data_analyzing_files/figure-html/unnamed-chunk-9-1.png" width="90%" /> It’s climbing, every single month. The 2020 data is less probably because it’s provisional and some data still under investigation</p>
 <p>Let’s analyze the number of death vs median household income</p>
 <pre><code>## Rows: 49 Columns: 7</code></pre>
-<pre><code>## ── Column specification ────────────────────────────────────────────────────────
+<pre><code>## -- Column specification --------------------------------------------------------
 ## Delimiter: &quot;,&quot;
 ## chr (3): Geography, ID Geography, Slug Geography
 ## dbl (4): ID Year, Year, Household Income by Race, Household Income by Race Moe</code></pre>
 <pre><code>## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
-<div id="htmlwidget-4805a64ee3704a7114c7" style="width:90%;height:576px;" class="plotly html-widget"></div>
-<script type="application/json" data-for="htmlwidget-4805a64ee3704a7114c7">{"x":{"visdat":{"d958cc324c0":["function () ","plotlyVisDat"]},"cur_data":"d958cc324c0","attrs":{"d958cc324c0":{"x":{},"y":{},"text":{},"mode":"markers+lines","error_y":{},"color":{},"colors":"viridis","alpha":0.5,"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"scatter"}},"layout":{"margin":{"b":40,"l":60,"t":25,"r":10},"title":"Median Household Income: FLorida vs. The U.S","xaxis":{"domain":[0,1],"automargin":true,"title":"Year","type":"category","categoryorder":"array","categoryarray":["2015","2016","2017","2018","2019"]},"yaxis":{"domain":[0,1],"automargin":true,"title":"Median Household Income"},"hovermode":"closest","showlegend":true},"source":"A","config":{"modeBarButtonsToAdd":["hoverclosest","hovercompare"],"showSendToCloud":false},"data":[{"x":["2019","2018","2017","2016","2015"],"y":[59227,55462,52594,50860,49426],"text":["Year: 2019<br />Median Household Income: $59227<br />Margin of error: ± $443","Year: 2018<br />Median Household Income: $55462<br />Margin of error: ± $384","Year: 2017<br />Median Household Income: $52594<br />Margin of error: ± $364","Year: 2016<br />Median Household Income: $50860<br />Margin of error: ± $241","Year: 2015<br />Median Household Income: $49426<br />Margin of error: ± $331"],"mode":"markers+lines","error_y":{"color":"rgba(68,1,84,0.5)","array":[118,443,680,1173,1146]},"type":"scatter","name":"Florida","marker":{"color":"rgba(68,1,84,0.5)","line":{"color":"rgba(68,1,84,1)"}},"textfont":{"color":"rgba(68,1,84,0.5)"},"error_x":{"color":"rgba(68,1,84,0.5)"},"line":{"color":"rgba(68,1,84,0.5)"},"xaxis":"x","yaxis":"y","frame":null},{"x":["2019","2018","2017","2016","2015"],"y":[60141,56328,54284,51362,50441],"text":["Year: 2019<br />Median Household Income: $60141<br />Margin of error: ± $680","Year: 2018<br />Median Household Income: $56328<br />Margin of error: ± $732","Year: 2017<br />Median Household Income: $54284<br />Margin of error: ± $820","Year: 2016<br />Median Household Income: $51362<br />Margin of error: ± $402","Year: 2015<br />Median Household Income: $50441<br />Margin of error: ± $398"],"mode":"markers+lines","error_y":{"color":"rgba(59,82,139,0.5)","array":[94,384,732,1521,970]},"type":"scatter","name":"Miami-Fort Lauderdale-West Palm Beach, FL","marker":{"color":"rgba(59,82,139,0.5)","line":{"color":"rgba(59,82,139,1)"}},"textfont":{"color":"rgba(59,82,139,0.5)"},"error_x":{"color":"rgba(59,82,139,0.5)"},"line":{"color":"rgba(59,82,139,0.5)"},"xaxis":"x","yaxis":"y","frame":null},{"x":["2019","2018","2017","2016","2015"],"y":[61876,58610,55089,52385,51077],"text":["Year: 2019<br />Median Household Income: $61876<br />Margin of error: ± $1173","Year: 2018<br />Median Household Income: $58610<br />Margin of error: ± $1521","Year: 2017<br />Median Household Income: $55089<br />Margin of error: ± $1026","Year: 2016<br />Median Household Income: $52385<br />Margin of error: ± $963","Year: 2015<br />Median Household Income: $51077<br />Margin of error: ± $824"],"mode":"markers+lines","error_y":{"color":"rgba(33,144,141,0.5)","array":[86,364,820,1026,599]},"type":"scatter","name":"Orlando-Kissimmee-Sanford, FL","marker":{"color":"rgba(33,144,141,0.5)","line":{"color":"rgba(33,144,141,1)"}},"textfont":{"color":"rgba(33,144,141,0.5)"},"error_x":{"color":"rgba(33,144,141,0.5)"},"line":{"color":"rgba(33,144,141,0.5)"},"xaxis":"x","yaxis":"y","frame":null},{"x":["2019","2018","2017","2016","2015"],"y":[57906,54912,52212,51115,48911],"text":["Year: 2019<br />Median Household Income: $57906<br />Margin of error: ± $1146","Year: 2018<br />Median Household Income: $54912<br />Margin of error: ± $970","Year: 2017<br />Median Household Income: $52212<br />Margin of error: ± $599","Year: 2016<br />Median Household Income: $51115<br />Margin of error: ± $514","Year: 2015<br />Median Household Income: $48911<br />Margin of error: ± $891"],"mode":"markers+lines","error_y":{"color":"rgba(93,200,99,0.5)","array":[115,241,402,963,514]},"type":"scatter","name":"Tampa-St. Petersburg-Clearwater, FL","marker":{"color":"rgba(93,200,99,0.5)","line":{"color":"rgba(93,200,99,1)"}},"textfont":{"color":"rgba(93,200,99,0.5)"},"error_x":{"color":"rgba(93,200,99,0.5)"},"line":{"color":"rgba(93,200,99,0.5)"},"xaxis":"x","yaxis":"y","frame":null},{"x":["2019","2018","2017","2016","2015"],"y":[65712,61937,60336,57617,55775],"text":["Year: 2019<br />Median Household Income: $65712<br />Margin of error: ± $118","Year: 2018<br />Median Household Income: $61937<br />Margin of error: ± $94","Year: 2017<br />Median Household Income: $60336<br />Margin of error: ± $86","Year: 2016<br />Median Household Income: $57617<br />Margin of error: ± $115","Year: 2015<br />Median Household Income: $55775<br />Margin of error: ± $85"],"mode":"markers+lines","error_y":{"color":"rgba(253,231,37,0.5)","array":[85,331,398,824,891]},"type":"scatter","name":"United States","marker":{"color":"rgba(253,231,37,0.5)","line":{"color":"rgba(253,231,37,1)"}},"textfont":{"color":"rgba(253,231,37,0.5)"},"error_x":{"color":"rgba(253,231,37,0.5)"},"line":{"color":"rgba(253,231,37,0.5)"},"xaxis":"x","yaxis":"y","frame":null}],"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.2,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":[]}</script>
+## i Use `spec()` to retrieve the full column specification for this data.
+## i Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+<div id="htmlwidget-16bedbc0129d95d982e7" style="width:90%;height:576px;" class="plotly html-widget"></div>
+<script type="application/json" data-for="htmlwidget-16bedbc0129d95d982e7">{"x":{"visdat":{"1a444d6b8ae":["function () ","plotlyVisDat"]},"cur_data":"1a444d6b8ae","attrs":{"1a444d6b8ae":{"x":{},"y":{},"text":{},"mode":"markers+lines","error_y":{},"color":{},"colors":"viridis","alpha":0.5,"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"scatter"}},"layout":{"margin":{"b":40,"l":60,"t":25,"r":10},"title":"Median Household Income: FLorida vs. The U.S","xaxis":{"domain":[0,1],"automargin":true,"title":"Year","type":"category","categoryorder":"array","categoryarray":["2015","2016","2017","2018","2019"]},"yaxis":{"domain":[0,1],"automargin":true,"title":"Median Household Income"},"hovermode":"closest","showlegend":true},"source":"A","config":{"modeBarButtonsToAdd":["hoverclosest","hovercompare"],"showSendToCloud":false},"data":[{"x":["2019","2018","2017","2016","2015"],"y":[59227,55462,52594,50860,49426],"text":["Year: 2019<br />Median Household Income: $59227<br />Margin of error: ± $443","Year: 2018<br />Median Household Income: $55462<br />Margin of error: ± $384","Year: 2017<br />Median Household Income: $52594<br />Margin of error: ± $364","Year: 2016<br />Median Household Income: $50860<br />Margin of error: ± $241","Year: 2015<br />Median Household Income: $49426<br />Margin of error: ± $331"],"mode":"markers+lines","error_y":{"color":"rgba(68,1,84,0.5)","array":[118,443,680,1173,1146]},"type":"scatter","name":"Florida","marker":{"color":"rgba(68,1,84,0.5)","line":{"color":"rgba(68,1,84,1)"}},"textfont":{"color":"rgba(68,1,84,0.5)"},"error_x":{"color":"rgba(68,1,84,0.5)"},"line":{"color":"rgba(68,1,84,0.5)"},"xaxis":"x","yaxis":"y","frame":null},{"x":["2019","2018","2017","2016","2015"],"y":[60141,56328,54284,51362,50441],"text":["Year: 2019<br />Median Household Income: $60141<br />Margin of error: ± $680","Year: 2018<br />Median Household Income: $56328<br />Margin of error: ± $732","Year: 2017<br />Median Household Income: $54284<br />Margin of error: ± $820","Year: 2016<br />Median Household Income: $51362<br />Margin of error: ± $402","Year: 2015<br />Median Household Income: $50441<br />Margin of error: ± $398"],"mode":"markers+lines","error_y":{"color":"rgba(59,82,139,0.5)","array":[94,384,732,1521,970]},"type":"scatter","name":"Miami-Fort Lauderdale-West Palm Beach, FL","marker":{"color":"rgba(59,82,139,0.5)","line":{"color":"rgba(59,82,139,1)"}},"textfont":{"color":"rgba(59,82,139,0.5)"},"error_x":{"color":"rgba(59,82,139,0.5)"},"line":{"color":"rgba(59,82,139,0.5)"},"xaxis":"x","yaxis":"y","frame":null},{"x":["2019","2018","2017","2016","2015"],"y":[61876,58610,55089,52385,51077],"text":["Year: 2019<br />Median Household Income: $61876<br />Margin of error: ± $1173","Year: 2018<br />Median Household Income: $58610<br />Margin of error: ± $1521","Year: 2017<br />Median Household Income: $55089<br />Margin of error: ± $1026","Year: 2016<br />Median Household Income: $52385<br />Margin of error: ± $963","Year: 2015<br />Median Household Income: $51077<br />Margin of error: ± $824"],"mode":"markers+lines","error_y":{"color":"rgba(33,144,141,0.5)","array":[86,364,820,1026,599]},"type":"scatter","name":"Orlando-Kissimmee-Sanford, FL","marker":{"color":"rgba(33,144,141,0.5)","line":{"color":"rgba(33,144,141,1)"}},"textfont":{"color":"rgba(33,144,141,0.5)"},"error_x":{"color":"rgba(33,144,141,0.5)"},"line":{"color":"rgba(33,144,141,0.5)"},"xaxis":"x","yaxis":"y","frame":null},{"x":["2019","2018","2017","2016","2015"],"y":[57906,54912,52212,51115,48911],"text":["Year: 2019<br />Median Household Income: $57906<br />Margin of error: ± $1146","Year: 2018<br />Median Household Income: $54912<br />Margin of error: ± $970","Year: 2017<br />Median Household Income: $52212<br />Margin of error: ± $599","Year: 2016<br />Median Household Income: $51115<br />Margin of error: ± $514","Year: 2015<br />Median Household Income: $48911<br />Margin of error: ± $891"],"mode":"markers+lines","error_y":{"color":"rgba(93,200,99,0.5)","array":[115,241,402,963,514]},"type":"scatter","name":"Tampa-St. Petersburg-Clearwater, FL","marker":{"color":"rgba(93,200,99,0.5)","line":{"color":"rgba(93,200,99,1)"}},"textfont":{"color":"rgba(93,200,99,0.5)"},"error_x":{"color":"rgba(93,200,99,0.5)"},"line":{"color":"rgba(93,200,99,0.5)"},"xaxis":"x","yaxis":"y","frame":null},{"x":["2019","2018","2017","2016","2015"],"y":[65712,61937,60336,57617,55775],"text":["Year: 2019<br />Median Household Income: $65712<br />Margin of error: ± $118","Year: 2018<br />Median Household Income: $61937<br />Margin of error: ± $94","Year: 2017<br />Median Household Income: $60336<br />Margin of error: ± $86","Year: 2016<br />Median Household Income: $57617<br />Margin of error: ± $115","Year: 2015<br />Median Household Income: $55775<br />Margin of error: ± $85"],"mode":"markers+lines","error_y":{"color":"rgba(253,231,37,0.5)","array":[85,331,398,824,891]},"type":"scatter","name":"United States","marker":{"color":"rgba(253,231,37,0.5)","line":{"color":"rgba(253,231,37,1)"}},"textfont":{"color":"rgba(253,231,37,0.5)"},"error_x":{"color":"rgba(253,231,37,0.5)"},"line":{"color":"rgba(253,231,37,0.5)"},"xaxis":"x","yaxis":"y","frame":null}],"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.2,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":[]}</script>
 <p>Income and drug overdose death percent , by year</p>
 <pre><code>## Joining, by = &quot;year&quot;</code></pre>
 <p><img src="FL_data_analyzing_files/figure-html/unnamed-chunk-11-1.png" width="90%" /> maps maps maps</p>
 <pre><code>## Rows: 50176 Columns: 12</code></pre>
-<pre><code>## ── Column specification ────────────────────────────────────────────────────────
+<pre><code>## -- Column specification --------------------------------------------------------
 ## Delimiter: &quot;,&quot;
 ## chr (3): State, County, Urban/Rural Category
 ## dbl (9): FIPS, Year, FIPS State, Population, Model-based Death Rate, Standar...</code></pre>
 <pre><code>## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
-<pre><code>## # A tibble: 268 × 4
+## i Use `spec()` to retrieve the full column specification for this data.
+## i Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+<pre><code>## # A tibble: 268 x 4
 ##    county  year  population death_rate
 ##    &lt;chr&gt;   &lt;fct&gt;      &lt;dbl&gt;      &lt;dbl&gt;
 ##  1 alachua 2015      259177       12.1
@@ -326,17 +357,17 @@ $(document).ready(function () {
 ##  8 baker   2018       28355       23.0
 ##  9 bay     2015      181387       17.6
 ## 10 bay     2016      183384       24.5
-## # … with 258 more rows</code></pre>
+## # ... with 258 more rows</code></pre>
 <p><img src="FL_data_analyzing_files/figure-html/unnamed-chunk-15-1.png" width="90%" /></p>
 <pre><code>## Rows: 50176 Columns: 12</code></pre>
-<pre><code>## ── Column specification ────────────────────────────────────────────────────────
+<pre><code>## -- Column specification --------------------------------------------------------
 ## Delimiter: &quot;,&quot;
 ## chr (3): State, County, Urban/Rural Category
 ## dbl (9): FIPS, Year, FIPS State, Population, Model-based Death Rate, Standar...</code></pre>
 <pre><code>## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
-<pre><code>## # A tibble: 232 × 4
+## i Use `spec()` to retrieve the full column specification for this data.
+## i Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+<pre><code>## # A tibble: 232 x 4
 ##    county  year  population death_rate
 ##    &lt;chr&gt;   &lt;fct&gt;      &lt;dbl&gt;      &lt;dbl&gt;
 ##  1 alameda 2015     1634634      12.3 
@@ -349,8 +380,8 @@ $(document).ready(function () {
 ##  8 alpine  2018        1101      26.6 
 ##  9 amador  2015       37037      23.1 
 ## 10 amador  2016       37438      25.3 
-## # … with 222 more rows</code></pre>
-<pre><code>## # A tibble: 58 × 2
+## # ... with 222 more rows</code></pre>
+<pre><code>## # A tibble: 58 x 2
 ##     fips county      
 ##    &lt;int&gt; &lt;chr&gt;       
 ##  1  6001 alameda     
@@ -363,7 +394,7 @@ $(document).ready(function () {
 ##  8  6015 del norte   
 ##  9  6017 el dorado   
 ## 10  6019 fresno      
-## # … with 48 more rows</code></pre>
+## # ... with 48 more rows</code></pre>
 <p><img src="FL_data_analyzing_files/figure-html/unnamed-chunk-17-1.png" width="90%" /></p>
 
 
