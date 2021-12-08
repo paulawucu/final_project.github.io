@@ -14,7 +14,7 @@ navbar:
       - text: New York City
         href: food.html
       - text: Ohio
-        href: food.html
+        href: Ohio_data_analyzing.html
     - text: "US Overview"
       href: shiny_dashboard.html
     - icon: fa-envelope fa-lg
