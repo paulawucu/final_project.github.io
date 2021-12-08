@@ -4,9 +4,9 @@ navbar:
   title: "Home"
   right:
     - text: "Overview"
-      href: about.html
+      href: food.html
     - text: "Report"
-      href: report.html
+      href: food.html
     - text: "States of Choice"
       menu:
       - text: California
@@ -18,9 +18,9 @@ navbar:
       - text: Ohio
         href: Ohio_data_analyzing.html
     - text: "Interactive Maps"
-      href: https://paulawucu.shinyapps.io/shiny_dashboard_upload/
-    - text: "Facts"
-      href: about.html
+      href:  https://paulawucu.shinyapps.io/shiny_dashboard_upload/
+    - text: "Facts About"
+      href: food.html
     - icon: fa-envelope fa-lg
       href: mailto:pw2551@cumc.columbia.edu
     - icon: fa-github fa-lg

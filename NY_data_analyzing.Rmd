@@ -293,6 +293,15 @@ add_text_county(ny_county_df_2015[which.max(pull(ny_county_df_2015, death_rate))
 7. Map of Population by NYC counties:
 
 ```{r}
+add_text_county_pop = function(county_fips){
+  data(county.map, package="choroplethrMaps", envir=environment())
+  df = county.map[county.map$region %in% county_fips, ]
+  #geom_text(data=df, aes(mean(long), mean(lat), label = paste0(str_to_title(pull(county_fips, county)), " County\n", pull(county_fips, death_rate))), color = "white")
+  geom_label(data=df, aes(mean(long), mean(lat), label = paste0(str_to_title(pull(county_fips, county)), " County\nPopulation: ", pull(county_fips, population))), fill = "white", size = 3)
+}
+```
+
+```{r}
 ny_county_pop_2015 = 
   ny_county_df_2015 %>% 
   select(population, fips) %>% 
@@ -308,6 +317,10 @@ nyc_county_fips = county.regions %>%
 county_choropleth(ny_county_pop_2015, 
                   title        = "Population of Counties in New York City in 2015",
                   legend       = "Population",
-                  county_zoom = nyc_county_fips$region)
+                  county_zoom = nyc_county_fips$region) +
+  highlight_county(ny_county_df_2015[which.max(pull(ny_county_df_2015, population)),]) +
+  add_text_county_pop(ny_county_df_2015[which.max(pull(ny_county_df_2015, population)),])
+
+# population is not really related to death rate by drug overdoes ?
 ```
 
