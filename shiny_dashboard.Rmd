@@ -14,7 +14,10 @@ library(viridis)
 library(plotly)
 library(shiny)
 library(lubridate)
-
+library(maps)
+library(choroplethr)
+library(choroplethrMaps)
+data(county.fips)
 ```
 
 ```{r data_import}
@@ -52,7 +55,28 @@ total_ar_death =
   drop_na() %>% 
 filter(!(age == "14-May"))%>%
   mutate(year = factor(year))
+
+# for counties
+county_df = 
+  read_csv("./data/NCHS_-_Drug_Poisoning_Mortality_by_County__United_States.csv") %>% 
+  janitor::clean_names()
 ```
+
+```{r funcion_setup_counties}
+highlight_county = function(county_fips)
+{
+  data(county.map, package="choroplethrMaps", envir=environment())
+  df = county.map[county.map$region %in% county_fips, ]
+  geom_polygon(data=df, aes(long, lat, group = group), color = "yellow", fill = NA, size = 1)
+}
+add_text_county = function(county_fips){
+  data(county.map, package="choroplethrMaps", envir=environment())
+  df = county.map[county.map$region %in% county_fips, ]
+  #geom_text(data=df, aes(mean(long), mean(lat), label = paste0(str_to_title(pull(county_fips, county)), " County\n", pull(county_fips, death_rate))), color = "white")
+  geom_label(data=df, aes(mean(long), mean(lat), label = paste0(str_to_title(pull(county_fips, county)), " County\nDR: ", round(pull(county_fips, death_rate),2))), fill = "white", size = 3)
+}
+```
+
 
 US drug overdoes death Map
 ===================================== 
@@ -139,7 +163,7 @@ selectInput("year2",
 Column {.tabset}
 -----------------------------------------------------------------------
 
-### Dtug Overdoes Death Across All States by Age Group and Race
+### Drug Overdoes Death Across All States by Age Group and Race
 
 ```{r barplot_age_race}
 
@@ -171,5 +195,78 @@ renderPlotly({
 })
 
 
+```
+
+County/Borough Death Rates - States/City of Choice
+===================================== 
+
+Column {.sidebar}
+-----------------------------------------------------------------------
+
+```{r}
+# selection from
+state_list = c("California", "Florida", "Ohio")
+
+
+year = c(2003:2018)
+
+
+#state select box
+selectInput(
+  "state1", 
+  label = h3("Choose State"),
+  choices = state_list,
+  selected = "California")
+
+# year select box 
+selectInput("year3", label = h3("Choose year"),
+						choices = as.list(year),
+						selected = "2015")
+```
+
+Column {.tabset}
+-----------------------------------------------------------------------
+
+### Drug Overdoes Death Across Counties/Borough within States/City of Choice
+```{r}
+renderPlot({
+  state_input = input$state1
+  year_input = input$year3
+  some_county_df = 
+    county_df %>%
+    filter(state %in% state_input) %>% 
+    select(year, county, population, death_rate = model_based_death_rate) %>% 
+    separate(county, into = c("county", "useless"), sep = " County") %>% 
+    select(-useless) %>% 
+    mutate(year = factor(year),
+           county = str_to_lower(county)) %>% 
+    relocate(county)
+  
+  abc = county.fips %>% 
+  separate(polyname, into = c("state", "county"), sep = "\\,") %>% 
+  filter(state %in% str_to_lower(state_input)) %>% 
+  select(-state) %>% 
+  as.tibble()
+  
+some_county_df = left_join(some_county_df,abc, by = "county") %>% 
+  select(county, year, death_rate, fips) %>% 
+  filter(year == year_input)
+
+if(state_input %in% "Florida"){
+  some_county_df[13,4] = 12027
+  some_county_df[46,4] = 12091
+  some_county_df[55,4] = 12109
+  some_county_df[56,4] = 12111
+}
+
+some_county_df %>% 
+  group_by(fips) %>% 
+  mutate(fips = as.numeric(fips)) %>% 
+  rename(region = fips,
+         value = death_rate) %>% 
+  county_choropleth(state_zoom = c(str_to_lower(state_input)), legend = "death_rate")+
+  highlight_county(some_county_df[which.max(pull(some_county_df, death_rate)),])+
+  add_text_county(some_county_df[which.max(pull(some_county_df, death_rate)),])
+})
 ```
 
