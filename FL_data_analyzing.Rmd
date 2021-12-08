@@ -2,12 +2,16 @@
 title: "FL_data_analyzing"
 author: "Paula Wu"
 date: "12/7/2021"
-output: html_document
+output: 
+  html_document:
+    code_folding: hide
+    toc: true
+    toc_float: true
 ---
 
 
 Import the libraries
-```{r, message=FALSE, echo = FALSE}
+```{r, message=FALSE, include=FALSE}
 library(tidyverse)
 library(rvest)
 library(httr)
@@ -37,7 +41,7 @@ scale_fill_discrete = scale_fill_viridis_d
 theme_set(theme_minimal() + theme(legend.position = "bottom"))
 ```
 
-```{r, message = FALSE,echo = FALSE}
+```{r, message = FALSE}
 drug_overdose = read_csv("./data/VSRR_Provisional_Drug_Overdose_Death_Counts.csv") %>% 
   janitor::clean_names()
 state_level = c(state.name[1:8], "District of Columbia", state.name[9:32],"New York City", state.name[33:50])
@@ -55,7 +59,7 @@ drug_overdose_52 =
 
 It's hard to find drug-specific data for those state missing specific drug types. Opioids data is much easier to find. We should probably focus on opioids.<br> 
 We drew a map of the opioids to justify our choice.
-```{r,echo = FALSE}
+```{r}
 opioids_df = 
   drug_overdose_52 %>%  
   ungroup() %>% 
@@ -77,7 +81,7 @@ opioids_df %>%
 
 FL part:
 Overall review:
-```{r,echo = FALSE}
+```{r}
 fl_death = 
   drug_overdose_52 %>% 
   filter(state_name %in% "Florida",
@@ -94,13 +98,13 @@ fl_death =
   )
  
 ```
-```{r,echo = FALSE}
+```{r}
 fl_death  %>% 
   ggplot(aes(x = month, y = percent_overdose_death, group = year, color = year))+
   geom_point()+
   geom_line()
 ```
-```{r,echo = FALSE}
+```{r}
 fl_death %>% 
   ggplot(aes(x = month, y = percent_overdose_death, group = NA))+
   geom_point()+
@@ -110,7 +114,7 @@ fl_death %>%
 ```
 We can also focus just on opioids 
 Data source: cdc wonder, request by queries, Drug overdose deaths are identified using underlying cause-of-death codes from the Tenth Revision of ICD (ICD–10): X40–X44 (unintentional), X60–X64 (suicide), X85 (homicide), and Y10–Y14 (undetermined). Opioids identified by selecting T40.0-40.4, 40.6
-```{r, message=FALSE, warning=FALSE,echo = FALSE}
+```{r, message=FALSE, warning=FALSE}
 # read in data
 fl_opi_death = read_csv("./data/fl_opi_death_15_19.csv") %>% 
   janitor::clean_names() %>% 
@@ -134,14 +138,14 @@ data could be suppressed as indicated by the cdc website, the data value also su
 
 But anyway let's plot<br>
 First by year, this is the death count
-```{r,echo = FALSE}
+```{r}
 fl_opi_death  %>% 
   ggplot(aes(x = month, y = deaths, group = year, color = year))+
   geom_point()+
   geom_line()
 ```
 what about each month within a year
-```{r,echo = FALSE}
+```{r}
 fl_opi_death %>% 
   ggplot(aes(x = month, y = deaths, group = NA))+
   geom_point()+
@@ -152,7 +156,7 @@ fl_opi_death %>%
 It's climbing, every single month. The 2020 data is less probably because it's provisional and some data still under investigation
 
 Let's analyze the number of death vs median household income
-```{r,echo = FALSE}
+```{r}
 fl_eco_df = 
   read_csv("./data/median_household_income_fl.csv") %>% 
   janitor::clean_names() %>% 
@@ -176,7 +180,7 @@ fl_eco_df %>%
 
 ```
 Income and drug overdose death percent , by year
-```{r,echo = FALSE}
+```{r}
 #patchwork
 income_drug_df = 
   fl_death %>% 
@@ -190,7 +194,7 @@ income_drug_df %>%
   geom_line()
 ```
 maps maps maps
-```{r,echo = FALSE}
+```{r}
 fl_county_df = 
   read_csv("./data/NCHS_-_Drug_Poisoning_Mortality_by_County__United_States.csv") %>% 
   janitor::clean_names() %>% 
@@ -204,7 +208,7 @@ fl_county_df =
   relocate(county)
 fl_county_df
 ```
-```{r,echo = FALSE}
+```{r}
 data(county.fips)
 abc = county.fips %>% 
   separate(polyname, into = c("state", "county"), sep = "\\,") %>% 
@@ -221,7 +225,7 @@ for (i in c(13,46,55,56)){
   a = a+1
 }
 ```
-```{r,echo = FALSE}
+```{r}
 highlight_county = function(county_fips)
 {
   data(county.map, package="choroplethrMaps", envir=environment())
@@ -237,7 +241,7 @@ add_text_county = function(county_fips){
 
 ```
 
-```{r,echo = FALSE}
+```{r}
 fl_county_df %>% 
   group_by(fips) %>% 
   mutate(fips = as.numeric(fips)) %>% 
@@ -248,7 +252,7 @@ fl_county_df %>%
   highlight_county(fl_county_df[which.max(pull(fl_county_df, death_rate)),])+
   add_text_county(fl_county_df[which.max(pull(fl_county_df, death_rate)),])
 ```
-```{r,echo = FALSE}
+```{r}
 ca_county_df = 
   read_csv("./data/NCHS_-_Drug_Poisoning_Mortality_by_County__United_States.csv") %>% 
   janitor::clean_names() %>% 
@@ -262,7 +266,7 @@ ca_county_df =
   relocate(county)
 ca_county_df
 ```
-```{r,echo = FALSE}
+```{r}
 def = county.fips %>% 
   separate(polyname, into = c("state", "county"), sep = "\\,") %>% 
   filter(state %in% "california") %>% 
