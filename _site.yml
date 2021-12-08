@@ -10,7 +10,7 @@ navbar:
     - text: "States of Choice"
       menu:
       - text: California
-        href: Ca_data_analyzing.html
+        href: CA_data_analyzing.html
       - text: Florida
         href: FL_data_analyzing.html
       - text: New York City
