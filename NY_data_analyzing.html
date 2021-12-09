@@ -30,7 +30,11 @@
        h6 {font-size: 12px;}
        code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
        pre:not([class]) { background-color: white }</style>
+<script src="site_libs/jqueryui-1.11.4/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
 <script src="site_libs/navigation-1.1/tabsets.js"></script>
+<script src="site_libs/navigation-1.1/codefolding.js"></script>
 <link href="site_libs/highlightjs-9.12.0/default.css" rel="stylesheet" />
 <script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
 <script src="site_libs/htmlwidgets-1.5.4/htmlwidgets.js"></script>
@@ -225,7 +229,73 @@ $(document).ready(function () {
 </style>
 
 <!-- code folding -->
+<style type="text/css">
+.code-folding-btn { margin-bottom: 4px; }
+</style>
 
+
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
 
 
 
@@ -235,6 +305,16 @@ $(document).ready(function () {
 
 
 <div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
 
 
 
@@ -255,7 +335,10 @@ $(document).ready(function () {
       </ul>
       <ul class="nav navbar-nav navbar-right">
         <li>
-  <a href="food.html">Overview</a>
+  <a href="usa_analyzing.html">Overview</a>
+</li>
+<li>
+  <a href="food.html">Report</a>
 </li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
@@ -265,7 +348,7 @@ $(document).ready(function () {
   </a>
   <ul class="dropdown-menu" role="menu">
     <li>
-      <a href="Ca_data_analyzing.html">California</a>
+      <a href="CA_data_analyzing.html">California</a>
     </li>
     <li>
       <a href="FL_data_analyzing.html">Florida</a>
@@ -279,7 +362,10 @@ $(document).ready(function () {
   </ul>
 </li>
 <li>
-  <a href="shiny_dashboard.html">Interactive Maps</a>
+  <a href="https://paulawucu.shinyapps.io/shiny_dashboard_upload/">Interactive Maps</a>
+</li>
+<li>
+  <a href="food.html">Facts About</a>
 </li>
 <li>
   <a href="mailto:pw2551@cumc.columbia.edu">
@@ -300,20 +386,60 @@ $(document).ready(function () {
 
 <div id="header">
 
+<div class="btn-group pull-right float-right">
+<button type="button" class="btn btn-default btn-xs btn-secondary btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span>Code</span> <span class="caret"></span></button>
+<ul class="dropdown-menu dropdown-menu-right" style="min-width: 50px;">
+<li><a id="rmd-show-all-code" href="#">Show All Code</a></li>
+<li><a id="rmd-hide-all-code" href="#">Hide All Code</a></li>
+</ul>
+</div>
+
 
 
 <h1 class="title toc-ignore">NY_data_analyzing</h1>
 <h4 class="author">Yuxuan Chen</h4>
+<h4 class="date">12/7/2021</h4>
 
 </div>
 
 
-<ul>
-<li>Missing data of death counts for specific drug types in year 2016, 2017</li>
-</ul>
-<ol style="list-style-type: decimal">
-<li>Number of Drug Overdose Deaths by Drug Categories in NYC</li>
-</ol>
+<div id="data-cleaning" class="section level2">
+<h2>Data cleaning</h2>
+<pre class="r"><code>drug_overdose = read_csv(&quot;./data/VSRR_Provisional_Drug_Overdose_Death_Counts.csv&quot;) %&gt;% 
+  janitor::clean_names()
+
+state_level = c(state.name[1:8], &quot;District of Columbia&quot;, state.name[9:32],&quot;New York City&quot;, state.name[33:50])
+
+drug_overdose_52 = 
+  drug_overdose %&gt;% 
+  filter(!(state_name %in% c(&quot;United States&quot;))) %&gt;% 
+  relocate(state_name) %&gt;% 
+  mutate(month = factor(month, levels = month.name), # change month and year to factor
+         year = factor(year),
+         state_name = factor(state_name, levels = state_level)) %&gt;% 
+  arrange(state_name) %&gt;% 
+  group_by(state_name, year) %&gt;% 
+  mutate(month = sort(month)) 
+
+nyc_df = 
+  drug_overdose_52 %&gt;%
+  filter(state_name == &quot;New York City&quot;)
+
+drug_percent_specified = 
+  nyc_df %&gt;%
+  ungroup() %&gt;% 
+  select(year, month, indicator, data_value) %&gt;% 
+  filter(indicator == &quot;Percent with drugs specified&quot;)
+
+# Missing data of death counts for specific drug types in year 2016, 2017
+# Percent with drugs specified  for each month from 2015-2021 are high enough, all above 98%</code></pre>
+</div>
+<div id="number-of-drug-overdose-deaths-by-drug-categories-in-nyc" class="section level2">
+<h2>Number of Drug Overdose Deaths by Drug Categories in NYC</h2>
+<pre class="r"><code>nyc_df %&gt;% 
+  ungroup() %&gt;% 
+  filter(year %in% c(&quot;2016&quot;,&quot;2017&quot;)) %&gt;% 
+  select(year, month, indicator, data_value, predicted_value)</code></pre>
 <pre><code>## # A tibble: 288 × 5
 ##    year  month   indicator                            data_value predicted_value
 ##    &lt;fct&gt; &lt;fct&gt;   &lt;chr&gt;                                     &lt;dbl&gt;           &lt;dbl&gt;
@@ -328,63 +454,267 @@ $(document).ready(function () {
 ##  9 2016  January Synthetic opioids, excl. methadone …         NA              NA
 ## 10 2016  January Heroin (T40.1)                               NA              NA
 ## # … with 278 more rows</code></pre>
+<pre class="r"><code>summarize_nyc_drug = 
+  nyc_df %&gt;% 
+  ungroup() %&gt;% 
+  select(year, month, indicator, data_value) %&gt;% 
+  filter(!(indicator %in% c(&quot;Number of Deaths&quot;,&quot;Number of Drug Overdose Deaths&quot;,&quot;Percent with drugs specified&quot;))) %&gt;%
+  filter(!(year %in% c(&quot;2016&quot;,&quot;2017&quot;))) %&gt;% 
+  mutate(indicator = as.factor(indicator)) %&gt;% 
+  mutate(
+    indicator = fct_reorder(indicator, data_value)
+  ) 
+
+
+summarize_nyc_drug %&gt;% 
+  summarize(n = sum(data_value)) %&gt;% 
+  arrange(desc(n))</code></pre>
 <pre><code>## # A tibble: 1 × 1
 ##        n
 ##    &lt;dbl&gt;
 ## 1 276444</code></pre>
-<p><img src="NY_data_analyzing_files/figure-html/unnamed-chunk-6-1.png" width="90%" /></p>
-<ol start="2" style="list-style-type: decimal">
-<li>Percent of Drug Overdoes Deaths over Total Number of Deaths by Year in NYC:</li>
-</ol>
+<pre class="r"><code>summarize_nyc_drug %&gt;% 
+  ggplot(aes(x = indicator, y = data_value, fill = indicator)) +
+  geom_violin(alpha = 0.5) +
+  scale_x_discrete(labels = c(&quot;Psychostimulants \n with abuse potential \n (T43.6)&quot;, &quot;Methadone \n (T40.3)&quot;, &quot;Natural &amp; \n semi-synthetic  \n opioids \n (T40.2)&quot;, &quot;Natural &amp; semi-\n synthetic opioids, \n incl. methadone \n (T40.2, T40.3)&quot;, &quot;Heroin \n (T40.1)&quot;, &quot;Cocaine \n (T40.5)&quot;, &quot;Synthetic opioids, \n excl. \n methadone \n (T40.4)&quot;, &quot;Natural, \n semi-synthetic, &amp; \n synthetic opioids, \n incl. methadone \n (T40.2-T40.4)&quot;, &quot;Opioids \n (T40.0-T40.4,\n T40.6)&quot;)) +
+  guides(fill = guide_legend(nrow = 6, byrow = TRUE)) +
+  labs(
+    title = &quot;Number of Drug Overdose Deaths by Drug Categories in NYC (2015 - 2021)&quot;,
+    x = &quot;Drug Categories&quot;,
+    y = &quot;Number of Drug Overdose Deaths&quot;,
+    caption = &quot;Data comes from VSRR_Provisional_Drug_Overdose_Death_Counts dataset.&quot;
+  )</code></pre>
+<p><img src="NY_data_analyzing_files/figure-html/unnamed-chunk-2-1.png" width="90%" /></p>
+</div>
+<div id="percent-of-drug-overdose-deaths-over-total-number-of-deaths-by-year-in-nyc" class="section level2">
+<h2>Percent of Drug Overdose Deaths over Total Number of Deaths by Year in NYC:</h2>
+<pre class="r"><code>nyc_drug_overdose_death_df =
+  nyc_df %&gt;% 
+  ungroup() %&gt;% 
+  select(year, month, indicator, data_value) %&gt;% 
+  filter(indicator %in% c(&quot;Number of Deaths&quot;, &quot;Number of Drug Overdose Deaths&quot;)) %&gt;% 
+  pivot_wider(
+    names_from = indicator,
+    values_from = data_value
+  ) %&gt;% 
+  janitor::clean_names() %&gt;% 
+  group_by(year, month) %&gt;% 
+  mutate(
+    percent_overdose_death = number_of_drug_overdose_deaths / number_of_deaths
+  )
+
+nyc_drug_overdose_death_df %&gt;%
+  ungroup() %&gt;% 
+  ggplot(aes(x = month, y = percent_overdose_death, color = year)) +
+  geom_point() +
+  geom_line(aes(group = year)) +
+  labs(
+    title = &quot;Percent of Drug Overdose Deaths over Total Number of Deaths by Year in NYC&quot;,
+    x = &quot;Months&quot;,
+    y = &quot;Percent of Drug Overdose Deaths&quot;,
+    caption = &quot;Data comes from VSRR_Provisional_Drug_Overdose_Death_Counts dataset from 2015 to 2021).&quot;
+  )</code></pre>
+<p><img src="NY_data_analyzing_files/figure-html/unnamed-chunk-3-1.png" width="90%" /></p>
+<pre class="r"><code>nyc_drug_overdose_death_df %&gt;%
+  ungroup() %&gt;% 
+  ggplot(aes(x = month, y = percent_overdose_death, group = NA)) +
+  geom_point() +
+  geom_line() +
+  facet_grid(.~ year) +
+  labs(
+    title = &quot;Percent of Drug Overdose Deaths over Total Number of Deaths by Year in NYC&quot;,
+    x = &quot;Months&quot;,
+    y = &quot;Percent of Drug Overdose Deaths&quot;,
+    caption = &quot;Data comes from VSRR_Provisional_Drug_Overdose_Death_Counts dataset from 2015 to 2021.&quot;
+  ) +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) </code></pre>
+<p><img src="NY_data_analyzing_files/figure-html/unnamed-chunk-4-1.png" width="90%" /></p>
+</div>
+<div id="number-of-drug-overdose-deaths-with-drug-categories-by-year-in-nyc" class="section level2">
+<h2>Number of Drug Overdose Deaths with Drug Categories by Year in NYC</h2>
+<pre class="r"><code>summarize_nyc_drug %&gt;% 
+  ggplot(aes(x = year, y = data_value, color = indicator)) +
+  geom_point() +
+  geom_line(aes(group = indicator)) +
+  scale_color_viridis(discrete = TRUE, labels = c(&quot;Psychostimulants with abuse potential (T43.6)&quot;, &quot;Methadone (T40.3)&quot;, &quot;Natural &amp; semi-synthetic opioids (T40.2)&quot;, &quot;Natural &amp; semi-synthetic opioids, incl. methadone (T40.2, T40.3)&quot;, &quot;Heroin (T40.1)&quot;, &quot;Cocaine (T40.5)&quot;, &quot;Synthetic opioids, excl. methadone (T40.4)&quot;, &quot;Natural, semi-synthetic, &amp; synthetic opioids, incl. methadone (T40.2-T40.4)&quot;, &quot;Opioids (T40.0-T40.4,T40.6)&quot;)) +
+  guides(color = guide_legend(nrow = 6, byrow = TRUE)) +
+  labs(
+    title = &quot;Number of Drug Overdose Deaths with Drug Categories by Year in NYC&quot;,
+    x = &quot;Drug Categories&quot;,
+    y = &quot;Number of Drug Overdose Deaths&quot;,
+    caption = &quot;Data comes from VSRR_Provisional_Drug_Overdose_Death_Counts dataset between 2015 and 2021.&quot;
+  )</code></pre>
+<p><img src="NY_data_analyzing_files/figure-html/unnamed-chunk-5-1.png" width="90%" /></p>
+</div>
+<div id="median-household-income-new-york-vs.-the-u.s" class="section level2">
+<h2>Median Household Income: New York vs. The U.S</h2>
+<pre class="r"><code>ny_eco_df = 
+  read_csv(&quot;./data/median_household_income_ny.csv&quot;) %&gt;% 
+  janitor::clean_names() %&gt;% 
+  select(year, household_income_by_race, household_income_by_race_moe, geography) %&gt;% 
+  filter(year &gt;= &quot;2015&quot;,
+         !(geography  %in% c(&quot;New York-Newark-Jersey City, NY-NJ-PA&quot;, &quot;New York&quot;))) %&gt;% 
+  mutate( 
+    geography = str_replace(geography, &quot;New York, NY&quot;, &quot;New York City&quot;),
+    geography = str_replace(geography, &quot;, NY&quot;, &quot;&quot;),
+    year = factor(year))
+
+ny_eco_df %&gt;% 
+  mutate(text_label = str_c(&quot;Year: &quot;, year, &quot;\nMedian Household Income: $&quot;, household_income_by_race, 
+                            &quot;\nMargin of error: ± $&quot;, household_income_by_race_moe)) %&gt;% 
+  plot_ly(
+    x = ~year, y = ~household_income_by_race, color = ~geography, text = ~text_label, 
+    alpha = 0.5, type = &quot;scatter&quot;, mode = &quot;markers+lines&quot;, colors = &quot;viridis&quot;,error_y = ~list(array = household_income_by_race_moe)) %&gt;% 
+  layout(
+    title = &quot;Median Household Income: New York vs. The U.S&quot;,
+         xaxis = list(title = &quot;Year&quot;),
+         yaxis = list(title = &quot;Median Household Income&quot;))</code></pre>
+<div id="htmlwidget-0dc85ad98579f4fb707c" style="width:90%;height:576px;" class="plotly html-widget"></div>
+<script type="application/json" data-for="htmlwidget-0dc85ad98579f4fb707c">{"x":{"visdat":{"16c2f63b6b4ec":["function () ","plotlyVisDat"]},"cur_data":"16c2f63b6b4ec","attrs":{"16c2f63b6b4ec":{"x":{},"y":{},"text":{},"mode":"markers+lines","error_y":{},"color":{},"colors":"viridis","alpha":0.5,"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"scatter"}},"layout":{"margin":{"b":40,"l":60,"t":25,"r":10},"title":"Median Household Income: New York vs. The U.S","xaxis":{"domain":[0,1],"automargin":true,"title":"Year","type":"category","categoryorder":"array","categoryarray":["2015","2016","2017","2018","2019"]},"yaxis":{"domain":[0,1],"automargin":true,"title":"Median Household Income"},"hovermode":"closest","showlegend":true},"source":"A","config":{"modeBarButtonsToAdd":["hoverclosest","hovercompare"],"showSendToCloud":false},"data":[{"x":["2019","2018","2017","2016","2015"],"y":[41432,38467,37397,37525,35176],"text":["Year: 2019<br />Median Household Income: $41432<br />Margin of error: ± $1090","Year: 2018<br />Median Household Income: $38467<br />Margin of error: ± $1864","Year: 2017<br />Median Household Income: $37397<br />Margin of error: ± $1444","Year: 2016<br />Median Household Income: $37525<br />Margin of error: ± $1266","Year: 2015<br />Median Household Income: $35176<br />Margin of error: ± $1392"],"mode":"markers+lines","error_y":{"color":"rgba(68,1,84,0.5)","array":[118,1090,1343,3322,1832]},"type":"scatter","name":"Bronx County","marker":{"color":"rgba(68,1,84,0.5)","line":{"color":"rgba(68,1,84,1)"}},"textfont":{"color":"rgba(68,1,84,0.5)"},"error_x":{"color":"rgba(68,1,84,0.5)"},"line":{"color":"rgba(68,1,84,0.5)"},"xaxis":"x","yaxis":"y","frame":null},{"x":["2019","2018","2017","2016","2015"],"y":[66937,61220,56942,55150,51141],"text":["Year: 2019<br />Median Household Income: $66937<br />Margin of error: ± $1343","Year: 2018<br />Median Household Income: $61220<br />Margin of error: ± $1083","Year: 2017<br />Median Household Income: $56942<br />Margin of error: ± $1151","Year: 2016<br />Median Household Income: $55150<br />Margin of error: ± $1015","Year: 2015<br />Median Household Income: $51141<br />Margin of error: ± $566"],"mode":"markers+lines","error_y":{"color":"rgba(68,58,131,0.5)","array":[5711,1121,94,1864,1083]},"type":"scatter","name":"Kings County","marker":{"color":"rgba(68,58,131,0.5)","line":{"color":"rgba(68,58,131,1)"}},"textfont":{"color":"rgba(68,58,131,0.5)"},"error_x":{"color":"rgba(68,58,131,0.5)"},"line":{"color":"rgba(68,58,131,0.5)"},"xaxis":"x","yaxis":"y","frame":null},{"x":["2019","2018","2017","2016","2015"],"y":[69407,63799,60879,58856,55752],"text":["Year: 2019<br />Median Household Income: $69407<br />Margin of error: ± $1121","Year: 2018<br />Median Household Income: $63799<br />Margin of error: ± $1118","Year: 2017<br />Median Household Income: $60879<br />Margin of error: ± $500","Year: 2016<br />Median Household Income: $58856<br />Margin of error: ± $1105","Year: 2015<br />Median Household Income: $55752<br />Margin of error: ± $592"],"mode":"markers+lines","error_y":{"color":"rgba(49,104,142,0.5)","array":[3480,1781,5148,1118,86]},"type":"scatter","name":"New York City","marker":{"color":"rgba(49,104,142,0.5)","line":{"color":"rgba(49,104,142,1)"}},"textfont":{"color":"rgba(49,104,142,0.5)"},"error_x":{"color":"rgba(49,104,142,0.5)"},"line":{"color":"rgba(49,104,142,0.5)"},"xaxis":"x","yaxis":"y","frame":null},{"x":["2019","2018","2017","2016","2015"],"y":[93651,85066,85071,77559,75575],"text":["Year: 2019<br />Median Household Income: $93651<br />Margin of error: ± $3322","Year: 2018<br />Median Household Income: $85066<br />Margin of error: ± $3480","Year: 2017<br />Median Household Income: $85071<br />Margin of error: ± $3520","Year: 2016<br />Median Household Income: $77559<br />Margin of error: ± $2469","Year: 2015<br />Median Household Income: $75575<br />Margin of error: ± $2566"],"mode":"markers+lines","error_y":{"color":"rgba(33,144,141,0.5)","array":[1444,1151,3520,1327,2788]},"type":"scatter","name":"New York County","marker":{"color":"rgba(33,144,141,0.5)","line":{"color":"rgba(33,144,141,1)"}},"textfont":{"color":"rgba(33,144,141,0.5)"},"error_x":{"color":"rgba(33,144,141,0.5)"},"line":{"color":"rgba(33,144,141,0.5)"},"xaxis":"x","yaxis":"y","frame":null},{"x":["2019","2018","2017","2016","2015"],"y":[73696,69320,64509,62207,60422],"text":["Year: 2019<br />Median Household Income: $73696<br />Margin of error: ± $1832","Year: 2018<br />Median Household Income: $69320<br />Margin of error: ± $1781","Year: 2017<br />Median Household Income: $64509<br />Margin of error: ± $1327","Year: 2016<br />Median Household Income: $62207<br />Margin of error: ± $1151","Year: 2015<br />Median Household Income: $60422<br />Margin of error: ± $723"],"mode":"markers+lines","error_y":{"color":"rgba(53,183,121,0.5)","array":[500,115,1266,1015,2469]},"type":"scatter","name":"Queens County","marker":{"color":"rgba(53,183,121,0.5)","line":{"color":"rgba(53,183,121,1)"}},"textfont":{"color":"rgba(53,183,121,0.5)"},"error_x":{"color":"rgba(53,183,121,0.5)"},"line":{"color":"rgba(53,183,121,0.5)"},"xaxis":"x","yaxis":"y","frame":null},{"x":["2019","2018","2017","2016","2015"],"y":[89821,82166,79201,77197,71622],"text":["Year: 2019<br />Median Household Income: $89821<br />Margin of error: ± $5711","Year: 2018<br />Median Household Income: $82166<br />Margin of error: ± $5148","Year: 2017<br />Median Household Income: $79201<br />Margin of error: ± $2788","Year: 2016<br />Median Household Income: $77197<br />Margin of error: ± $4465","Year: 2015<br />Median Household Income: $71622<br />Margin of error: ± $2532"],"mode":"markers+lines","error_y":{"color":"rgba(143,214,68,0.5)","array":[1151,4465,1105,85,1392]},"type":"scatter","name":"Richmond County","marker":{"color":"rgba(143,214,68,0.5)","line":{"color":"rgba(143,214,68,1)"}},"textfont":{"color":"rgba(143,214,68,0.5)"},"error_x":{"color":"rgba(143,214,68,0.5)"},"line":{"color":"rgba(143,214,68,0.5)"},"xaxis":"x","yaxis":"y","frame":null},{"x":["2019","2018","2017","2016","2015"],"y":[65712,61937,60336,57617,55775],"text":["Year: 2019<br />Median Household Income: $65712<br />Margin of error: ± $118","Year: 2018<br />Median Household Income: $61937<br />Margin of error: ± $94","Year: 2017<br />Median Household Income: $60336<br />Margin of error: ± $86","Year: 2016<br />Median Household Income: $57617<br />Margin of error: ± $115","Year: 2015<br />Median Household Income: $55775<br />Margin of error: ± $85"],"mode":"markers+lines","error_y":{"color":"rgba(253,231,37,0.5)","array":[566,2566,723,2532,592]},"type":"scatter","name":"United States","marker":{"color":"rgba(253,231,37,0.5)","line":{"color":"rgba(253,231,37,1)"}},"textfont":{"color":"rgba(253,231,37,0.5)"},"error_x":{"color":"rgba(253,231,37,0.5)"},"line":{"color":"rgba(253,231,37,0.5)"},"xaxis":"x","yaxis":"y","frame":null}],"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.2,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":[]}</script>
+</div>
+<div id="income-vs.-percent-of-drug-overdose-death-by-year-in-nyc" class="section level2">
+<h2>Income vs. Percent of Drug Overdose Death by Year in NYC</h2>
+<pre class="r"><code>income_drug_df_ny = 
+  nyc_drug_overdose_death_df %&gt;% 
+    ungroup() %&gt;% 
+    group_by(year) %&gt;% 
+    summarize(overdose_death_rate = sum(number_of_drug_overdose_deaths)/sum(number_of_deaths)) %&gt;% 
+    inner_join(., ny_eco_df %&gt;% filter(geography %in% &quot;New York City&quot;))
+
+income_drug_df_ny %&gt;% 
+  ggplot(aes(x = household_income_by_race, y = overdose_death_rate, group = NA, color = year)) +
+  geom_point() +
+  geom_line() +
+  labs(
+    title = &quot;Income vs. Percent of Drug Overdose Death by Year in NYC&quot;,
+    x = &quot;Household Income by Race&quot;,
+    y = &quot;Percent of Drug Overdose Death&quot;
+  )</code></pre>
 <p><img src="NY_data_analyzing_files/figure-html/unnamed-chunk-7-1.png" width="90%" /></p>
-<p><img src="NY_data_analyzing_files/figure-html/unnamed-chunk-8-1.png" width="90%" /></p>
-<ol start="3" style="list-style-type: decimal">
-<li>Number of Drug Overdose Deaths with Drug Categories by Year in NYC</li>
-</ol>
-<p><img src="NY_data_analyzing_files/figure-html/unnamed-chunk-9-1.png" width="90%" /></p>
-<ol start="4" style="list-style-type: decimal">
-<li>Median Household Income: New York vs. The U.S</li>
-</ol>
-<div id="htmlwidget-c4a4c3422765d9c191ca" style="width:90%;height:576px;" class="plotly html-widget"></div>
-<script type="application/json" data-for="htmlwidget-c4a4c3422765d9c191ca">{"x":{"visdat":{"1287a5a100386":["function () ","plotlyVisDat"]},"cur_data":"1287a5a100386","attrs":{"1287a5a100386":{"x":{},"y":{},"text":{},"mode":"markers+lines","error_y":{},"color":{},"colors":"viridis","alpha":0.5,"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"scatter"}},"layout":{"margin":{"b":40,"l":60,"t":25,"r":10},"title":"Median Household Income: New York vs. The U.S","xaxis":{"domain":[0,1],"automargin":true,"title":"Year","type":"category","categoryorder":"array","categoryarray":["2015","2016","2017","2018","2019"]},"yaxis":{"domain":[0,1],"automargin":true,"title":"Median Household Income"},"hovermode":"closest","showlegend":true},"source":"A","config":{"modeBarButtonsToAdd":["hoverclosest","hovercompare"],"showSendToCloud":false},"data":[{"x":["2019","2018","2017","2016","2015"],"y":[41432,38467,37397,37525,35176],"text":["Year: 2019<br />Median Household Income: $41432<br />Margin of error: ± $1090","Year: 2018<br />Median Household Income: $38467<br />Margin of error: ± $1864","Year: 2017<br />Median Household Income: $37397<br />Margin of error: ± $1444","Year: 2016<br />Median Household Income: $37525<br />Margin of error: ± $1266","Year: 2015<br />Median Household Income: $35176<br />Margin of error: ± $1392"],"mode":"markers+lines","error_y":{"color":"rgba(68,1,84,0.5)","array":[118,1090,1343,3322,1832]},"type":"scatter","name":"Bronx County","marker":{"color":"rgba(68,1,84,0.5)","line":{"color":"rgba(68,1,84,1)"}},"textfont":{"color":"rgba(68,1,84,0.5)"},"error_x":{"color":"rgba(68,1,84,0.5)"},"line":{"color":"rgba(68,1,84,0.5)"},"xaxis":"x","yaxis":"y","frame":null},{"x":["2019","2018","2017","2016","2015"],"y":[66937,61220,56942,55150,51141],"text":["Year: 2019<br />Median Household Income: $66937<br />Margin of error: ± $1343","Year: 2018<br />Median Household Income: $61220<br />Margin of error: ± $1083","Year: 2017<br />Median Household Income: $56942<br />Margin of error: ± $1151","Year: 2016<br />Median Household Income: $55150<br />Margin of error: ± $1015","Year: 2015<br />Median Household Income: $51141<br />Margin of error: ± $566"],"mode":"markers+lines","error_y":{"color":"rgba(68,58,131,0.5)","array":[5711,1121,94,1864,1083]},"type":"scatter","name":"Kings County","marker":{"color":"rgba(68,58,131,0.5)","line":{"color":"rgba(68,58,131,1)"}},"textfont":{"color":"rgba(68,58,131,0.5)"},"error_x":{"color":"rgba(68,58,131,0.5)"},"line":{"color":"rgba(68,58,131,0.5)"},"xaxis":"x","yaxis":"y","frame":null},{"x":["2019","2018","2017","2016","2015"],"y":[69407,63799,60879,58856,55752],"text":["Year: 2019<br />Median Household Income: $69407<br />Margin of error: ± $1121","Year: 2018<br />Median Household Income: $63799<br />Margin of error: ± $1118","Year: 2017<br />Median Household Income: $60879<br />Margin of error: ± $500","Year: 2016<br />Median Household Income: $58856<br />Margin of error: ± $1105","Year: 2015<br />Median Household Income: $55752<br />Margin of error: ± $592"],"mode":"markers+lines","error_y":{"color":"rgba(49,104,142,0.5)","array":[3480,1781,5148,1118,86]},"type":"scatter","name":"New York City","marker":{"color":"rgba(49,104,142,0.5)","line":{"color":"rgba(49,104,142,1)"}},"textfont":{"color":"rgba(49,104,142,0.5)"},"error_x":{"color":"rgba(49,104,142,0.5)"},"line":{"color":"rgba(49,104,142,0.5)"},"xaxis":"x","yaxis":"y","frame":null},{"x":["2019","2018","2017","2016","2015"],"y":[93651,85066,85071,77559,75575],"text":["Year: 2019<br />Median Household Income: $93651<br />Margin of error: ± $3322","Year: 2018<br />Median Household Income: $85066<br />Margin of error: ± $3480","Year: 2017<br />Median Household Income: $85071<br />Margin of error: ± $3520","Year: 2016<br />Median Household Income: $77559<br />Margin of error: ± $2469","Year: 2015<br />Median Household Income: $75575<br />Margin of error: ± $2566"],"mode":"markers+lines","error_y":{"color":"rgba(33,144,141,0.5)","array":[1444,1151,3520,1327,2788]},"type":"scatter","name":"New York County","marker":{"color":"rgba(33,144,141,0.5)","line":{"color":"rgba(33,144,141,1)"}},"textfont":{"color":"rgba(33,144,141,0.5)"},"error_x":{"color":"rgba(33,144,141,0.5)"},"line":{"color":"rgba(33,144,141,0.5)"},"xaxis":"x","yaxis":"y","frame":null},{"x":["2019","2018","2017","2016","2015"],"y":[73696,69320,64509,62207,60422],"text":["Year: 2019<br />Median Household Income: $73696<br />Margin of error: ± $1832","Year: 2018<br />Median Household Income: $69320<br />Margin of error: ± $1781","Year: 2017<br />Median Household Income: $64509<br />Margin of error: ± $1327","Year: 2016<br />Median Household Income: $62207<br />Margin of error: ± $1151","Year: 2015<br />Median Household Income: $60422<br />Margin of error: ± $723"],"mode":"markers+lines","error_y":{"color":"rgba(53,183,121,0.5)","array":[500,115,1266,1015,2469]},"type":"scatter","name":"Queens County","marker":{"color":"rgba(53,183,121,0.5)","line":{"color":"rgba(53,183,121,1)"}},"textfont":{"color":"rgba(53,183,121,0.5)"},"error_x":{"color":"rgba(53,183,121,0.5)"},"line":{"color":"rgba(53,183,121,0.5)"},"xaxis":"x","yaxis":"y","frame":null},{"x":["2019","2018","2017","2016","2015"],"y":[89821,82166,79201,77197,71622],"text":["Year: 2019<br />Median Household Income: $89821<br />Margin of error: ± $5711","Year: 2018<br />Median Household Income: $82166<br />Margin of error: ± $5148","Year: 2017<br />Median Household Income: $79201<br />Margin of error: ± $2788","Year: 2016<br />Median Household Income: $77197<br />Margin of error: ± $4465","Year: 2015<br />Median Household Income: $71622<br />Margin of error: ± $2532"],"mode":"markers+lines","error_y":{"color":"rgba(143,214,68,0.5)","array":[1151,4465,1105,85,1392]},"type":"scatter","name":"Richmond County","marker":{"color":"rgba(143,214,68,0.5)","line":{"color":"rgba(143,214,68,1)"}},"textfont":{"color":"rgba(143,214,68,0.5)"},"error_x":{"color":"rgba(143,214,68,0.5)"},"line":{"color":"rgba(143,214,68,0.5)"},"xaxis":"x","yaxis":"y","frame":null},{"x":["2019","2018","2017","2016","2015"],"y":[65712,61937,60336,57617,55775],"text":["Year: 2019<br />Median Household Income: $65712<br />Margin of error: ± $118","Year: 2018<br />Median Household Income: $61937<br />Margin of error: ± $94","Year: 2017<br />Median Household Income: $60336<br />Margin of error: ± $86","Year: 2016<br />Median Household Income: $57617<br />Margin of error: ± $115","Year: 2015<br />Median Household Income: $55775<br />Margin of error: ± $85"],"mode":"markers+lines","error_y":{"color":"rgba(253,231,37,0.5)","array":[566,2566,723,2532,592]},"type":"scatter","name":"United States","marker":{"color":"rgba(253,231,37,0.5)","line":{"color":"rgba(253,231,37,1)"}},"textfont":{"color":"rgba(253,231,37,0.5)"},"error_x":{"color":"rgba(253,231,37,0.5)"},"line":{"color":"rgba(253,231,37,0.5)"},"xaxis":"x","yaxis":"y","frame":null}],"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.2,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":[]}</script>
-<ol start="5" style="list-style-type: decimal">
-<li>Income vs. Percent of Drug Overdose Death by Year in NYC</li>
-</ol>
+<div id="map-of-nyc-counties-drug-overdose-deathrate-change-5-yr-interval" class="section level3 tabset">
+<h3 class="tabset">Map of NYC Counties Drug Overdose Deathrate Change, 5-yr interval</h3>
+<pre class="r"><code>ny_county_df = 
+  read_csv(&quot;./data/NCHS_-_Drug_Poisoning_Mortality_by_County__United_States.csv&quot;) %&gt;% 
+  janitor::clean_names() %&gt;% 
+  filter(state %in% &quot;New York&quot;) %&gt;% 
+  select(year, county, population, model_based_death_rate) %&gt;% 
+  rename(death_rate = model_based_death_rate) %&gt;% 
+  mutate(
+    county = str_replace(county, &quot;County, NY&quot;, &quot;&quot;)) %&gt;% 
+  mutate(year = factor(year),
+         county = str_to_lower(county)) %&gt;% 
+  filter(str_detect(county, &quot;bronx|queens|kings|new york|richmond&quot;)) %&gt;% 
+  mutate(county = str_replace(county, &quot; $&quot;, &quot;&quot;)) %&gt;% 
+  relocate(county)
+ny_county_df</code></pre>
+<pre><code>## # A tibble: 80 × 4
+##    county year  population death_rate
+##    &lt;chr&gt;  &lt;fct&gt;      &lt;dbl&gt;      &lt;dbl&gt;
+##  1 bronx  2003     1362373      10.2 
+##  2 bronx  2004     1358963       9.94
+##  3 bronx  2005     1351736      10.7 
+##  4 bronx  2006     1348164      13.6 
+##  5 bronx  2007     1354056      12.4 
+##  6 bronx  2008     1363488      10.2 
+##  7 bronx  2009     1376261      10.0 
+##  8 bronx  2010     1384603       8.69
+##  9 bronx  2011     1397366      10.0 
+## 10 bronx  2012     1411715      11.8 
+## # … with 70 more rows</code></pre>
+<pre class="r"><code>data(county.fips)
+nyc_fip = county.fips %&gt;% 
+  filter(str_detect(polyname, &quot;new york&quot;)) %&gt;% 
+  mutate(
+    polyname = str_replace(polyname, &quot;new york,&quot;, &quot;&quot;)) %&gt;% 
+  filter(str_detect(polyname, &quot;bronx|queens|kings|new york|richmond&quot;)) %&gt;% 
+  rename(county = polyname) %&gt;% 
+  as.tibble()
+
+ny_county_df = left_join(ny_county_df,nyc_fip, by = &quot;county&quot;)</code></pre>
+<pre class="r"><code>highlight_county = function(county_fips)
+{
+  data(county.map, package=&quot;choroplethrMaps&quot;, envir=environment())
+  df = county.map[county.map$region %in% county_fips, ]
+  geom_polygon(data=df, aes(long, lat, group = group), color = &quot;yellow&quot;, fill = NA, size = 1)
+}
+add_text_county = function(county_fips){
+  data(county.map, package=&quot;choroplethrMaps&quot;, envir=environment())
+  df = county.map[county.map$region %in% county_fips, ]
+  #geom_text(data=df, aes(mean(long), mean(lat), label = paste0(str_to_title(pull(county_fips, county)), &quot; County\n&quot;, pull(county_fips, death_rate))), color = &quot;white&quot;)
+  geom_label(data=df, aes(mean(long), mean(lat), label = paste0(str_to_title(pull(county_fips, county)), &quot; County\nDR: &quot;, round(pull(county_fips, death_rate),2))), fill = &quot;white&quot;, size = 3)
+}</code></pre>
+<div id="section" class="section level4">
+<h4>2003</h4>
+<pre class="r"><code>year_select = 2003
+start_county_df = ny_county_df %&gt;% 
+  select(county, year, death_rate, fips) %&gt;% 
+  filter(year == year_select)
+
+start_deathrate_df = 
+  start_county_df %&gt;%
+  rename(region = fips,
+        value = death_rate) %&gt;% 
+  select(value, region)
+
+county_choropleth(start_deathrate_df, title = &quot;Drug Overdose Death Rates of Counties in New York City in 2003&quot;,
+                    legend = &quot;Death Rates&quot;,
+                    county_zoom = start_deathrate_df$region) +
+highlight_county(start_county_df[which.max(pull(start_county_df, death_rate)),]) +
+add_text_county(start_county_df[which.max(pull(start_county_df, death_rate)),])</code></pre>
 <p><img src="NY_data_analyzing_files/figure-html/unnamed-chunk-11-1.png" width="90%" /></p>
-<ol start="6" style="list-style-type: decimal">
-<li>Map of Death rates by NYC counties:</li>
-</ol>
-<pre><code>## # A tibble: 20 × 4
-##    county      year  population death_rate
-##    &lt;chr&gt;       &lt;fct&gt;      &lt;dbl&gt;      &lt;dbl&gt;
-##  1 &quot;bronx &quot;    2015     1440726      15.5 
-##  2 &quot;bronx &quot;    2016     1445237      22.2 
-##  3 &quot;bronx &quot;    2017     1439725      24.3 
-##  4 &quot;bronx &quot;    2018     1432132      26.8 
-##  5 &quot;kings &quot;    2015     2610607       9.68
-##  6 &quot;kings &quot;    2016     2611232      12.8 
-##  7 &quot;kings &quot;    2017     2596385      14.5 
-##  8 &quot;kings &quot;    2018     2582830      11.8 
-##  9 &quot;new york &quot; 2015     1636713      10.6 
-## 10 &quot;new york &quot; 2016     1636261      16.3 
-## 11 &quot;new york &quot; 2017     1629780      15.7 
-## 12 &quot;new york &quot; 2018     1628701      17.1 
-## 13 &quot;queens &quot;   2015     2307614       7.42
-## 14 &quot;queens &quot;   2016     2309032      11.3 
-## 15 &quot;queens &quot;   2017     2296865      12.3 
-## 16 &quot;queens &quot;   2018     2278906      11.6 
-## 17 &quot;richmond &quot; 2015      472521      17.8 
-## 18 &quot;richmond &quot; 2016      474214      25.4 
-## 19 &quot;richmond &quot; 2017      475516      23.7 
-## 20 &quot;richmond &quot; 2018      476179      24.7</code></pre>
+</div>
+<div id="section-1" class="section level4">
+<h4>2008</h4>
+<pre class="r"><code>year_select = 2008
+start_county_df = ny_county_df %&gt;% 
+  select(county, year, death_rate, fips) %&gt;% 
+  filter(year == year_select)
+
+start_deathrate_df = 
+  start_county_df %&gt;%
+  rename(region = fips,
+        value = death_rate) %&gt;% 
+  select(value, region)
+
+county_choropleth(start_deathrate_df, title = &quot;Drug Overdose Death Rates of Counties in New York City in 2008&quot;,
+                    legend = &quot;Death Rates&quot;,
+                    county_zoom = start_deathrate_df$region) +
+highlight_county(start_county_df[which.max(pull(start_county_df, death_rate)),]) +
+add_text_county(start_county_df[which.max(pull(start_county_df, death_rate)),])</code></pre>
+<p><img src="NY_data_analyzing_files/figure-html/unnamed-chunk-12-1.png" width="90%" /></p>
+</div>
+<div id="section-2" class="section level4">
+<h4>2013</h4>
+<pre class="r"><code>year_select = 2013
+start_county_df = ny_county_df %&gt;% 
+  select(county, year, death_rate, fips) %&gt;% 
+  filter(year == year_select)
+
+start_deathrate_df = 
+  start_county_df %&gt;%
+  rename(region = fips,
+        value = death_rate) %&gt;% 
+  select(value, region)
+
+county_choropleth(start_deathrate_df, title = &quot;Drug Overdose Death Rates of Counties in New York City in 2013&quot;,
+                    legend = &quot;Death Rates&quot;,
+                    county_zoom = start_deathrate_df$region) +
+highlight_county(start_county_df[which.max(pull(start_county_df, death_rate)),]) +
+add_text_county(start_county_df[which.max(pull(start_county_df, death_rate)),])</code></pre>
+<p><img src="NY_data_analyzing_files/figure-html/unnamed-chunk-13-1.png" width="90%" /></p>
+</div>
+<div id="section-3" class="section level4">
+<h4>2018</h4>
 <p><img src="NY_data_analyzing_files/figure-html/unnamed-chunk-14-1.png" width="90%" /></p>
-<ol start="7" style="list-style-type: decimal">
-<li>Map of Population by NYC counties:</li>
-</ol>
-<p><img src="NY_data_analyzing_files/figure-html/unnamed-chunk-16-1.png" width="90%" /></p>
+<p>Back to <a href="index.html">homepage</a></p>
+</div>
+</div>
+</div>
 
 
 
+</div>
+</div>
 
 </div>
 
@@ -416,7 +746,41 @@ $(document).ready(function () {
 </script>
 
 <!-- code folding -->
+<script>
+$(document).ready(function () {
+  window.initializeCodeFolding("hide" === "show");
+});
+</script>
 
+<script>
+$(document).ready(function ()  {
+
+    // temporarily add toc-ignore selector to headers for the consistency with Pandoc
+    $('.unlisted.unnumbered').addClass('toc-ignore')
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_');
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
 
 <!-- dynamically load mathjax for compatibility with self-contained -->
 <script>

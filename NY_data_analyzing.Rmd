@@ -1,16 +1,23 @@
 ---
 title: "NY_data_analyzing"
 author: "Yuxuan Chen"
-output: html_document
+date: "12/7/2021"
+output: 
+  html_document:
+    code_folding: hide
+    toc: true
+    toc_float: true
 ---
+
+## Data cleaning
 
 ```{r setup, include=FALSE}
 library(tidyverse)
 library(rvest)
 library(httr)
 library(viridis)
-library(plotly)
 library(dplyr)
+library(plotly)
 library(readr)
 library(maps)
 library(choroplethr)
@@ -18,7 +25,6 @@ library(choroplethrMaps)
 
 
 knitr::opts_chunk$set(
-	echo = FALSE,
 	message = FALSE,
 	warning = FALSE,
 	fig.width = 9, 
@@ -52,38 +58,30 @@ drug_overdose_52 =
   arrange(state_name) %>% 
   group_by(state_name, year) %>% 
   mutate(month = sort(month)) 
-```
 
-* Missing data of death counts for specific drug types in year 2016, 2017
-
-```{r}
 nyc_df = 
   drug_overdose_52 %>%
   filter(state_name == "New York City")
 
-# Percent with drugs specified	for each month from 2015-2021 are high enough, all above 98%
-
-```
-
-
-```{r}
 drug_percent_specified = 
   nyc_df %>%
   ungroup() %>% 
   select(year, month, indicator, data_value) %>% 
   filter(indicator == "Percent with drugs specified")
+
+# Missing data of death counts for specific drug types in year 2016, 2017
+# Percent with drugs specified	for each month from 2015-2021 are high enough, all above 98%
 ```
 
-1. Number of Drug Overdose Deaths by Drug Categories in NYC
+## Number of Drug Overdose Deaths by Drug Categories in NYC
 
 ```{r}
 nyc_df %>% 
   ungroup() %>% 
   filter(year %in% c("2016","2017")) %>% 
   select(year, month, indicator, data_value, predicted_value)
-```
 
-```{r}
+
 summarize_nyc_drug = 
   nyc_df %>% 
   ungroup() %>% 
@@ -94,9 +92,8 @@ summarize_nyc_drug =
   mutate(
     indicator = fct_reorder(indicator, data_value)
   ) 
-```
 
-```{r}
+
 summarize_nyc_drug %>% 
   summarize(n = sum(data_value)) %>% 
   arrange(desc(n))
@@ -114,7 +111,7 @@ summarize_nyc_drug %>%
   )
 ```
 
-2. Percent of Drug Overdoes Deaths over Total Number of Deaths by Year in NYC: 
+## Percent of Drug Overdose Deaths over Total Number of Deaths by Year in NYC: 
 
 ```{r}
 nyc_drug_overdose_death_df =
@@ -138,9 +135,9 @@ nyc_drug_overdose_death_df %>%
   geom_point() +
   geom_line(aes(group = year)) +
   labs(
-    title = "Percent of Drug Overdoes Deaths over Total Number of Deaths by Year in NYC",
+    title = "Percent of Drug Overdose Deaths over Total Number of Deaths by Year in NYC",
     x = "Months",
-    y = "Percent of Drug Overdoes Deaths",
+    y = "Percent of Drug Overdose Deaths",
     caption = "Data comes from VSRR_Provisional_Drug_Overdose_Death_Counts dataset from 2015 to 2021)."
   )
 
@@ -154,16 +151,16 @@ nyc_drug_overdose_death_df %>%
   geom_line() +
   facet_grid(.~ year) +
   labs(
-    title = "Percent of Drug Overdoes Deaths over Total Number of Deaths by Year in NYC",
+    title = "Percent of Drug Overdose Deaths over Total Number of Deaths by Year in NYC",
     x = "Months",
-    y = "Percent of Drug Overdoes Deaths",
+    y = "Percent of Drug Overdose Deaths",
     caption = "Data comes from VSRR_Provisional_Drug_Overdose_Death_Counts dataset from 2015 to 2021."
   ) +
   theme(axis.text.x = element_text(angle = 90, hjust = 1)) 
 
 ```
 
-3. Number of Drug Overdose Deaths with Drug Categories by Year in NYC
+## Number of Drug Overdose Deaths with Drug Categories by Year in NYC
 
 ```{r}
 summarize_nyc_drug %>% 
@@ -180,7 +177,7 @@ summarize_nyc_drug %>%
   )
 ```
 
-4. Median Household Income: New York vs. The U.S
+## Median Household Income: New York vs. The U.S
 
 ```{r}
 ny_eco_df = 
@@ -206,7 +203,7 @@ ny_eco_df %>%
          yaxis = list(title = "Median Household Income"))
 ```
 
-5. Income vs. Percent of Drug Overdose Death by Year in NYC
+## Income vs. Percent of Drug Overdose Death by Year in NYC
 
 ```{r}
 income_drug_df_ny = 
@@ -227,14 +224,13 @@ income_drug_df_ny %>%
   )
 ```
 
-6. Map of Death rates by NYC counties:
+### Map of NYC Counties Drug Overdose Deathrate Change, 5-yr interval{.tabset}
 
 ```{r}
 ny_county_df = 
   read_csv("./data/NCHS_-_Drug_Poisoning_Mortality_by_County__United_States.csv") %>% 
   janitor::clean_names() %>% 
-  filter(state %in% "New York",
-         year >= 2015) %>% 
+  filter(state %in% "New York") %>% 
   select(year, county, population, model_based_death_rate) %>% 
   rename(death_rate = model_based_death_rate) %>% 
   mutate(
@@ -242,6 +238,7 @@ ny_county_df =
   mutate(year = factor(year),
          county = str_to_lower(county)) %>% 
   filter(str_detect(county, "bronx|queens|kings|new york|richmond")) %>% 
+  mutate(county = str_replace(county, " $", "")) %>% 
   relocate(county)
 ny_county_df
 ```
@@ -253,13 +250,10 @@ nyc_fip = county.fips %>%
   mutate(
     polyname = str_replace(polyname, "new york,", "")) %>% 
   filter(str_detect(polyname, "bronx|queens|kings|new york|richmond")) %>% 
-  as.tibble() %>% 
-  slice(rep(1:n(), each = 4)) %>% 
-  select(fips)
+  rename(county = polyname) %>% 
+  as.tibble()
 
-ny_county_df_2015 = 
-  bind_cols(ny_county_df, nyc_fip) %>% 
-  filter(year == 2015)
+ny_county_df = left_join(ny_county_df,nyc_fip, by = "county")
 ```
 
 ```{r}
@@ -275,52 +269,86 @@ add_text_county = function(county_fips){
   #geom_text(data=df, aes(mean(long), mean(lat), label = paste0(str_to_title(pull(county_fips, county)), " County\n", pull(county_fips, death_rate))), color = "white")
   geom_label(data=df, aes(mean(long), mean(lat), label = paste0(str_to_title(pull(county_fips, county)), " County\nDR: ", round(pull(county_fips, death_rate),2))), fill = "white", size = 3)
 }
+```
 
-ny_deathrate_2015 = 
-  ny_county_df_2015 %>%
-  select(-population) %>% 
+#### 2003
+```{r, message=FALSE, warning=FALSE}
+year_select = 2003
+start_county_df = ny_county_df %>% 
+  select(county, year, death_rate, fips) %>% 
+  filter(year == year_select)
+
+start_deathrate_df = 
+  start_county_df %>%
   rename(region = fips,
         value = death_rate) %>% 
   select(value, region)
 
-county_choropleth(ny_deathrate_2015, title = "Death rates of Counties in New York City in 2015",
-                    legend = "Death rates",
-                    county_zoom = ny_deathrate_2015$region) +
-highlight_county(ny_county_df_2015[which.max(pull(ny_county_df_2015, death_rate)),]) +
-add_text_county(ny_county_df_2015[which.max(pull(ny_county_df_2015, death_rate)),])
+county_choropleth(start_deathrate_df, title = "Drug Overdose Death Rates of Counties in New York City in 2003",
+                    legend = "Death Rates",
+                    county_zoom = start_deathrate_df$region) +
+highlight_county(start_county_df[which.max(pull(start_county_df, death_rate)),]) +
+add_text_county(start_county_df[which.max(pull(start_county_df, death_rate)),])
 ```
 
-7. Map of Population by NYC counties:
+#### 2008
+```{r, message=FALSE, warning=FALSE}
+year_select = 2008
+start_county_df = ny_county_df %>% 
+  select(county, year, death_rate, fips) %>% 
+  filter(year == year_select)
 
-```{r}
-add_text_county_pop = function(county_fips){
-  data(county.map, package="choroplethrMaps", envir=environment())
-  df = county.map[county.map$region %in% county_fips, ]
-  #geom_text(data=df, aes(mean(long), mean(lat), label = paste0(str_to_title(pull(county_fips, county)), " County\n", pull(county_fips, death_rate))), color = "white")
-  geom_label(data=df, aes(mean(long), mean(lat), label = paste0(str_to_title(pull(county_fips, county)), " County\nPopulation: ", pull(county_fips, population))), fill = "white", size = 3)
-}
+start_deathrate_df = 
+  start_county_df %>%
+  rename(region = fips,
+        value = death_rate) %>% 
+  select(value, region)
+
+county_choropleth(start_deathrate_df, title = "Drug Overdose Death Rates of Counties in New York City in 2008",
+                    legend = "Death Rates",
+                    county_zoom = start_deathrate_df$region) +
+highlight_county(start_county_df[which.max(pull(start_county_df, death_rate)),]) +
+add_text_county(start_county_df[which.max(pull(start_county_df, death_rate)),])
 ```
 
-```{r}
-ny_county_pop_2015 = 
-  ny_county_df_2015 %>% 
-  select(population, fips) %>% 
-  rename(value = population,
-         region = fips)
+#### 2013
+```{r, message=FALSE, warning=FALSE}
+year_select = 2013
+start_county_df = ny_county_df %>% 
+  select(county, year, death_rate, fips) %>% 
+  filter(year == year_select)
 
-data(county.regions)
-nyc_county_names = c("kings", "bronx", "new york", "queens", "richmond")
-nyc_county_fips = county.regions %>%
-  filter(state.name == "new york" & county.name %in% nyc_county_names) %>%
-  select(region)
+start_deathrate_df = 
+  start_county_df %>%
+  rename(region = fips,
+        value = death_rate) %>% 
+  select(value, region)
 
-county_choropleth(ny_county_pop_2015, 
-                  title        = "Population of Counties in New York City in 2015",
-                  legend       = "Population",
-                  county_zoom = nyc_county_fips$region) +
-  highlight_county(ny_county_df_2015[which.max(pull(ny_county_df_2015, population)),]) +
-  add_text_county_pop(ny_county_df_2015[which.max(pull(ny_county_df_2015, population)),])
-
-# population is not really related to death rate by drug overdoes ?
+county_choropleth(start_deathrate_df, title = "Drug Overdose Death Rates of Counties in New York City in 2013",
+                    legend = "Death Rates",
+                    county_zoom = start_deathrate_df$region) +
+highlight_county(start_county_df[which.max(pull(start_county_df, death_rate)),]) +
+add_text_county(start_county_df[which.max(pull(start_county_df, death_rate)),])
 ```
 
+#### 2018
+```{r, message=FALSE, warning=FALSE, echo=FALSE}
+year_select = 2018
+start_county_df = ny_county_df %>% 
+  select(county, year, death_rate, fips) %>% 
+  filter(year == year_select)
+
+start_deathrate_df = 
+  start_county_df %>%
+  rename(region = fips,
+        value = death_rate) %>% 
+  select(value, region)
+
+county_choropleth(start_deathrate_df, title = "Drug Overdose Death Rates of Counties in New York City in 2018",
+                    legend = "Death Rates",
+                    county_zoom = start_deathrate_df$region) +
+highlight_county(start_county_df[which.max(pull(start_county_df, death_rate)),]) +
+add_text_county(start_county_df[which.max(pull(start_county_df, death_rate)),])
+```
+
+Back to [homepage](index.html)
