@@ -200,7 +200,7 @@ Column {.sidebar}
 
 ```{r}
 # selection from
-state_list = c("California", "Florida", "Ohio")
+state_list = c("California", "Florida", "Ohio", "New York City")
 
 
 year = c(2003:2018)
@@ -223,10 +223,13 @@ Column {.tabset}
 -----------------------------------------------------------------------
 
 ### Drug Overdoes Death Across Counties/Borough within States/City of Choice
+
 ```{r}
 renderPlot({
   state_input = input$state1
   year_input = input$year3
+
+if (state_input != "New York City") {
   some_county_df = 
     county_df %>%
     filter(state %in% state_input) %>% 
@@ -238,30 +241,66 @@ renderPlot({
     relocate(county)
   
   abc = county.fips %>% 
-  separate(polyname, into = c("state", "county"), sep = "\\,") %>% 
-  filter(state %in% str_to_lower(state_input)) %>% 
-  select(-state) %>% 
-  as.tibble()
+    separate(polyname, into = c("state", "county"), sep = "\\,") %>% 
+    filter(state %in% str_to_lower(state_input)) %>% 
+    select(-state) %>% 
+    as.tibble()
   
-some_county_df = left_join(some_county_df,abc, by = "county") %>% 
-  select(county, year, death_rate, fips) %>% 
-  filter(year == year_input)
-
-if(state_input %in% "Florida"){
-  some_county_df[13,4] = 12027
-  some_county_df[46,4] = 12091
-  some_county_df[55,4] = 12109
-  some_county_df[56,4] = 12111
+  some_county_df = left_join(some_county_df,abc, by = "county") %>% 
+    select(county, year, death_rate, fips) %>% 
+    filter(year == year_input)
+  if(state_input %in% "Florida"){
+    some_county_df[13,4] = 12027
+    some_county_df[46,4] = 12091
+    some_county_df[55,4] = 12109
+    some_county_df[56,4] = 12111
+  }
+  some_county_df %>% 
+    group_by(fips) %>% 
+    mutate(fips = as.numeric(fips)) %>% 
+    rename(region = fips,
+           value = death_rate) %>% 
+    county_choropleth(state_zoom = c(str_to_lower(state_input)), legend = "death_rate")+
+    highlight_county(some_county_df[which.max(pull(some_county_df, death_rate)),])+
+    add_text_county(some_county_df[which.max(pull(some_county_df, death_rate)),])
 }
-
-some_county_df %>% 
-  group_by(fips) %>% 
-  mutate(fips = as.numeric(fips)) %>% 
-  rename(region = fips,
-         value = death_rate) %>% 
-  county_choropleth(state_zoom = c(str_to_lower(state_input)), legend = "death_rate")+
-  highlight_county(some_county_df[which.max(pull(some_county_df, death_rate)),])+
-  add_text_county(some_county_df[which.max(pull(some_county_df, death_rate)),])
+  else {
+  nyc_fip = county.fips %>% 
+    filter(str_detect(polyname, "new york")) %>% 
+    mutate(
+      polyname = str_replace(polyname, "new york,", "")) %>% 
+    filter(str_detect(polyname, "bronx|queens|kings|new york|richmond")) %>% 
+    as.tibble() %>% 
+    slice(rep(1:n(), each = 16)) %>% 
+    select(fips)
+  
+  ny_county_df = 
+    county_df %>%
+    filter(state %in% "New York") %>% 
+    select(year, county, population, death_rate = model_based_death_rate) %>% 
+    mutate(
+      county = str_replace(county, "County, NY", "")) %>% 
+    mutate(year = factor(year),
+           county = str_to_lower(county)) %>% 
+    filter(str_detect(county, "bronx|queens|kings|new york|richmond")) %>% 
+    relocate(county) %>% 
+    bind_cols(., nyc_fip) %>% 
+    select(county, year, death_rate, fips) %>% 
+    filter(year == year_input)
+    
+  ny_deathrate = 
+    ny_county_df %>%
+    rename(region = fips,
+           value = death_rate) %>% 
+    select(value, region)  
+    
+  county_choropleth(ny_deathrate, title = "Death rates of Counties in New York City",
+                      legend = "Death rates",
+                      county_zoom = ny_deathrate$region) +
+  highlight_county(ny_county_df[which.max(pull(ny_county_df, death_rate)),]) +
+  add_text_county(ny_county_df[which.max(pull(ny_county_df, death_rate)),])
+}
+  
 })
 ```
 

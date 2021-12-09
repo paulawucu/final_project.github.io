@@ -288,3 +288,4 @@ ca_county_df %>%
  highlight_county(ca_county_df[which.max(pull(ca_county_df, death_rate)),])+
   add_text_county(ca_county_df[which.max(pull(ca_county_df, death_rate)),])
 ```
+Back to [homepage](index.html)
