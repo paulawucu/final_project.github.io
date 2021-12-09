@@ -2,8 +2,13 @@
 title: "Ohio_data_analyzing"
 author: "Yuan Meng"
 date: "12/7/2021"
-output: html_document
+output: 
+  html_document:
+    code_folding: hide
+    toc: true
+    toc_float: true
 ---
+
 ```{r message=FALSE, echo = FALSE}
 library(tidyverse)
 library(rvest)
@@ -36,8 +41,9 @@ scale_fill_discrete = scale_fill_viridis_d
 theme_set(theme_minimal() + theme(legend.position = "bottom"))
 ```
 
+## Import and Clean data ##
 
-```{r message = FALSE,echo = FALSE}
+```{r message = FALSE}
 drug_overdose = read_csv("./data/VSRR_Provisional_Drug_Overdose_Death_Counts.csv") %>% 
   janitor::clean_names()
 
@@ -53,14 +59,13 @@ drug_overdose_52 =
   arrange(state_name) %>% 
   group_by(state_name, year) %>% 
   mutate(month = sort(month)) 
-```
 
-```{r message=FALSE, echo = FALSE}
 drug_overdose_death = 
   drug_overdose_52 %>% 
   select(-c(state, footnote_symbol, percent_complete, period, percent_pending_investigation, predicted_value)) %>% 
   filter(indicator %in% c("Number of Deaths", "Percent with drugs specified", "Number of Drug Overdose Deaths"))
 ```
+
 
 ```{r echo = FALSE}
 drug_categories = 
@@ -82,7 +87,9 @@ predicted_deathrate_bycounty =
          state %in% "New York")
 ```
 
-```{r,echo = FALSE}
+## Ohio part:
+
+```{r}
 Ohio_death = 
   drug_overdose_52 %>% 
   filter(state_name %in% "Ohio",
@@ -104,7 +111,7 @@ mutate(year = factor(year))
 **By drug type**
 
 
-```{r message=FALSE, echo = FALSE}
+```{r message=FALSE}
 Ohio_df = 
   drug_categories %>% 
   filter(state_name %in% c("Ohio")) 
@@ -125,7 +132,7 @@ ggplot(Ohio_df, aes(x = indicator, y = data_value, fill = indicator)) +
 **By year**
 
 
-```{r message=FALSE, echo = FALSE}
+```{r message=FALSE}
 death_by_year = 
   drug_overdose_death %>% 
   filter(state_name %in% c("Ohio"), 
@@ -148,7 +155,7 @@ ggplot(death_by_year, aes(x = month, y = data_value, group = year, color = year)
 
 **Each month Death Within a Year**
 
-```{r message=FALSE, echo = FALSE}
+```{r message=FALSE}
 death_by_year = 
   drug_overdose_death %>% 
   filter(state_name %in% c("Ohio"), 
@@ -170,10 +177,10 @@ ggplot(death_by_year, aes(x = month, y = data_value, group = year, color = year)
 ```
 
 ```{r message=FALSE, echo = FALSE}
-Ohio_df %>%
+  Ohio_df %>%
+  filter(year %in% (2019:2021))  %>%
   ggplot(aes(x = year, y = data_value, color = indicator)) +
-  geom_point() +
-  geom_line(aes(group = indicator)) +
+  geom_smooth(aes(group = indicator), se = FALSE) +
   scale_color_viridis(discrete = TRUE, labels = c("Psychostimulants with abuse potential (T43.6)", "Methadone (T40.3)", "Natural & semi-synthetic opioids (T40.2)", "Natural & semi-synthetic opioids, incl. methadone (T40.2, T40.3)", "Heroin (T40.1)", "Cocaine (T40.5)", "Synthetic opioids, excl. methadone (T40.4)", "Natural, semi-synthetic, & synthetic opioids, incl. methadone (T40.2-T40.4)", "Opioids (T40.0-T40.4,T40.6)")) +
   guides(color = guide_legend(nrow = 6, byrow = TRUE)) +
   labs(
@@ -188,7 +195,7 @@ Ohio_df %>%
 **Number of death vs median household income**
 
 
-```{r message=FALSE, echo = FALSE}
+```{r message=FALSE}
 OH_income_df = 
   read_csv("./data/Median_Household_Income_OH.csv") %>% 
   janitor::clean_names() %>% 
@@ -209,9 +216,11 @@ OH_income_df %>%
          yaxis = list(title = "Median Household Income"))
 ```
 
+## income
+
 **Income and drug overdose death percent , by year**
 
-```{r,echo = FALSE}
+```{r}
 OHincome_drug_df = 
   Ohio_death %>% 
   ungroup() %>% 
@@ -229,12 +238,11 @@ OHincome_drug_df %>%
 
 **CA Drug Map** 
 
-```{r message=FALSE, echo = FALSE}
+```{r message=FALSE}
 oh_county_df = 
   read_csv("./data/NCHS_-_Drug_Poisoning_Mortality_by_County__United_States.csv") %>% 
   janitor::clean_names() %>% 
-  filter(state %in% "Ohio",
-         year >= 2015) %>% 
+  filter(state %in% "Ohio") %>% 
   select(year, county, population, death_rate = model_based_death_rate) %>% 
   separate(county, into = c("county", "useless"), sep = " County") %>% 
   select(-useless) %>% 
@@ -244,40 +252,105 @@ oh_county_df =
 oh_county_df
 ```
 
-
-```{r message=FALSE, echo = FALSE}
-def = county.fips %>% 
-  separate(polyname, into = c("state", "county"), sep = "\\,") %>% 
-  filter(state %in% "ohio") %>% 
-  select(-state) %>% 
-  as.tibble()
-def
-oh_county_df = left_join(oh_county_df,def, by = "county") %>% 
-  select(county, year, death_rate, fips) %>% 
-  filter(year == 2015)
-
+```{r, message=FALSE, warning=FALSE,echo=FALSE}
 highlight_county = function(county_fips)
 {
   data(county.map, package="choroplethrMaps", envir=environment())
   df = county.map[county.map$region %in% county_fips, ]
-  geom_polygon(data=df, aes(long, lat, group = group), color = "white", fill = NA, size = 1)
- # geom_text(data=df, aes(long, lat, label = pull(county_fips, county), color = "white"))
+  geom_polygon(data=df, aes(long, lat, group = group), color = "yellow", fill = NA, size = 1)
 }
 add_text_county = function(county_fips){
   data(county.map, package="choroplethrMaps", envir=environment())
   df = county.map[county.map$region %in% county_fips, ]
-  geom_text(data=df, aes(mean(long), mean(lat), label = paste0(str_to_title(pull(county_fips, county)), " County\n", pull(county_fips, death_rate))), color = "yellow")
+  #geom_text(data=df, aes(mean(long), mean(lat), label = paste0(str_to_title(pull(county_fips, county)), " County\n", pull(county_fips, death_rate))), color = "white")
+  geom_label(data=df, aes(mean(long), mean(lat), label = paste0(str_to_title(pull(county_fips, county)), " County\nDR: ", round(pull(county_fips, death_rate),2))), fill = "white", size = 2.5)
 }
+```
+```{r, message=FALSE, warning=FALSE}
+data(county.fips)
+abc = county.fips %>% 
+  separate(polyname, into = c("state", "county"), sep = "\\,") %>% 
+  filter(state %in% "ohio") %>% 
+  select(-state) %>% 
+  as_tibble()
+```
+
+### Counties change, 5-yr interval{.tabset}
+
+#### 2003
+```{r, message=FALSE, warning=FALSE}
+year_select = 2003
+start_county_df = left_join(oh_county_df ,abc, by = "county") %>% 
+  select(county, year, death_rate, fips) %>% 
+  filter(year == year_select)
 
 
-
-oh_county_df %>% 
+start_county_df %>% 
   group_by(fips) %>% 
   mutate(fips = as.numeric(fips)) %>% 
   rename(region = fips,
          value = death_rate) %>% 
   county_choropleth(state_zoom = c("ohio"),
-                     legend = "Death Rate") +
- highlight_county(oh_county_df[which.max(pull(oh_county_df, death_rate)),])+
-  add_text_county(oh_county_df[which.max(pull(oh_county_df, death_rate)),])
+                     legend = "death_rate")+
+  highlight_county(start_county_df[which.max(pull(start_county_df, death_rate)),])+
+  add_text_county(start_county_df[which.max(pull(start_county_df, death_rate)),])
 ```
+
+#### 2008
+```{r, message=FALSE, warning=FALSE}
+year_select = 2008
+start_county_df = left_join(oh_county_df,abc, by = "county") %>% 
+  select(county, year, death_rate, fips) %>% 
+  filter(year == year_select)
+
+start_county_df %>% 
+  group_by(fips) %>% 
+  mutate(fips = as.numeric(fips)) %>% 
+  rename(region = fips,
+         value = death_rate) %>% 
+  county_choropleth(state_zoom = c("ohio"),
+                     legend = "death_rate")+
+  highlight_county(start_county_df[which.max(pull(start_county_df, death_rate)),])+
+  add_text_county(start_county_df[which.max(pull(start_county_df, death_rate)),])
+```
+
+#### 2013
+```{r, message=FALSE, warning=FALSE}
+year_select = 2013
+
+start_county_df = left_join(oh_county_df,abc, by = "county") %>% 
+  select(county, year, death_rate, fips) %>% 
+  filter(year == year_select)
+
+
+start_county_df %>% 
+  group_by(fips) %>% 
+  mutate(fips = as.numeric(fips)) %>% 
+  rename(region = fips,
+         value = death_rate) %>% 
+  county_choropleth(state_zoom = c("ohio"),
+                     legend = "death_rate")+
+  highlight_county(start_county_df[which.max(pull(start_county_df, death_rate)),])+
+  add_text_county(start_county_df[which.max(pull(start_county_df, death_rate)),])
+```
+
+#### 2018
+```{r, message=FALSE, warning=FALSE, echo=FALSE}
+year_select = 2018
+start_county_df = left_join(oh_county_df,abc, by = "county") %>% 
+  select(county, year, death_rate, fips) %>% 
+  filter(year == year_select)
+
+
+start_county_df %>% 
+  group_by(fips) %>% 
+  mutate(fips = as.numeric(fips)) %>% 
+  rename(region = fips,
+         value = death_rate) %>% 
+  county_choropleth(state_zoom = c("ohio"),
+                     legend = "death_rate")+
+  highlight_county(start_county_df[which.max(pull(start_county_df, death_rate)),])+
+  add_text_county(start_county_df[which.max(pull(start_county_df, death_rate)),])
+```
+
+Back to [homepage](index.html)
