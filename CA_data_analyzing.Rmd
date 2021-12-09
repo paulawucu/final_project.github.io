@@ -215,7 +215,7 @@ CAincome_drug_df %>%
 
 
 
-**CA Drug Map** 
+##CA Drug Map
 
 ```{r message=FALSE}
 ca_county_df = 
@@ -275,7 +275,7 @@ start_county_df %>%
 ```
 
 #### 2008
-```{r, message=FALSE, warning=FALSE}
+```{r, message=FALSE, warning=FALSE, echo=FALSE}
 year_select = 2008
 start_county_df = left_join(ca_county_df,abc, by = "county") %>% 
   select(county, year, death_rate, fips) %>% 
@@ -293,7 +293,7 @@ start_county_df %>%
 ```
 
 #### 2013
-```{r, message=FALSE, warning=FALSE}
+```{r, message=FALSE, warning=FALSE,echo=FALSE}
 year_select = 2013
 
 start_county_df = left_join(ca_county_df,abc, by = "county") %>% 
