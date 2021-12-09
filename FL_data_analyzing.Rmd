@@ -9,8 +9,8 @@ output:
     toc_float: true
 ---
 
+## Import the libraries ##
 
-Import the libraries
 ```{r, message=FALSE, include=FALSE}
 library(tidyverse)
 library(rvest)
@@ -55,6 +55,7 @@ drug_overdose_52 =
   arrange(state_name) %>% 
   group_by(state_name, year) %>% 
   mutate(month = sort(month))
+
 ```
 
 It's hard to find drug-specific data for those state missing specific drug types. Opioids data is much easier to find. We should probably focus on opioids.<br> 
@@ -79,7 +80,7 @@ opioids_df %>%
 ```
 <br>If we decided to focus on opioids, this will make my life much easier.
 
-FL part:
+## FL part:
 Overall review:
 ```{r}
 fl_death = 
@@ -112,6 +113,7 @@ fl_death %>%
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust= 1))+
   facet_grid(.~year)
 ```
+## Just opioids
 We can also focus just on opioids 
 Data source: cdc wonder, request by queries, Drug overdose deaths are identified using underlying cause-of-death codes from the Tenth Revision of ICD (ICD–10): X40–X44 (unintentional), X60–X64 (suicide), X85 (homicide), and Y10–Y14 (undetermined). Opioids identified by selecting T40.0-40.4, 40.6
 ```{r, message=FALSE, warning=FALSE}
@@ -155,6 +157,8 @@ fl_opi_death %>%
 ```
 It's climbing, every single month. The 2020 data is less probably because it's provisional and some data still under investigation
 
+## Income 
+
 Let's analyze the number of death vs median household income
 ```{r}
 fl_eco_df = 
@@ -193,39 +197,22 @@ income_drug_df %>%
   geom_point()+
   geom_line()
 ```
-maps maps maps
-```{r}
+
+
+```{r, message=FALSE, warning=FALSE}
 fl_county_df = 
   read_csv("./data/NCHS_-_Drug_Poisoning_Mortality_by_County__United_States.csv") %>% 
   janitor::clean_names() %>% 
-  filter(state %in% "Florida",
-         year >= 2015) %>% 
+  filter(state %in% "Florida") %>% 
   select(year, county, population, death_rate = model_based_death_rate) %>% 
   separate(county, into = c("county", "useless"), sep = " County") %>% 
   select(-useless) %>% 
   mutate(year = factor(year),
          county = str_to_lower(county)) %>% 
   relocate(county)
-fl_county_df
+#fl_county_df
 ```
-```{r}
-data(county.fips)
-abc = county.fips %>% 
-  separate(polyname, into = c("state", "county"), sep = "\\,") %>% 
-  filter(state %in% "florida") %>% 
-  select(-state) %>% 
-  as.tibble()
-fl_county_df = left_join(fl_county_df,abc, by = "county") %>% 
-  select(county, year, death_rate, fips) %>% 
-  filter(year == 2015)
-fips_add = c(12027, 12091, 12109, 12111)
-a = 1
-for (i in c(13,46,55,56)){
-  fl_county_df[i,4] = fips_add[a]
-  a = a+1
-}
-```
-```{r}
+```{r, message=FALSE, warning=FALSE,echo=FALSE}
 highlight_county = function(county_fips)
 {
   data(county.map, package="choroplethrMaps", envir=environment())
@@ -236,56 +223,115 @@ add_text_county = function(county_fips){
   data(county.map, package="choroplethrMaps", envir=environment())
   df = county.map[county.map$region %in% county_fips, ]
   #geom_text(data=df, aes(mean(long), mean(lat), label = paste0(str_to_title(pull(county_fips, county)), " County\n", pull(county_fips, death_rate))), color = "white")
-  geom_label(data=df, aes(mean(long), mean(lat), label = paste0(str_to_title(pull(county_fips, county)), " County\nDR: ", round(pull(county_fips, death_rate),2))), fill = "white", size = 3)
+  geom_label(data=df, aes(mean(long), mean(lat), label = paste0(str_to_title(pull(county_fips, county)), " County\nDR: ", round(pull(county_fips, death_rate),2))), fill = "white", size = 2.5)
 }
-
+```
+```{r, message=FALSE, warning=FALSE}
+data(county.fips)
+abc = county.fips %>% 
+  separate(polyname, into = c("state", "county"), sep = "\\,") %>% 
+  filter(state %in% "florida") %>% 
+  select(-state) %>% 
+  as_tibble()
 ```
 
-```{r}
-fl_county_df %>% 
+### Counties change, 5-yr interval{.tabset}
+
+#### 2003
+```{r, message=FALSE, warning=FALSE}
+year_select = 2003
+start_county_df = left_join(fl_county_df,abc, by = "county") %>% 
+  select(county, year, death_rate, fips) %>% 
+  filter(year == year_select)
+
+fips_add = c(12027, 12091, 12109, 12111)
+a = 1
+for (i in c(13,46,55,56)){
+  start_county_df[i,4] = fips_add[a]
+  a = a+1
+}
+start_county_df %>% 
   group_by(fips) %>% 
   mutate(fips = as.numeric(fips)) %>% 
   rename(region = fips,
          value = death_rate) %>% 
   county_choropleth(state_zoom = c("florida"),
                      legend = "death_rate")+
-  highlight_county(fl_county_df[which.max(pull(fl_county_df, death_rate)),])+
-  add_text_county(fl_county_df[which.max(pull(fl_county_df, death_rate)),])
+  highlight_county(start_county_df[which.max(pull(start_county_df, death_rate)),])+
+  add_text_county(start_county_df[which.max(pull(start_county_df, death_rate)),])
 ```
-```{r}
-ca_county_df = 
-  read_csv("./data/NCHS_-_Drug_Poisoning_Mortality_by_County__United_States.csv") %>% 
-  janitor::clean_names() %>% 
-  filter(state %in% "California",
-         year >= 2015) %>% 
-  select(year, county, population, death_rate = model_based_death_rate) %>% 
-  separate(county, into = c("county", "useless"), sep = " County") %>% 
-  select(-useless) %>% 
-  mutate(year = factor(year),
-         county = str_to_lower(county)) %>% 
-  relocate(county)
-ca_county_df
-```
-```{r}
-def = county.fips %>% 
-  separate(polyname, into = c("state", "county"), sep = "\\,") %>% 
-  filter(state %in% "california") %>% 
-  select(-state) %>% 
-  as.tibble()
-def
-ca_county_df = left_join(ca_county_df,def, by = "county") %>% 
+
+#### 2008
+```{r, message=FALSE, warning=FALSE}
+year_select = 2008
+start_county_df = left_join(fl_county_df,abc, by = "county") %>% 
   select(county, year, death_rate, fips) %>% 
-  filter(year == 2015)
+  filter(year == year_select)
 
-
-ca_county_df %>% 
+fips_add = c(12027, 12091, 12109, 12111)
+a = 1
+for (i in c(13,46,55,56)){
+  start_county_df[i,4] = fips_add[a]
+  a = a+1
+}
+start_county_df %>% 
   group_by(fips) %>% 
   mutate(fips = as.numeric(fips)) %>% 
   rename(region = fips,
          value = death_rate) %>% 
-  county_choropleth(state_zoom = c("california"),
-                     legend = "Death Rate") +
- highlight_county(ca_county_df[which.max(pull(ca_county_df, death_rate)),])+
-  add_text_county(ca_county_df[which.max(pull(ca_county_df, death_rate)),])
+  county_choropleth(state_zoom = c("florida"),
+                     legend = "death_rate")+
+  highlight_county(start_county_df[which.max(pull(start_county_df, death_rate)),])+
+  add_text_county(start_county_df[which.max(pull(start_county_df, death_rate)),])
 ```
+
+#### 2013
+```{r, message=FALSE, warning=FALSE}
+year_select = 2013
+start_county_df = left_join(fl_county_df,abc, by = "county") %>% 
+  select(county, year, death_rate, fips) %>% 
+  filter(year == year_select)
+
+fips_add = c(12027, 12091, 12109, 12111)
+a = 1
+for (i in c(13,46,55,56)){
+  start_county_df[i,4] = fips_add[a]
+  a = a+1
+}
+start_county_df %>% 
+  group_by(fips) %>% 
+  mutate(fips = as.numeric(fips)) %>% 
+  rename(region = fips,
+         value = death_rate) %>% 
+  county_choropleth(state_zoom = c("florida"),
+                     legend = "death_rate")+
+  highlight_county(start_county_df[which.max(pull(start_county_df, death_rate)),])+
+  add_text_county(start_county_df[which.max(pull(start_county_df, death_rate)),])
+```
+
+#### 2018
+```{r, message=FALSE, warning=FALSE, echo=FALSE}
+year_select = 2018
+start_county_df = left_join(fl_county_df,abc, by = "county") %>% 
+  select(county, year, death_rate, fips) %>% 
+  filter(year == year_select)
+
+fips_add = c(12027, 12091, 12109, 12111)
+a = 1
+for (i in c(13,46,55,56)){
+  start_county_df[i,4] = fips_add[a]
+  a = a+1
+}
+
+start_county_df %>% 
+  group_by(fips) %>% 
+  mutate(fips = as.numeric(fips)) %>% 
+  rename(region = fips,
+         value = death_rate) %>% 
+  county_choropleth(state_zoom = c("florida"),
+                     legend = "death_rate")+
+  highlight_county(start_county_df[which.max(pull(start_county_df, death_rate)),])+
+  add_text_county(start_county_df[which.max(pull(start_county_df, death_rate)),])
+```
+
 Back to [homepage](index.html)
