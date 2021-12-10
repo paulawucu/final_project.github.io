@@ -1,6 +1,10 @@
 ---
-title: "USA dataset"
-output: html_document
+title: "USA Drug Overdoes Analyzing"
+output: 
+  html_document:
+    code_folding: hide
+    toc: true
+    toc_float: true
 ---
 
 ```{r setup, include=FALSE}
@@ -42,13 +46,11 @@ unique(pull(drug_overdose, state))
 # contains 50 states, Washington DC, whole US, and the City of New York.
 ```
 
- - State level:  
+
+
+## Tidy data:
 ```{r}
 state_level = c(state.name[1:8], "District of Columbia", state.name[9:32],"New York City", state.name[33:50])
-```
-
-Tidy data:
-```{r}
 drug_overdose_52 = 
   drug_overdose %>% 
   filter(!(state_name %in% c("United States"))) %>% 
@@ -119,71 +121,16 @@ drug_type_plot =
   geom_point()+
   facet_grid(~year)+
   theme(axis.text.x = element_text(angle = 90, vjust = 0.4, hjust = 1))
-drug_type_plot
+ggplotly(drug_type_plot) %>% 
+layout(legend = list(orientation = "h"))
 
 
 ```
- - missing data in 9 states: Alabama, Arkansas, Florida, Idaho, Louisiana, Minnesota, Nebraska, North Dakota, Pennsylvania.
+
+ - In order to analyze the number of deaths in each state and the trend with time according to the type of drug, we only keep the data with the drug label(T4...) in the indicator column in the table. And the we found that there are 9 states missing the specific each drug type deaths counts data: Alabama, Arkansas, Florida, Idaho, Louisiana, Minnesota, Nebraska, North Dakota, Pennsylvania.
+ - This is a graph based on the drug type. It can be seen from the figure that the number of deaths caused by overdose of opioids has been ranked first during 2015-2021. However, the deaths of methadone have been in a slow-down trend. The reason is: blablablablabalb
  
-## By year/month: 
-
-which states have highest death in each year
-option1: maybe this one better
-```{r}
-overview_year = 
-  drug_overdose %>% 
-  filter(indicator == c("Number of Deaths", "Number of Drug Overdose Deaths")) %>% 
-  select("state", "year", "month", "indicator", "data_value") %>% 
-  filter(!(state == "US")) %>% 
-  filter(str_detect(indicator, "Drug Overdose Deaths")) %>% 
-  group_by(state, year, indicator) %>% 
-  summarize(data_value = sum(data_value)) 
- 
-  
-overview_year_plot = 
-  overview_year %>% 
-   ggplot(aes(x = year, y = data_value, color = state)) +
-  geom_point() +
-  geom_line()+
-  theme_set(theme_minimal() + theme(legend.position = "bottom")) +
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.4, hjust = 1))
-overview_year_plot
-```
-
-option2:
-```{r}
-drug_overdose_52  %>% 
-  filter(str_detect(indicator, "Drug Overdose Deaths")) %>% 
-  mutate(state_name = factor(state_name, levels = state_level)) %>% 
-  select(state_name, year, month, data_value) %>% 
-  arrange(state_name, month) %>% 
-  ungroup() %>% 
-  ggplot(aes(y = data_value, x = month, color = state_name)) +
-  geom_point() +
-  geom_line(aes(group = state_name))+
-  facet_grid(~year)+
-   theme_set(theme_minimal() + theme(legend.position = "bottom")) +
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.4, hjust = 1))
-```
- 
-## Trend across year:
-```{r}
-trend_year_plot =
-  drug_overdose %>% 
-  filter(indicator == c("Number of Deaths", "Number of Drug Overdose Deaths")) %>% 
-  select("state", "year", "month", "indicator", "data_value") %>% 
-  filter(!(state == "US")) %>% 
-  group_by(state, year, indicator) %>% 
-  summarize(data_value = sum(data_value)) %>% 
-  filter(str_detect(indicator, "Drug Overdose Deaths")) %>% 
- ggplot(aes(x = year, y = data_value)) +
-  geom_smooth(se = FALSE) +
-  theme_set(theme_minimal() + theme(legend.position = "bottom"))  +
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.4, hjust = 1))
-trend_year_plot
-```
-
-## Dumbell Plot:
+ ## Dumbell Plot:
 2015 vs. 2021
 ```{r}
 sum_df = 
@@ -220,7 +167,7 @@ img {
   margin-right: auto;
 }
 </style>
-<img src="animation.gif">
+<img src="./images/animation.gif">
 ```{r, eval = FALSE}
 data_2 = 
   sum_df %>% 
@@ -266,6 +213,7 @@ my_plot =
   theme(legend.position = "none")
 ```
 
+The graph of drug overdose death in each state over time:
 ```{r, eval=FALSE}
 p = my_plot + 
   facet_null()+
@@ -282,6 +230,51 @@ gif = animate(p,nframes = 700, fps=15,width=1000,height=700,
 gif
 anim_save("animation.gif", animation = gif)
 ```
+ 
+## By year/month: 
+
+which states have highest death in each year
+option1: maybe this one better
+```{r}
+overview_year = 
+  drug_overdose %>% 
+  filter(indicator == c("Number of Deaths", "Number of Drug Overdose Deaths")) %>% 
+  select("state", "year", "month", "indicator", "data_value") %>% 
+  filter(!(state == "US")) %>% 
+  filter(str_detect(indicator, "Drug Overdose Deaths")) %>% 
+  group_by(state, year, indicator) %>% 
+  summarize(data_value = sum(data_value)) 
+ 
+  
+overview_year_plot = 
+  overview_year %>% 
+   ggplot(aes(x = year, y = data_value, color = state)) +
+  geom_point() +
+  geom_line()+
+  theme_set(theme_minimal() + theme(legend.position = "bottom")) +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.4, hjust = 1))
+ggplotly(overview_year_plot)
+```
+
+option2:
+```{r}
+drug_overdose_52  %>% 
+  filter(str_detect(indicator, "Drug Overdose Deaths")) %>% 
+  mutate(state_name = factor(state_name, levels = state_level)) %>% 
+  select(state_name, year, month, data_value) %>% 
+  arrange(state_name, month) %>% 
+  ungroup() %>% 
+  ggplot(aes(y = data_value, x = month, color = state_name)) +
+  geom_point() +
+  geom_line(aes(group = state_name))+
+  facet_grid(~year)+
+   theme_set(theme_minimal() + theme(legend.position = "bottom")) +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.4, hjust = 1))
+
+```
+ 
+
+
 
 
 
