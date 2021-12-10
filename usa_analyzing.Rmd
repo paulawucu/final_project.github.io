@@ -33,133 +33,7 @@ scale_fill_discrete = scale_fill_viridis_d
 theme_set(theme_minimal() + theme(legend.position = "bottom"))
 ```
 
-## Data cleaning
-
- - We've found that instead of having the usual 50 states, Washington DC, and New York City, the data set also contains data for the whole US. We choose to focus on the 52 jurisdictions (including the 50 states, DC, and NYC) at first.
-
-```{r message = FALSE}
-drug_overdose = read_csv("./data/VSRR_Provisional_Drug_Overdose_Death_Counts.csv") %>% 
-  janitor::clean_names()
-
-unique(pull(drug_overdose, state))
- 
-# contains 50 states, Washington DC, whole US, and the City of New York.
-```
-
-
-
-## Tidy data:
-```{r}
-state_level = c(state.name[1:8], "District of Columbia", state.name[9:32],"New York City", state.name[33:50])
-drug_overdose_52 = 
-  drug_overdose %>% 
-  filter(!(state_name %in% c("United States"))) %>% 
-  relocate(state_name) %>% 
-  mutate(month = factor(month, levels = month.name), # change month and year to factor
-         year = factor(year),
-         state_name = factor(state_name, levels = state_level)) %>% 
-  arrange(state_name) %>% 
-  group_by(state_name, year) %>% 
-  mutate(month = sort(month)) # sort by month order
-```
-
- - Since the dataset mostly doesn't have the death count values for specific types of drug overdose, for this dataset, we only choose the data_value with indicator of `Number of Deaths`, `Percent with drugs specified`, and `Number of Drug Overdose Deaths`.
- 
-```{r}
-drug_overdose_death = 
-  drug_overdose_52 %>% 
-  select(-c( footnote_symbol, percent_complete, period, percent_pending_investigation, predicted_value)) %>% 
-  filter(indicator %in% c("Number of Deaths", "Percent with drugs specified", "Number of Drug Overdose Deaths"))
-drug_overdose_death
-```
-  - `Number of Drug Overdose Deaths` is predicted since the `Percent with drugs specified` is not 100%. 
-  
-  
-footnote categorization: 
-```{r}
-#unique(pull(drug_overdose_51, footnote))
-drug_overdose_52 = 
-  drug_overdose_52 %>%
-  mutate(low_data_quality = ifelse(str_detect(footnote, "low data quality"), 1, 0), # data_value not shown, predicted yes?
-         suppressed = ifelse(str_detect(footnote, "suppressed"), 1, 0),
-         underreported = ifelse(str_detect(footnote, "Underreported"), 1, 0)) %>% 
-  relocate(footnote, .after = last_col())
-```
-  
-
-## Analysis by drug 
-
-```{r}
-drug_categories = 
-  drug_overdose_52 %>%
-  ungroup() %>% 
-  select(-c(state, footnote_symbol, percent_complete, period, percent_pending_investigation, footnote, predicted_value)) %>% 
-  filter(str_detect(indicator, "T4"))
-drug_categories
-
-
-# missing states' data:
-miss_states = 
-  drug_overdose_52 %>% 
-  ungroup() %>% 
-  select(state_name) %>%
-  unique() %>% 
-  filter(!(state_name %in% drug_categories$state_name))
-miss_states
-
-drug_type_plot = 
-  drug_overdose %>% 
-  filter(state %in% c("US")) %>% 
-  filter(!(indicator %in% c("Number of Deaths", "Number of Drug Overdose Deaths", "Percent with drugs specified")))%>% 
-  relocate(state) %>% 
-  mutate(month = factor(month, levels = month.name), # change month and year to factor
-         year = factor(year)) %>% 
-  arrange(state) %>% 
-  group_by(state, year) %>% 
-  mutate(month = sort(month)) %>% 
-  ggplot(aes(x = month, y = data_value,color = indicator)) +
-  geom_point()+
-  facet_grid(~year)+
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.4, hjust = 1))
-ggplotly(drug_type_plot) %>% 
-layout(legend = list(orientation = "h"))
-
-
-```
-
- - In order to analyze the number of deaths in each state and the trend with time according to the type of drug, we only keep the data with the drug label(T4...) in the indicator column in the table. And the we found that there are 9 states missing the specific each drug type deaths counts data: Alabama, Arkansas, Florida, Idaho, Louisiana, Minnesota, Nebraska, North Dakota, Pennsylvania.
- - This is a graph based on the drug type. It can be seen from the figure that the number of deaths caused by overdose of opioids has been ranked first during 2015-2021. However, the deaths of methadone have been in a slow-down trend. The reason is: blablablablabalb
- 
- ## Dumbell Plot:
-2015 vs. 2021
-```{r}
-sum_df = 
-  drug_overdose_death %>% 
-  ungroup() %>% 
-  filter(indicator %in%  c("Number of Deaths", "Number of Drug Overdose Deaths")) %>% 
-  select(state_name, year, month, indicator, deaths = data_value) %>% 
-  pivot_wider(
-    names_from = indicator,
-    values_from = deaths
-  ) %>% 
-  janitor::clean_names() 
-plot_df = sum_df %>% 
-  group_by(state_name, year, month) %>% 
-  ungroup() %>% 
-  group_by(state_name, year) %>% 
-  summarize(number_of_total_deaths = sum(number_of_deaths),
-            number_of_total_drug_deaths = sum(number_of_drug_overdose_deaths)) %>% 
-  mutate(percent_overdose_death = number_of_total_drug_deaths / number_of_total_deaths) %>% 
-  filter(year == c(2015, 2020)) %>% 
-  ungroup()
-plot_df
-```
-```{r}
-p = ggplot(data = plot_df, aes(x = percent_overdose_death, y=reorder(state_name, percent_overdose_death)))+
-  geom_line(aes(group = state_name), alpha = 0.5)+
-  geom_point(aes(color = year), alpha = 0.6, size = 4)
-ggplotly(p)
-```
+An overview of the Top 20 states with the highest drug overdose death from 2015-2021
 <style>
 img {
   display: block;
@@ -168,7 +42,10 @@ img {
 }
 </style>
 <img src="./images/animation.gif">
-```{r, eval = FALSE}
+
+```{r, eval = FALSE,message = FALSE, warning=FALSE}
+# Codes for the animation above. Set eval=FALSE. 
+# Run previously and save as a gif a head of time to save loading time
 data_2 = 
   sum_df %>% 
   group_by(year, month) %>% 
@@ -178,10 +55,7 @@ data_2 =
          date = str_c(year,"-",month),
          date = as.Date(paste(date, "-01", sep =''))) %>% 
   filter(rank<=20)
-data_2
 
-```
-```{r, eval=FALSE}
 my_plot = 
   data_2 %>% 
   ggplot()+
@@ -211,10 +85,7 @@ my_plot =
   labs(x = "Death cases")+
   labs(y = "States")+
   theme(legend.position = "none")
-```
 
-The graph of drug overdose death in each state over time:
-```{r, eval=FALSE}
 p = my_plot + 
   facet_null()+
   geom_text(x = 8000, y = -20,
@@ -224,18 +95,153 @@ p = my_plot +
   aes(group = state_name)+
   transition_time(date)
 
-#animate(p, nframes=350,fps=5,width=1000)
 gif = animate(p,nframes = 700, fps=15,width=1000,height=700,
               renderer = gifski_renderer())
 gif
 anim_save("animation.gif", animation = gif)
+```
+
+## Data cleaning
+
+ - We've found that instead of having the usual 50 states, Washington DC, and New York City, the data set also contains data for the whole US. We choose to focus on the 52 jurisdictions (including the 50 states, DC, and NYC) at first.
+
+```{r message = FALSE, warning=FALSE}
+drug_overdose = read_csv("./data/VSRR_Provisional_Drug_Overdose_Death_Counts.csv") %>% 
+  janitor::clean_names()
+
+unique(pull(drug_overdose, state))
+ 
+# contains 50 states, Washington DC, whole US, and the City of New York.
+```
+
+
+
+## Tidy data:
+```{r message = FALSE, warning=FALSE}
+state_level = c(state.name[1:8], "District of Columbia", state.name[9:32],"New York City", state.name[33:50])
+drug_overdose_52 = 
+  drug_overdose %>% 
+  filter(!(state_name %in% c("United States"))) %>% 
+  relocate(state_name) %>% 
+  mutate(month = factor(month, levels = month.name), # change month and year to factor
+         year = factor(year),
+         state_name = factor(state_name, levels = state_level)) %>% 
+  arrange(state_name) %>% 
+  group_by(state_name, year) %>% 
+  mutate(month = sort(month)) # sort by month order
+```
+
+ - Since the dataset mostly doesn't have the death count values for specific types of drug overdose, for this dataset, we only choose the data_value with indicator of `Number of Deaths`, `Percent with drugs specified`, and `Number of Drug Overdose Deaths`.
+ 
+```{r message = FALSE, warning=FALSE}
+drug_overdose_death = 
+  drug_overdose_52 %>% 
+  select(-c( footnote_symbol, percent_complete, period, percent_pending_investigation, predicted_value)) %>% 
+  filter(indicator %in% c("Number of Deaths", "Percent with drugs specified", "Number of Drug Overdose Deaths"))
+knitr::kable(drug_overdose_death[1:10,])
+```
+  - `Number of Drug Overdose Deaths` is predicted since the `Percent with drugs specified` is not 100%. 
+  
+  
+footnote categorization: 
+```{r message = FALSE, warning=FALSE}
+#unique(pull(drug_overdose_51, footnote))
+drug_overdose_52 = 
+  drug_overdose_52 %>%
+  mutate(low_data_quality = ifelse(str_detect(footnote, "low data quality"), 1, 0), # data_value not shown, predicted yes?
+         suppressed = ifelse(str_detect(footnote, "suppressed"), 1, 0),
+         underreported = ifelse(str_detect(footnote, "Underreported"), 1, 0)) %>% 
+  relocate(footnote, .after = last_col())
+```
+  
+
+## Analysis by drug 
+
+```{r message = FALSE, warning=FALSE, out.width='100%'}
+drug_categories = 
+  drug_overdose_52 %>%
+  ungroup() %>% 
+  select(-c(state, footnote_symbol, percent_complete, period, percent_pending_investigation, footnote, predicted_value)) %>% 
+  filter(str_detect(indicator, "T4"))
+knitr::kable(drug_categories[1:3,])
+
+
+# missing states' data:
+miss_states = 
+  drug_overdose_52 %>% 
+  ungroup() %>% 
+  select(state_name) %>%
+  unique() %>% 
+  filter(!(state_name %in% drug_categories$state_name))
+knitr::kable(miss_states)
+
+drug_type_plot = 
+  drug_overdose %>% 
+  filter(state %in% c("US")) %>% 
+  filter(!(indicator %in% c("Number of Deaths", "Number of Drug Overdose Deaths", "Percent with drugs specified")))%>% 
+  relocate(state) %>% 
+  mutate(month = factor(month, levels = month.name), # change month and year to factor
+         year = factor(year)) %>% 
+  arrange(state) %>% 
+  group_by(state, year) %>% 
+  mutate(month = sort(month)) %>% 
+  ggplot(aes(x = month, y = data_value,color = indicator)) +
+  geom_point()+
+  scale_x_discrete(labels = month.abb)+
+  facet_grid(~year)+
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1))
+
+drug_gplt = plotly_build(drug_type_plot) %>% 
+  layout(legend = list(orientation = "h"))
+name_change = c("T40.5", "T40.1", "T40.3", "T40.2","T40.2, T40.3", 
+                "T40.2-T40.4", "T40.0-T40.4,T40.6","T43.6", "T40.4")
+name_index = c(1,8,15,22,29,36,43,50,57)
+for (i in name_index){
+  drug_gplt$x$data[[i]]$name = name_change[which(name_index == i)]
+}
+
+drug_gplt
+
+```
+
+ - In order to analyze the number of deaths in each state and the trend with time according to the type of drug, we only keep the data with the drug label(T4...) in the indicator column in the table. And the we found that there are 9 states missing the specific each drug type deaths counts data: Alabama, Arkansas, Florida, Idaho, Louisiana, Minnesota, Nebraska, North Dakota, Pennsylvania.
+ - This is a graph based on the drug type. It can be seen from the figure that the number of deaths caused by overdose of opioids has been ranked first during 2015-2021. However, the deaths of methadone have been in a slow-down trend. The reason is: blablablablabalb
+ 
+## Dumbell Plot:
+ 
+2015 vs. 2021
+```{r message = FALSE, warning=FALSE}
+sum_df = 
+  drug_overdose_death %>% 
+  ungroup() %>% 
+  filter(indicator %in%  c("Number of Deaths", "Number of Drug Overdose Deaths")) %>% 
+  select(state_name, year, month, indicator, deaths = data_value) %>% 
+  pivot_wider(
+    names_from = indicator,
+    values_from = deaths
+  ) %>% 
+  janitor::clean_names() 
+plot_df = sum_df %>% 
+  group_by(state_name, year, month) %>% 
+  ungroup() %>% 
+  group_by(state_name, year) %>% 
+  summarize(number_of_total_deaths = sum(number_of_deaths),
+            number_of_total_drug_deaths = sum(number_of_drug_overdose_deaths)) %>% 
+  mutate(percent_overdose_death = number_of_total_drug_deaths / number_of_total_deaths) %>% 
+  filter(year == c(2015, 2020)) %>% 
+  ungroup()
+
+p = ggplot(data = plot_df, aes(x = percent_overdose_death, y=reorder(state_name, percent_overdose_death)))+
+  geom_line(aes(group = state_name), alpha = 0.5)+
+  geom_point(aes(color = year), alpha = 0.6, size = 4)
+ggplotly(p)
 ```
  
 ## By year/month: 
 
 which states have highest death in each year
 option1: maybe this one better
-```{r}
+```{r message = FALSE, warning=FALSE}
 overview_year = 
   drug_overdose %>% 
   filter(indicator == c("Number of Deaths", "Number of Drug Overdose Deaths")) %>% 
@@ -257,7 +263,7 @@ ggplotly(overview_year_plot)
 ```
 
 option2:
-```{r}
+```{r message = FALSE, warning=FALSE}
 drug_overdose_52  %>% 
   filter(str_detect(indicator, "Drug Overdose Deaths")) %>% 
   mutate(state_name = factor(state_name, levels = state_level)) %>% 
