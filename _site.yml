@@ -6,7 +6,7 @@ navbar:
     - text: "Overview"
       href: usa_analyzing.html
     - text: "Report"
-      href: food.html
+      href: report.html
     - text: "States of Choice"
       menu:
       - text: California
