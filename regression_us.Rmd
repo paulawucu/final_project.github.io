@@ -154,7 +154,7 @@ select(state, population)
 ```
 
 **Education Rate:** 
-The education data is from [United States Census Bureau](https://data.census.gov/cedsci/). We imported the date for fifty states and Washington D.C. from 2015 - 2019. It contains the number of population with different education level. We consider bachelor's education as the threshold of "high education". Therefore, we sum-up the number of people who has a bachelor or above degree. Then, we take an average of the number for 5 years. And the education rate can be calculated by dividing the high-educated population with the total population. Here education rate means that the proportion of population who receive bachelor's or higher education.
+The education data is from [United States Census Bureau](https://data.census.gov/cedsci/). We imported the data for fifty states and Washington D.C. from 2015 - 2019. It contains the number of population with different education level. We consider bachelor's education as the threshold of "high education". Therefore, we sum-up the number of people who has a bachelor or above degree. Then, we take an average of the number for 5 years. And the education rate can be calculated by dividing the high-educated population with the total population. Here education rate means that the proportion of population who receive bachelor's or higher education.
 
 
 ```{r, message = FALSE, warning = FALSE}
@@ -356,7 +356,7 @@ unemployment_overall =
 ```
 
 **Crude Divorce Rate:** 
-The divorce data is from [United States Census Bureau](https://data.census.gov/cedsci/). We imported the date for fifty states and Washington D.C. from 2015 - 2019. It contains the number of population who divorce with their partners. We take an average of the number for 5 years. And the crude divorce rate can be calculated by dividing the divorced population with the total population.
+The divorce data is from [United States Census Bureau](https://data.census.gov/cedsci/). We imported the data for fifty states and Washington D.C. from 2015 - 2019. It contains the number of population who divorce with their partners. We take an average of the number for 5 years. And the crude divorce rate can be calculated by dividing the divorced population with the total population.
 
 ```{r, message = FALSE, warning = FALSE}
 
