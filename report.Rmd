@@ -59,6 +59,19 @@ img {
 
 ## Exploratory Analysis 
 
+### US
+
+### By census region
+
+#### West - California
+
+#### South - Florida
+
+#### Midwest - Ohio
+
+#### East - New York City
+
+
 ## Additional Analysis
 
 ## Discussion
