@@ -1,5 +1,5 @@
 ---
-title: "NY data analyzing"
+title: "New York City Data Analyzing"
 output: 
   html_document:
     code_folding: hide
@@ -74,11 +74,6 @@ drug_percent_specified =
 For nyc_drug_overdose_death dataset: The dimension of this dataset is (`r dim(nyc_df)`). The percentages with drugs specified for each month from 2015-2021 in NYC are all above 98%, hence, the drugs' specified data are accurate enough and can be used further. However, the data of death counts for specific drug types in the years 2016 and 2017 are missing. 
 
 ```{r}
-nyc_df %>% 
-  ungroup() %>% 
-  filter(year %in% c("2016","2017")) %>% 
-  select(year, month, indicator, data_value, predicted_value)
-
 summarize_nyc_drug = 
   nyc_df %>% 
   ungroup() %>% 
