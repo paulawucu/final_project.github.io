@@ -1,5 +1,5 @@
 ---
-title: "Regression for US"
+title: "Regression Analysis"
 output: 
   html_document:
     code_folding: hide
@@ -37,9 +37,19 @@ scale_fill_discrete = scale_fill_viridis_d
 theme_set(theme_minimal() + theme(legend.position = "bottom"))
 ```
 
-## load the data for poverty
+# General Idea:
+
+In [USA Drug Overdoes Analyzing](usa_analyzing.html), we made a comprehensive analysis for the crude death rate resulted from drug overdose in us. We compared the change of death rate for different states in different years. Here in regression analysis, our goal is trying to build a regression model which explains the variances of drug overdose death rate among different states. The possible predictors are from social economic index and behavior statistics of residents for fifty states and Washington D.C.. We only use drug overdose death rate from 2015 - 2019 to guarantee the data availability for possible predictors.
+
+
+# Possible Predictors
+**Poverty Rate:** 
+The poverty data is from [United States Census Bureau](https://data.census.gov/cedsci/). We imported and cleaned to get the poverty rate for fifty states and Washington D.C. from 2015 - 2019. Then, we take an average of the poverty rate for 5 years. 
 
 ```{r, message = FALSE, warning = FALSE}
+
+## load the poverty rate data from 2015-2019
+
 poverty_2015 = 
   read_csv("data_regression_us/povety/poverty_us_2015.csv") %>% 
   select(NAME, S1701_C03_001E)
@@ -113,7 +123,7 @@ poverty_2019 =
     select(-c(NAME, S1701_C03_001E)) %>% 
     relocate(state)
   
-
+## combine the datasets, take average
 
 poverty_overall =
   join_all(list(poverty_2019, poverty_2018, poverty_2017, poverty_2016, poverty_2015)) 
@@ -126,7 +136,9 @@ poverty_overall =
   
 ```
 
-## load the population data
+**Population:** 
+The population data is from [United States Census Bureau](https://data.census.gov/cedsci/). We imported the population data for fifty states and Washington D.C. from 2020 United States census. Here we do not count population as a predictors. This data is only used to compute other predictors from available data.
+
 
 ```{r, message = FALSE, warning = FALSE}
 population_us = 
@@ -141,9 +153,14 @@ population_us =
 select(state, population)
 ```
 
-## load the education data
+**Education Rate:** 
+The education data is from [United States Census Bureau](https://data.census.gov/cedsci/). We imported the date for fifty states and Washington D.C. from 2015 - 2019. It contains the number of population with different education level. We consider bachelor's education as the threshold of "high education". Therefore, we sum-up the number of people who has a bachelor or above degree. Then, we take an average of the number for 5 years. And the education rate can be calculated by dividing the high-educated population with the total population. Here education rate means that the proportion of population who receive bachelor's or higher education.
+
 
 ```{r, message = FALSE, warning = FALSE}
+
+## load the education data from 2015-2019
+
 education_2015 =
   read_csv("data_regression_us/education/education_us_2015.csv")
 
@@ -232,11 +249,9 @@ education_2019 =
   select(state, number_bachelor, number_master, number_profesional, number_doctor) %>% 
   mutate(sum_high_educ_2019 = number_bachelor + number_master + number_profesional + number_doctor) %>% 
   select(state, sum_high_educ_2019)
-```
 
-### overall education data
+## combine to produce overall education data, take average for 5 years
 
-```{r, message = FALSE, warning = FALSE}
 education_overall =
   join_all(list(education_2019, education_2018, education_2017, education_2016, education_2015))
 
@@ -245,22 +260,22 @@ education_overall =
   mutate(sum_of_rows = rowSums((education_overall[,2:6]), na.rm = TRUE),
          mean_educ = sum_of_rows/5) %>% 
   select(state, mean_educ)
-```
 
-### education rate
+## compute education rate
 
-```{r, message = FALSE, warning = FALSE}
 education_rate = 
   left_join(education_overall, population_us) %>% 
   mutate(education_rate = mean_educ / population) %>% 
   select(state, education_rate)
 ```
 
-## unemployment
-
-load the unemployment 2015-2019
+**Unemployment Rate:** 
+The unemployment data is from [United States Census Bureau](https://data.census.gov/cedsci/). We imported and cleaned to get the unemployment rate for fifty states and Washington D.C. from 2015 - 2019. Then, we take an average of the unemployment rate for 5 years. 
 
 ```{r, message = FALSE, warning = FALSE}
+
+## load the unemployment 2015-2019
+
 unemployment_2015 =
   read_csv("data_regression_us/unemployment/unemployment_2015.csv")
 
@@ -325,11 +340,11 @@ unemployment_2019 =
     state = NAME
   ) %>% 
   select(state, unemployment_rate_2019)
-```
 
-### overall unemployment
 
-```{r, message = FALSE, warning = FALSE}
+## combine to overall unemployment df, take average of unemployment rate for 5 years
+
+
 unemployment_overall =
   join_all(list(unemployment_2019, unemployment_2018, unemployment_2017, unemployment_2016, unemployment_2015)) 
 
@@ -340,11 +355,13 @@ unemployment_overall =
   select(state, mean_unemployment_rate)
 ```
 
-## crude divorce rate
-
-load the divorce count data from 2015-2019
+**Crude Divorce Rate:** 
+The divorce data is from [United States Census Bureau](https://data.census.gov/cedsci/). We imported the date for fifty states and Washington D.C. from 2015 - 2019. It contains the number of population who divorce with their partners. We take an average of the number for 5 years. And the crude divorce rate can be calculated by dividing the divorced population with the total population.
 
 ```{r, message = FALSE, warning = FALSE}
+
+## load the divorce count data from 2015-2019
+
 divorce_2015 =
   read_csv("data_regression_us/divorce/divorce_number_2015.csv")
 
@@ -408,11 +425,11 @@ divorce_2019 =
     state = NAME
   ) %>% 
   select(state, divorce_num_2019)
-```
 
-### overall divorce count
 
-```{r, message = FALSE, warning = FALSE}
+## combine 5 df to a overall divorce count df, take average for 5 years
+
+
 divorce_overall = 
   join_all(list(divorce_2019, divorce_2018, divorce_2017, divorce_2016, divorce_2015)) 
 
@@ -421,49 +438,18 @@ divorce_overall =
   mutate(sum_of_rows = rowSums((divorce_overall[,2:6]), na.rm = TRUE),
          mean_divorce_num = sum_of_rows/5) %>% 
   select(state, mean_divorce_num)
-```
 
-### crude divorce rate
 
-```{r, message = FALSE, warning = FALSE}
+## compute crude divorce rate
+
 divorce_rate = 
   left_join(divorce_overall, population_us) %>% 
   mutate(divorce_rate = mean_divorce_num / population) %>% 
   select(state, divorce_rate)
 ```
 
-## binge drinking 
-
-```{r, message = FALSE, warning = FALSE}
-state_level = c(state.name[1:8], "District of Columbia", state.name[9:50])
-
-drinking_19 = 
-  read_excel("./data/statistic_id378966_us-binge-drinking-among-adults-by-state-2019.xlsx", range = "Data!B3:C57") %>% 
-  janitor::clean_names() %>% 
-  slice(-c(1,2)) %>% 
-  mutate(binge_drink_rate = 0.01 * as.numeric(x2)) %>% 
-  select(state = u_s_binge_drinking_among_adults_by_state_2019, binge_drink_rate)
-
-
-```
-
-## crude death rate
-
-```{r, message = FALSE, warning = FALSE}
-crudedeath_rate = 
-  read.csv("./data/agegroup_race_state_year_99-19.csv") %>% 
-  janitor::clean_names() %>% 
-  select(state, year = year_code, age = ten_year_age_groups_code, race, deaths,population) %>% 
-  drop_na() %>%
-  filter(year %in% c("2015", "2016", "2017", "2018", "2019")) %>%
-  group_by(state) %>%
-  dplyr::summarize(total_deaths = sum(deaths),
-           total_population = sum(population)) %>% 
-  mutate(crudedeath_rate = 0.01 * (total_deaths/total_population) * 100000) %>% 
-  select(state, crudedeath_rate)
-```
-
-## smoke rate 
+**Smoke Rate:** 
+The smoke rate data is from [America's Health Rankings](https://www.americashealthrankings.org/explore/annual/measure/Smoking/state/ALL?edition-year=2015). The smoke rate is defined as "the percentage of adults who reported smoking at least 100 cigarettes in their lifetime and currently smoke daily or some days". We imported and clean to get the smoke rate for fifty states and Washington D.C. from 2015 - 2019. Then, we take an average of the smoke rate for 5 years. 
 
 ```{r, message = FALSE, warning = FALSE}
 smoke_rate = 
@@ -477,17 +463,56 @@ smoke_rate =
 ```
 
 
-## regression overall data
+**Binge Drinking:**
+Binge drinking data is collected from [Statista](https://www.statista.com/statistics/378966/us-binge-drinking-rate-adults-by-state/). Binge drinking prevalence for the 51 jurisdictions (50 states and Washington D.C.). The prevalence of binge drinking is defined as number of binge drinker over the whole population within each jurisdiction.
 
 ```{r, message = FALSE, warning = FALSE}
-overall_regression = 
-  join_all(list(crudedeath_rate, drinking_19, divorce_rate, unemployment_overall, education_rate, poverty_overall, smoke_rate)) %>% 
-  select(-state)
+state_level = c(state.name[1:8], "District of Columbia", state.name[9:50])
+
+drinking_19 = 
+  read_excel("./data/statistic_id378966_us-binge-drinking-among-adults-by-state-2019.xlsx", range = "Data!B3:C57") %>% 
+  janitor::clean_names() %>% 
+  slice(-c(1,2)) %>% 
+  mutate(binge_drink_rate = 0.01 * as.numeric(x2)) %>% 
+  select(state = u_s_binge_drinking_among_adults_by_state_2019, binge_drink_rate)
+
 ```
 
-# Regression analyses
+**Crude Death Rate:**
+Mentioned in the USA overview section as well. In a few words, it is the number of deaths due to drug overdose per 100,000 people. 
 
-## correlation matrix
+```{r}
+crudedeath_rate = 
+  read.csv("./data/agegroup_race_state_year_99-19.csv") %>% 
+  janitor::clean_names() %>% 
+  select(state, year = year_code, age = ten_year_age_groups_code, race, deaths,population) %>% 
+  drop_na() %>%
+  filter(year %in% c("2015", "2016", "2017", "2018", "2019")) %>%
+  group_by(state) %>%
+  dplyr::summarize(total_deaths = sum(deaths),
+           total_population = sum(population)) %>% 
+  mutate(crudedeath_rate = 0.01 * (total_deaths/total_population) * 100000) %>% 
+  select(state, crudedeath_rate)
+```
+
+# Regression Analyses
+## Regression Overall Data
+
+The regression overall data is produced by combining the dataset generated above. For each state, this data contains the response -- the crude death rate for drug overdose and all possible predictors -- binge drinking rate, divorce rate, unemployment rate, education rate, poverty rate, and smoke rate. The following tables describe this data:
+
+```{r, message = FALSE, warning = FALSE}
+overall_regression_view = 
+  join_all(list(crudedeath_rate, drinking_19, divorce_rate, unemployment_overall, education_rate, poverty_overall, smoke_rate)) 
+
+overall_regression = 
+  overall_regression_view %>% 
+  select(-state)
+
+overall_regression_view %>% head(10) %>% knitr::kable(caption = "The First 10 Rows of Regression Overall Data")
+summary(overall_regression_view) %>% knitr::kable(caption = "Summary of The Response and The Predictors")
+```
+
+## Correlation Matrix
 
 ```{r correlation_table, message = FALSE, warning = FALSE}
 corr_matrix =
@@ -495,28 +520,44 @@ corr_matrix =
   chart.Correlation(histogram = TRUE, method = "pearson")
 
 ```
+
 *Comments:*
 
 For those variables that are strongly correlated with each other, we add their interaction into the regression model for further analysis. 
 
 Two-ways interaction we consider:
+
 1. binge_drink_rate * education_rate
+
 2. mean_unemployment_rate * mean_poverty_rate
+
 3. education_rate * mean_poverty_rate
+
 4. education_rate * mean_smoke_rate
+
 5. mean_poverty_rate * mean_smoke_rate
 
 
-## Modeling crude death rate resulted from data overdose
+## Regression Modeling
 
-### Stepwise modeling
+**Method:**
+
+The initial full model for crude death rate consists of all possible predictors and reasonable interaction.
+
+*Model_full:* crudedeath_rate ~ binge_drink_rate + divorce_rate + mean_unemployment_rate + education_rate + mean_poverty_rate + mean_smoke_rate + binge_drink_rate * education_rate + mean_unemployment_rate * mean_poverty_rate + education_rate * mean_poverty_rate + education_rate * mean_smoke_rate + mean_poverty_rate * mean_smoke_rate
+
+Here we are going to use two modeling method and try to generate a better regression model to explain crude death rate.
+
+
+### Stepwise Modeling
 ```{r, message = FALSE, warning = FALSE}
 stepwise = 
-  step(lm(crudedeath_rate ~ binge_drink_rate + divorce_rate + mean_unemployment_rate + education_rate + mean_poverty_rate + mean_smoke_rate + binge_drink_rate * education_rate + mean_unemployment_rate * mean_poverty_rate + education_rate * mean_poverty_rate + education_rate * mean_smoke_rate + mean_poverty_rate * mean_smoke_rate, data = overall_regression),direction = "both")
+  step(lm(crudedeath_rate ~ binge_drink_rate + divorce_rate + mean_unemployment_rate + education_rate + mean_poverty_rate + mean_smoke_rate + binge_drink_rate * education_rate + mean_unemployment_rate * mean_poverty_rate + education_rate * mean_poverty_rate + education_rate * mean_smoke_rate + mean_poverty_rate * mean_smoke_rate, data = overall_regression),direction = "both", trace = 0)
 
 ```
+Based on the stepwise results, the best model is model_1.
 
-Based on the stepwise results, the best model is model_1 : crudedeath_rate ~ binge_drink_rate + divorce_rate +  mean_unemployment_rate + education_rate + mean_poverty_rate +  mean_smoke_rate + binge_drink_rate:education_rate
+**Model_1:** crudedeath_rate ~ binge_drink_rate + divorce_rate +  mean_unemployment_rate + education_rate + mean_poverty_rate +  mean_smoke_rate + binge_drink_rate:education_rate.
 
 
 This model can be described in the following parameter:
@@ -526,14 +567,16 @@ summary(stepwise) %>% broom::glance() %>% knitr::kable()
 ```
 
 
-### Use regsubset() to compare all possible models
+### Regsubset() Compare All Possible Models
 
-```{r, message = FALSE, warning = FALSE}
+```{r, message = FALSE, warning = FALSE, results = 'hide'}
 reg_subsets = 
   regsubsets(crudedeath_rate ~ binge_drink_rate + divorce_rate + mean_unemployment_rate + education_rate + mean_poverty_rate + mean_smoke_rate + binge_drink_rate * education_rate + mean_unemployment_rate * mean_poverty_rate + education_rate * mean_poverty_rate + education_rate * mean_smoke_rate + mean_poverty_rate * mean_smoke_rate, data = overall_regression, nvmax = 11)
 
 summary(reg_subsets)
 ```
+
+**Method: **This table describes the different statistics value for different number of predictors the model contains. For each number, regsubset() produces the best model and outputs the statistics in the following.
 
 ```{r, message = FALSE, warning = FALSE}
 cri_measure = 
@@ -547,9 +590,9 @@ cri_measure =
 cri_measure
 ```
 
-Based on different statistics, we get two models from regsubset's results:
+Based on **cp** and **adjusted r** square, the "best" model contain six predictors.
 
-Model_2. crudedeath_rate ~ mean_poverty_rate + mean_unemployment_rate:mean_poverty_rate + education_rate:mean_poverty_rate + mean_poverty_rate:mean_smoke_rate
+**Model_2:** crudedeath_rate ~ mean_poverty_rate + mean_unemployment_rate:mean_poverty_rate + education_rate:mean_poverty_rate + mean_poverty_rate:mean_smoke_rate
 
 This model can be described in the following parameter:
 
@@ -562,7 +605,9 @@ summary(model_2) %>% broom::glance() %>% knitr::kable()
 
 ```
 
-Model_3. crudedeath_rate ~ binge_drink_rate + divorce_rate + mean_poverty_rate + binge_drink_rate:education_rate +mean_unemployment_rate:mean_poverty_rate + mean_poverty_rate:mean_smoke_rate
+Based on **BIC**, we get model_3 as the "best" model.
+
+**Model_3:** crudedeath_rate ~ binge_drink_rate + divorce_rate + mean_poverty_rate + binge_drink_rate:education_rate +mean_unemployment_rate:mean_poverty_rate + mean_poverty_rate:mean_smoke_rate
 
 This model can be described in the following parameter:
 
@@ -575,14 +620,22 @@ summary(model_3) %>% broom::glance() %>% knitr::kable()
 ```
 
 
-## Cross validation
+## Cross Validation
+We now have three candidates as considered possible "best" model for drug overdose crude death rate:
+
+*Model_1:* crudedeath_rate ~ binge_drink_rate + divorce_rate +  mean_unemployment_rate + education_rate + mean_poverty_rate +  mean_smoke_rate + binge_drink_rate:education_rate.
+
+*Model_2:* crudedeath_rate ~ mean_poverty_rate + mean_unemployment_rate:mean_poverty_rate + education_rate:mean_poverty_rate + mean_poverty_rate:mean_smoke_rate
+
+*Model_3:* crudedeath_rate ~ binge_drink_rate + divorce_rate + mean_poverty_rate + binge_drink_rate:education_rate +mean_unemployment_rate:mean_poverty_rate + mean_poverty_rate:mean_smoke_rate
+
+In cross validation process, we are going to compare the cross-validated prediction error for three model and their result with initial full model.
 
 ```{r, message = FALSE, warning = FALSE}
 train_df = sample_n(overall_regression, 41)
 test_df = anti_join(overall_regression, train_df)
-```
 
-```{r, message = FALSE, warning = FALSE}
+
 set.seed(1)
 cv_modeling_df = 
   crossv_mc(overall_regression, 5000) %>% 
@@ -593,19 +646,21 @@ cv_modeling_df =
   mutate(
     model_1 = map(.x = train, ~lm(crudedeath_rate ~ binge_drink_rate + divorce_rate +  mean_unemployment_rate + education_rate + mean_poverty_rate +  mean_smoke_rate + binge_drink_rate:education_rate, data = .x)),
     model_2 = map(.x = train, ~lm(crudedeath_rate ~ mean_poverty_rate + mean_unemployment_rate:mean_poverty_rate + education_rate:mean_poverty_rate + mean_poverty_rate:mean_smoke_rate, data = .x)),
-    model_3 = map(.x = train, ~lm(crudedeath_rate ~ binge_drink_rate + divorce_rate + mean_poverty_rate + binge_drink_rate:education_rate +mean_unemployment_rate:mean_poverty_rate + mean_poverty_rate:mean_smoke_rate, data = .x))
+    model_3 = map(.x = train, ~lm(crudedeath_rate ~ binge_drink_rate + divorce_rate + mean_poverty_rate + binge_drink_rate:education_rate +mean_unemployment_rate:mean_poverty_rate + mean_poverty_rate:mean_smoke_rate, data = .x)),
+    model_full = map(.x = train, ~lm(crudedeath_rate ~ binge_drink_rate + divorce_rate + mean_unemployment_rate + education_rate + mean_poverty_rate + mean_smoke_rate + binge_drink_rate * education_rate + mean_unemployment_rate * mean_poverty_rate + education_rate * mean_poverty_rate + education_rate * mean_smoke_rate + mean_poverty_rate * mean_smoke_rate, data = .x))
   ) %>% 
   mutate(
     rmse_model_1 = map2_dbl(.x = model_1, .y = test, ~rmse(model = .x, data = .y)),
     rmse_model_2 = map2_dbl(.x = model_2, .y = test, ~rmse(model = .x, data = .y)),
-    rmse_model_3 = map2_dbl(.x = model_3, .y = test, ~rmse(model = .x, data = .y))
+    rmse_model_3 = map2_dbl(.x = model_3, .y = test, ~rmse(model = .x, data = .y)),
+    rmse_model_full = map2_dbl(.x = model_full, .y = test, ~rmse(model = .x, data = .y))
   )
 
 cv_modeling_output = 
   cv_modeling_df %>% 
   select(.id, starts_with("rmse")) %>% 
   pivot_longer(
-    rmse_model_1:rmse_model_3,
+    rmse_model_1:rmse_model_full,
     names_to = "model",
     values_to = "rmse",
     names_prefix = "rmse_"
@@ -616,5 +671,25 @@ cv_modeling_output =
 cv_modeling_output
 ```
 
+*Comments:*
+
+All three models we select are better than the initial model. Model_1 may be slightly better than other two. 
+
+# Conclusion
+
+The better model to explain the variances (from 2015 - 2019) of crude death rate of drug overdose for fifty states and Washington D.C. is model 1. 
+
+**Model_1:** crudedeath_rate ~ binge_drink_rate + divorce_rate +  mean_unemployment_rate + education_rate + mean_poverty_rate +  mean_smoke_rate + binge_drink_rate:education_rate.
+
+```{r}
+summary(stepwise) %>% broom::tidy() %>% knitr::kable()
+```
+
+**Predictor evaluation:** Binge drink rate, divorce rate, education rate, poverty rate are negatively associated with crude death rate of drug overdose. This means states with the higher value of these predictors may have a lower death rate for drug overdose. Unemployment rate and smoke rate are positively associated with crude death rate of drug overdose. This means that states which have higher prevalence of adult smokers or higher unemployment rate may also have a higher rate of death induced by drug overdose.
 
 
+```{r}
+summary(stepwise) %>% broom::glance() %>% knitr::kable()
+```
+
+**Model description:** Overall, this model explains around 50% of the difference of crude death rate of drug overdose among fifty states and Washington D.C.. However, since the sample size we use is quite small(50 + 1 = 51), this model might not be very reliable.

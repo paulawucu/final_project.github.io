@@ -11,7 +11,7 @@
 
 
 
-<title>Regression for US</title>
+<title>Regression Analysis</title>
 
 <script src="site_libs/header-attrs-2.11/header-attrs.js"></script>
 <script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
@@ -403,14 +403,21 @@ div.tocify {
 
 
 
-<h1 class="title toc-ignore">Regression for US</h1>
+<h1 class="title toc-ignore">Regression Analysis</h1>
 
 </div>
 
 
-<div id="load-the-data-for-poverty" class="section level2">
-<h2>load the data for poverty</h2>
-<pre class="r"><code>poverty_2015 = 
+<div id="general-idea" class="section level1">
+<h1>General Idea:</h1>
+<p>In <a href="usa_analyzing.html">USA Drug Overdoes Analyzing</a>, we made a comprehensive analysis for the crude death rate resulted from drug overdose in us. We compared the change of death rate for different states in different years. Here in regression analysis, our goal is trying to build a regression model which explains the variances of drug overdose death rate among different states. The possible predictors are from social economic index and behavior statistics of residents for fifty states and Washington D.C.. We only use drug overdose death rate from 2015 - 2019 to guarantee the data availability for possible predictors.</p>
+</div>
+<div id="possible-predictors" class="section level1">
+<h1>Possible Predictors</h1>
+<p><strong>Poverty Rate:</strong> The poverty data is from <a href="https://data.census.gov/cedsci/">United States Census Bureau</a>. We imported and cleaned to get the poverty rate for fifty states and Washington D.C. from 2015 - 2019. Then, we take an average of the poverty rate for 5 years.</p>
+<pre class="r"><code>## load the poverty rate data from 2015-2019
+
+poverty_2015 = 
   read_csv(&quot;data_regression_us/povety/poverty_us_2015.csv&quot;) %&gt;% 
   select(NAME, S1701_C03_001E)
     
@@ -483,7 +490,7 @@ poverty_2019 =
     select(-c(NAME, S1701_C03_001E)) %&gt;% 
     relocate(state)
   
-
+## combine the datasets, take average
 
 poverty_overall =
   join_all(list(poverty_2019, poverty_2018, poverty_2017, poverty_2016, poverty_2015)) 
@@ -493,9 +500,7 @@ poverty_overall =
   mutate(sum_of_rows = rowSums((poverty_overall[,2:6]), na.rm = TRUE),
          mean_poverty_rate = 0.01 * sum_of_rows/5) %&gt;% 
   select(state, mean_poverty_rate)</code></pre>
-</div>
-<div id="load-the-population-data" class="section level2">
-<h2>load the population data</h2>
+<p><strong>Population:</strong> The population data is from <a href="https://data.census.gov/cedsci/">United States Census Bureau</a>. We imported the population data for fifty states and Washington D.C. from 2020 United States census. Here we do not count population as a predictors. This data is only used to compute other predictors from available data.</p>
 <pre class="r"><code>population_us = 
   read_csv(&quot;data_regression_us/population/ACSDT5Y2019.B01003_data_with_overlays_2021-11-16T170855.csv&quot;)
 
@@ -506,10 +511,10 @@ population_us =
     population = as.numeric(B01003_001E)
   ) %&gt;% 
 select(state, population)</code></pre>
-</div>
-<div id="load-the-education-data" class="section level2">
-<h2>load the education data</h2>
-<pre class="r"><code>education_2015 =
+<p><strong>Education Rate:</strong> The education data is from <a href="https://data.census.gov/cedsci/">United States Census Bureau</a>. We imported the date for fifty states and Washington D.C. from 2015 - 2019. It contains the number of population with different education level. We consider bachelor’s education as the threshold of “high education”. Therefore, we sum-up the number of people who has a bachelor or above degree. Then, we take an average of the number for 5 years. And the education rate can be calculated by dividing the high-educated population with the total population. Here education rate means that the proportion of population who receive bachelor’s or higher education.</p>
+<pre class="r"><code>## load the education data from 2015-2019
+
+education_2015 =
   read_csv(&quot;data_regression_us/education/education_us_2015.csv&quot;)
 
 education_2015 = 
@@ -596,30 +601,29 @@ education_2019 =
   ) %&gt;% 
   select(state, number_bachelor, number_master, number_profesional, number_doctor) %&gt;% 
   mutate(sum_high_educ_2019 = number_bachelor + number_master + number_profesional + number_doctor) %&gt;% 
-  select(state, sum_high_educ_2019)</code></pre>
-<div id="overall-education-data" class="section level3">
-<h3>overall education data</h3>
-<pre class="r"><code>education_overall =
+  select(state, sum_high_educ_2019)
+
+## combine to produce overall education data, take average for 5 years
+
+education_overall =
   join_all(list(education_2019, education_2018, education_2017, education_2016, education_2015))
 
 education_overall =
   education_overall %&gt;% 
   mutate(sum_of_rows = rowSums((education_overall[,2:6]), na.rm = TRUE),
          mean_educ = sum_of_rows/5) %&gt;% 
-  select(state, mean_educ)</code></pre>
-</div>
-<div id="education-rate" class="section level3">
-<h3>education rate</h3>
-<pre class="r"><code>education_rate = 
+  select(state, mean_educ)
+
+## compute education rate
+
+education_rate = 
   left_join(education_overall, population_us) %&gt;% 
   mutate(education_rate = mean_educ / population) %&gt;% 
   select(state, education_rate)</code></pre>
-</div>
-</div>
-<div id="unemployment" class="section level2">
-<h2>unemployment</h2>
-<p>load the unemployment 2015-2019</p>
-<pre class="r"><code>unemployment_2015 =
+<p><strong>Unemployment Rate:</strong> The unemployment data is from <a href="https://data.census.gov/cedsci/">United States Census Bureau</a>. We imported and cleaned to get the unemployment rate for fifty states and Washington D.C. from 2015 - 2019. Then, we take an average of the unemployment rate for 5 years.</p>
+<pre class="r"><code>## load the unemployment 2015-2019
+
+unemployment_2015 =
   read_csv(&quot;data_regression_us/unemployment/unemployment_2015.csv&quot;)
 
 unemployment_2015 = 
@@ -682,10 +686,13 @@ unemployment_2019 =
     unemployment_rate_2019 = as.numeric(S2301_C04_001E),
     state = NAME
   ) %&gt;% 
-  select(state, unemployment_rate_2019)</code></pre>
-<div id="overall-unemployment" class="section level3">
-<h3>overall unemployment</h3>
-<pre class="r"><code>unemployment_overall =
+  select(state, unemployment_rate_2019)
+
+
+## combine to overall unemployment df, take average of unemployment rate for 5 years
+
+
+unemployment_overall =
   join_all(list(unemployment_2019, unemployment_2018, unemployment_2017, unemployment_2016, unemployment_2015)) 
 
 unemployment_overall = 
@@ -693,12 +700,10 @@ unemployment_overall =
   mutate(sum_of_rows = rowSums((unemployment_overall[,2:6]), na.rm = TRUE),
          mean_unemployment_rate = 0.01 * sum_of_rows/5) %&gt;% 
   select(state, mean_unemployment_rate)</code></pre>
-</div>
-</div>
-<div id="crude-divorce-rate" class="section level2">
-<h2>crude divorce rate</h2>
-<p>load the divorce count data from 2015-2019</p>
-<pre class="r"><code>divorce_2015 =
+<p><strong>Crude Divorce Rate:</strong> The divorce data is from <a href="https://data.census.gov/cedsci/">United States Census Bureau</a>. We imported the date for fifty states and Washington D.C. from 2015 - 2019. It contains the number of population who divorce with their partners. We take an average of the number for 5 years. And the crude divorce rate can be calculated by dividing the divorced population with the total population.</p>
+<pre class="r"><code>## load the divorce count data from 2015-2019
+
+divorce_2015 =
   read_csv(&quot;data_regression_us/divorce/divorce_number_2015.csv&quot;)
 
 divorce_2015 = 
@@ -760,28 +765,38 @@ divorce_2019 =
     divorce_num_2019 = as.numeric(B12503_001E),
     state = NAME
   ) %&gt;% 
-  select(state, divorce_num_2019)</code></pre>
-<div id="overall-divorce-count" class="section level3">
-<h3>overall divorce count</h3>
-<pre class="r"><code>divorce_overall = 
+  select(state, divorce_num_2019)
+
+
+## combine 5 df to a overall divorce count df, take average for 5 years
+
+
+divorce_overall = 
   join_all(list(divorce_2019, divorce_2018, divorce_2017, divorce_2016, divorce_2015)) 
 
 divorce_overall = 
   divorce_overall %&gt;% 
   mutate(sum_of_rows = rowSums((divorce_overall[,2:6]), na.rm = TRUE),
          mean_divorce_num = sum_of_rows/5) %&gt;% 
-  select(state, mean_divorce_num)</code></pre>
-</div>
-<div id="crude-divorce-rate-1" class="section level3">
-<h3>crude divorce rate</h3>
-<pre class="r"><code>divorce_rate = 
+  select(state, mean_divorce_num)
+
+
+## compute crude divorce rate
+
+divorce_rate = 
   left_join(divorce_overall, population_us) %&gt;% 
   mutate(divorce_rate = mean_divorce_num / population) %&gt;% 
   select(state, divorce_rate)</code></pre>
-</div>
-</div>
-<div id="binge-drinking" class="section level2">
-<h2>binge drinking</h2>
+<p><strong>Smoke Rate:</strong> The smoke rate data is from <a href="https://www.americashealthrankings.org/explore/annual/measure/Smoking/state/ALL?edition-year=2015">America’s Health Rankings</a>. The smoke rate is defined as “the percentage of adults who reported smoking at least 100 cigarettes in their lifetime and currently smoke daily or some days”. We imported and clean to get the smoke rate for fifty states and Washington D.C. from 2015 - 2019. Then, we take an average of the smoke rate for 5 years.</p>
+<pre class="r"><code>smoke_rate = 
+  read_excel(&quot;data_regression_us/smoke/smoke_rate.xlsx&quot;)
+
+smoke_rate = 
+  smoke_rate %&gt;% 
+  mutate(sum_of_rows = rowSums((smoke_rate[,2:6]), na.rm = TRUE),
+         mean_smoke_rate = sum_of_rows/5) %&gt;% 
+  select(state, mean_smoke_rate)</code></pre>
+<p><strong>Binge Drinking:</strong> Binge drinking data is collected from <a href="https://www.statista.com/statistics/378966/us-binge-drinking-rate-adults-by-state/">Statista</a>. Binge drinking prevalence for the 51 jurisdictions (50 states and Washington D.C.). The prevalence of binge drinking is defined as number of binge drinker over the whole population within each jurisdiction.</p>
 <pre class="r"><code>state_level = c(state.name[1:8], &quot;District of Columbia&quot;, state.name[9:50])
 
 drinking_19 = 
@@ -790,9 +805,7 @@ drinking_19 =
   slice(-c(1,2)) %&gt;% 
   mutate(binge_drink_rate = 0.01 * as.numeric(x2)) %&gt;% 
   select(state = u_s_binge_drinking_among_adults_by_state_2019, binge_drink_rate)</code></pre>
-</div>
-<div id="crude-death-rate" class="section level2">
-<h2>crude death rate</h2>
+<p><strong>Crude Death Rate:</strong> Mentioned in the USA overview section as well. In a few words, it is the number of deaths due to drug overdose per 100,000 people.</p>
 <pre class="r"><code>crudedeath_rate = 
   read.csv(&quot;./data/agegroup_race_state_year_99-19.csv&quot;) %&gt;% 
   janitor::clean_names() %&gt;% 
@@ -805,117 +818,283 @@ drinking_19 =
   mutate(crudedeath_rate = 0.01 * (total_deaths/total_population) * 100000) %&gt;% 
   select(state, crudedeath_rate)</code></pre>
 </div>
-<div id="smoke-rate" class="section level2">
-<h2>smoke rate</h2>
-<pre class="r"><code>smoke_rate = 
-  read_excel(&quot;data_regression_us/smoke/smoke_rate.xlsx&quot;)
-
-smoke_rate = 
-  smoke_rate %&gt;% 
-  mutate(sum_of_rows = rowSums((smoke_rate[,2:6]), na.rm = TRUE),
-         mean_smoke_rate = sum_of_rows/5) %&gt;% 
-  select(state, mean_smoke_rate)</code></pre>
-</div>
-<div id="regression-overall-data" class="section level2">
-<h2>regression overall data</h2>
-<pre class="r"><code>overall_regression = 
-  join_all(list(crudedeath_rate, drinking_19, divorce_rate, unemployment_overall, education_rate, poverty_overall, smoke_rate)) %&gt;% 
-  select(-state)</code></pre>
-</div>
 <div id="regression-analyses" class="section level1">
-<h1>Regression analyses</h1>
+<h1>Regression Analyses</h1>
+<div id="regression-overall-data" class="section level2">
+<h2>Regression Overall Data</h2>
+<p>The regression overall data is produced by combining the dataset generated above. For each state, this data contains the response – the crude death rate for drug overdose and all possible predictors – binge drinking rate, divorce rate, unemployment rate, education rate, poverty rate, and smoke rate. The following tables describe this data:</p>
+<pre class="r"><code>overall_regression_view = 
+  join_all(list(crudedeath_rate, drinking_19, divorce_rate, unemployment_overall, education_rate, poverty_overall, smoke_rate)) 
+
+overall_regression = 
+  overall_regression_view %&gt;% 
+  select(-state)
+
+overall_regression_view %&gt;% head(10) %&gt;% knitr::kable(caption = &quot;The First 10 Rows of Regression Overall Data&quot;)</code></pre>
+<table>
+<caption>The First 10 Rows of Regression Overall Data</caption>
+<colgroup>
+<col width="15%" />
+<col width="11%" />
+<col width="12%" />
+<col width="9%" />
+<col width="16%" />
+<col width="10%" />
+<col width="12%" />
+<col width="11%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">state</th>
+<th align="right">crudedeath_rate</th>
+<th align="right">binge_drink_rate</th>
+<th align="right">divorce_rate</th>
+<th align="right">mean_unemployment_rate</th>
+<th align="right">education_rate</th>
+<th align="right">mean_poverty_rate</th>
+<th align="right">mean_smoke_rate</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Alabama</td>
+<td align="right">0.2270304</td>
+<td align="right">0.136</td>
+<td align="right">0.8151100</td>
+<td align="right">0.0598</td>
+<td align="right">0.1718737</td>
+<td align="right">0.1696</td>
+<td align="right">0.2082</td>
+</tr>
+<tr class="even">
+<td align="left">Alaska</td>
+<td align="right">0.2663021</td>
+<td align="right">0.182</td>
+<td align="right">0.7901922</td>
+<td align="right">0.0722</td>
+<td align="right">0.1932690</td>
+<td align="right">0.1046</td>
+<td align="right">0.1962</td>
+</tr>
+<tr class="odd">
+<td align="left">Arizona</td>
+<td align="right">0.2960310</td>
+<td align="right">0.165</td>
+<td align="right">0.8070829</td>
+<td align="right">0.0594</td>
+<td align="right">0.1959374</td>
+<td align="right">0.1524</td>
+<td align="right">0.1496</td>
+</tr>
+<tr class="even">
+<td align="left">Arkansas</td>
+<td align="right">0.2089063</td>
+<td align="right">0.149</td>
+<td align="right">0.8054663</td>
+<td align="right">0.0516</td>
+<td align="right">0.1530968</td>
+<td align="right">0.1722</td>
+<td align="right">0.2364</td>
+</tr>
+<tr class="odd">
+<td align="left">California</td>
+<td align="right">0.1640786</td>
+<td align="right">0.183</td>
+<td align="right">0.8119989</td>
+<td align="right">0.0606</td>
+<td align="right">0.2273319</td>
+<td align="right">0.1350</td>
+<td align="right">0.1160</td>
+</tr>
+<tr class="even">
+<td align="left">Colorado</td>
+<td align="right">0.2309491</td>
+<td align="right">0.196</td>
+<td align="right">0.8134724</td>
+<td align="right">0.0434</td>
+<td align="right">0.2791094</td>
+<td align="right">0.1034</td>
+<td align="right">0.1520</td>
+</tr>
+<tr class="odd">
+<td align="left">Connecticut</td>
+<td align="right">0.4042932</td>
+<td align="right">0.177</td>
+<td align="right">0.8321996</td>
+<td align="right">0.0604</td>
+<td align="right">0.2712121</td>
+<td align="right">0.1006</td>
+<td align="right">0.1342</td>
+</tr>
+<tr class="even">
+<td align="left">Delaware</td>
+<td align="right">0.6017141</td>
+<td align="right">0.189</td>
+<td align="right">0.6596654</td>
+<td align="right">0.0542</td>
+<td align="right">0.2215250</td>
+<td align="right">0.1230</td>
+<td align="right">0.1770</td>
+</tr>
+<tr class="odd">
+<td align="left">District of Columbia</td>
+<td align="right">0.8842317</td>
+<td align="right">0.272</td>
+<td align="right">0.8416479</td>
+<td align="right">0.0692</td>
+<td align="right">0.4124074</td>
+<td align="right">0.1644</td>
+<td align="right">0.1508</td>
+</tr>
+<tr class="even">
+<td align="left">Florida</td>
+<td align="right">0.2746527</td>
+<td align="right">0.180</td>
+<td align="right">0.8358681</td>
+<td align="right">0.0564</td>
+<td align="right">0.2120040</td>
+<td align="right">0.1414</td>
+<td align="right">0.1590</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code>summary(overall_regression_view) %&gt;% knitr::kable(caption = &quot;Summary of The Response and The Predictors&quot;)</code></pre>
+<table>
+<caption>Summary of The Response and The Predictors</caption>
+<colgroup>
+<col width="2%" />
+<col width="12%" />
+<col width="11%" />
+<col width="12%" />
+<col width="10%" />
+<col width="16%" />
+<col width="10%" />
+<col width="12%" />
+<col width="11%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left"></th>
+<th align="left">state</th>
+<th align="left">crudedeath_rate</th>
+<th align="left">binge_drink_rate</th>
+<th align="left">divorce_rate</th>
+<th align="left">mean_unemployment_rate</th>
+<th align="left">education_rate</th>
+<th align="left">mean_poverty_rate</th>
+<th align="left">mean_smoke_rate</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left"></td>
+<td align="left">Length:51</td>
+<td align="left">Min. :0.1182</td>
+<td align="left">Min. :0.1200</td>
+<td align="left">Min. :0.6597</td>
+<td align="left">Min. :0.02740</td>
+<td align="left">Min. :0.1449</td>
+<td align="left">Min. :0.0762</td>
+<td align="left">Min. :0.0910</td>
+</tr>
+<tr class="even">
+<td align="left"></td>
+<td align="left">Class :character</td>
+<td align="left">1st Qu.:0.2057</td>
+<td align="left">1st Qu.:0.1653</td>
+<td align="left">1st Qu.:0.8043</td>
+<td align="left">1st Qu.:0.04270</td>
+<td align="left">1st Qu.:0.1873</td>
+<td align="left">1st Qu.:0.1092</td>
+<td align="left">1st Qu.:0.1511</td>
+</tr>
+<tr class="odd">
+<td align="left"></td>
+<td align="left">Mode :character</td>
+<td align="left">Median :0.2710</td>
+<td align="left">Median :0.1865</td>
+<td align="left">Median :0.8143</td>
+<td align="left">Median :0.05320</td>
+<td align="left">Median :0.2061</td>
+<td align="left">Median :0.1306</td>
+<td align="left">Median :0.1718</td>
+</tr>
+<tr class="even">
+<td align="left"></td>
+<td align="left">NA</td>
+<td align="left">Mean :0.3015</td>
+<td align="left">Mean :0.1858</td>
+<td align="left">Mean :0.8110</td>
+<td align="left">Mean :0.05128</td>
+<td align="left">Mean :0.2153</td>
+<td align="left">Mean :0.1321</td>
+<td align="left">Mean :0.1752</td>
+</tr>
+<tr class="odd">
+<td align="left"></td>
+<td align="left">NA</td>
+<td align="left">3rd Qu.:0.3561</td>
+<td align="left">3rd Qu.:0.2010</td>
+<td align="left">3rd Qu.:0.8223</td>
+<td align="left">3rd Qu.:0.05900</td>
+<td align="left">3rd Qu.:0.2357</td>
+<td align="left">3rd Qu.:0.1502</td>
+<td align="left">3rd Qu.:0.1961</td>
+</tr>
+<tr class="even">
+<td align="left"></td>
+<td align="left">NA</td>
+<td align="left">Max. :0.8842</td>
+<td align="left">Max. :0.2720</td>
+<td align="left">Max. :0.8478</td>
+<td align="left">Max. :0.07460</td>
+<td align="left">Max. :0.4124</td>
+<td align="left">Max. :0.2038</td>
+<td align="left">Max. :0.2568</td>
+</tr>
+<tr class="odd">
+<td align="left"></td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA’s :1</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+</tr>
+</tbody>
+</table>
+</div>
 <div id="correlation-matrix" class="section level2">
-<h2>correlation matrix</h2>
+<h2>Correlation Matrix</h2>
 <pre class="r"><code>corr_matrix =
   overall_regression %&gt;% 
   chart.Correlation(histogram = TRUE, method = &quot;pearson&quot;)</code></pre>
-<p><img src="regression_us_files/figure-html/correlation_table-1.png" width="90%" /> <em>Comments:</em></p>
+<p><img src="regression_us_files/figure-html/correlation_table-1.png" width="90%" /></p>
+<p><em>Comments:</em></p>
 <p>For those variables that are strongly correlated with each other, we add their interaction into the regression model for further analysis.</p>
-<p>Two-ways interaction we consider: 1. binge_drink_rate * education_rate 2. mean_unemployment_rate * mean_poverty_rate 3. education_rate * mean_poverty_rate 4. education_rate * mean_smoke_rate 5. mean_poverty_rate * mean_smoke_rate</p>
+<p>Two-ways interaction we consider:</p>
+<ol style="list-style-type: decimal">
+<li><p>binge_drink_rate * education_rate</p></li>
+<li><p>mean_unemployment_rate * mean_poverty_rate</p></li>
+<li><p>education_rate * mean_poverty_rate</p></li>
+<li><p>education_rate * mean_smoke_rate</p></li>
+<li><p>mean_poverty_rate * mean_smoke_rate</p></li>
+</ol>
 </div>
-<div id="modeling-crude-death-rate-resulted-from-data-overdose" class="section level2">
-<h2>Modeling crude death rate resulted from data overdose</h2>
+<div id="regression-modeling" class="section level2">
+<h2>Regression Modeling</h2>
+<p><strong>Method:</strong></p>
+<p>The initial full model for crude death rate consists of all possible predictors and reasonable interaction.</p>
+<p><em>Model_full:</em> crudedeath_rate ~ binge_drink_rate + divorce_rate + mean_unemployment_rate + education_rate + mean_poverty_rate + mean_smoke_rate + binge_drink_rate * education_rate + mean_unemployment_rate * mean_poverty_rate + education_rate * mean_poverty_rate + education_rate * mean_smoke_rate + mean_poverty_rate * mean_smoke_rate</p>
+<p>Here we are going to use two modeling method and try to generate a better regression model to explain crude death rate.</p>
 <div id="stepwise-modeling" class="section level3">
-<h3>Stepwise modeling</h3>
+<h3>Stepwise Modeling</h3>
 <pre class="r"><code>stepwise = 
-  step(lm(crudedeath_rate ~ binge_drink_rate + divorce_rate + mean_unemployment_rate + education_rate + mean_poverty_rate + mean_smoke_rate + binge_drink_rate * education_rate + mean_unemployment_rate * mean_poverty_rate + education_rate * mean_poverty_rate + education_rate * mean_smoke_rate + mean_poverty_rate * mean_smoke_rate, data = overall_regression),direction = &quot;both&quot;)</code></pre>
-<pre><code>## Start:  AIC=-216.35
-## crudedeath_rate ~ binge_drink_rate + divorce_rate + mean_unemployment_rate + 
-##     education_rate + mean_poverty_rate + mean_smoke_rate + binge_drink_rate * 
-##     education_rate + mean_unemployment_rate * mean_poverty_rate + 
-##     education_rate * mean_poverty_rate + education_rate * mean_smoke_rate + 
-##     mean_poverty_rate * mean_smoke_rate
-## 
-##                                            Df Sum of Sq     RSS     AIC
-## - education_rate:mean_smoke_rate            1 0.0004990 0.40908 -218.29
-## - mean_unemployment_rate:mean_poverty_rate  1 0.0038202 0.41240 -217.89
-## - education_rate:mean_poverty_rate          1 0.0057047 0.41428 -217.66
-## - binge_drink_rate:education_rate           1 0.0059806 0.41456 -217.63
-## - mean_poverty_rate:mean_smoke_rate         1 0.0129693 0.42155 -216.79
-## &lt;none&gt;                                                  0.40858 -216.35
-## - divorce_rate                              1 0.0177905 0.42637 -216.22
-## 
-## Step:  AIC=-218.29
-## crudedeath_rate ~ binge_drink_rate + divorce_rate + mean_unemployment_rate + 
-##     education_rate + mean_poverty_rate + mean_smoke_rate + binge_drink_rate:education_rate + 
-##     mean_unemployment_rate:mean_poverty_rate + education_rate:mean_poverty_rate + 
-##     mean_poverty_rate:mean_smoke_rate
-## 
-##                                            Df Sum of Sq     RSS     AIC
-## - mean_unemployment_rate:mean_poverty_rate  1 0.0055805 0.41466 -219.62
-## - binge_drink_rate:education_rate           1 0.0056960 0.41477 -219.60
-## - education_rate:mean_poverty_rate          1 0.0077829 0.41686 -219.35
-## - mean_poverty_rate:mean_smoke_rate         1 0.0163714 0.42545 -218.33
-## &lt;none&gt;                                                  0.40908 -218.29
-## - divorce_rate                              1 0.0192931 0.42837 -217.99
-## + education_rate:mean_smoke_rate            1 0.0004990 0.40858 -216.35
-## 
-## Step:  AIC=-219.62
-## crudedeath_rate ~ binge_drink_rate + divorce_rate + mean_unemployment_rate + 
-##     education_rate + mean_poverty_rate + mean_smoke_rate + binge_drink_rate:education_rate + 
-##     education_rate:mean_poverty_rate + mean_poverty_rate:mean_smoke_rate
-## 
-##                                            Df Sum of Sq     RSS     AIC
-## - education_rate:mean_poverty_rate          1  0.003568 0.41823 -221.19
-## - binge_drink_rate:education_rate           1  0.014708 0.42936 -219.87
-## &lt;none&gt;                                                  0.41466 -219.62
-## - mean_poverty_rate:mean_smoke_rate         1  0.017949 0.43261 -219.50
-## - divorce_rate                              1  0.019600 0.43426 -219.31
-## + mean_unemployment_rate:mean_poverty_rate  1  0.005580 0.40908 -218.29
-## + education_rate:mean_smoke_rate            1  0.002259 0.41240 -217.89
-## - mean_unemployment_rate                    1  0.056867 0.47152 -215.19
-## 
-## Step:  AIC=-221.19
-## crudedeath_rate ~ binge_drink_rate + divorce_rate + mean_unemployment_rate + 
-##     education_rate + mean_poverty_rate + mean_smoke_rate + binge_drink_rate:education_rate + 
-##     mean_poverty_rate:mean_smoke_rate
-## 
-##                                            Df Sum of Sq     RSS     AIC
-## - mean_poverty_rate:mean_smoke_rate         1  0.016406 0.43463 -221.26
-## &lt;none&gt;                                                  0.41823 -221.19
-## - divorce_rate                              1  0.022832 0.44106 -220.53
-## + education_rate:mean_poverty_rate          1  0.003568 0.41466 -219.62
-## + education_rate:mean_smoke_rate            1  0.003325 0.41490 -219.59
-## + mean_unemployment_rate:mean_poverty_rate  1  0.001366 0.41686 -219.35
-## - binge_drink_rate:education_rate           1  0.043396 0.46162 -218.25
-## - mean_unemployment_rate                    1  0.055764 0.47399 -216.93
-## 
-## Step:  AIC=-221.26
-## crudedeath_rate ~ binge_drink_rate + divorce_rate + mean_unemployment_rate + 
-##     education_rate + mean_poverty_rate + mean_smoke_rate + binge_drink_rate:education_rate
-## 
-##                                            Df Sum of Sq     RSS     AIC
-## &lt;none&gt;                                                  0.43463 -221.26
-## - mean_poverty_rate                         1  0.018259 0.45289 -221.21
-## + mean_poverty_rate:mean_smoke_rate         1  0.016406 0.41823 -221.19
-## - divorce_rate                              1  0.020804 0.45544 -220.93
-## + mean_unemployment_rate:mean_poverty_rate  1  0.008822 0.42581 -220.29
-## + education_rate:mean_smoke_rate            1  0.003485 0.43115 -219.67
-## + education_rate:mean_poverty_rate          1  0.002026 0.43261 -219.50
-## - mean_unemployment_rate                    1  0.049617 0.48425 -217.86
-## - binge_drink_rate:education_rate           1  0.050477 0.48511 -217.77
-## - mean_smoke_rate                           1  0.103368 0.53800 -212.60</code></pre>
-<p>Based on the stepwise results, the best model is model_1 : crudedeath_rate ~ binge_drink_rate + divorce_rate + mean_unemployment_rate + education_rate + mean_poverty_rate + mean_smoke_rate + binge_drink_rate:education_rate</p>
+  step(lm(crudedeath_rate ~ binge_drink_rate + divorce_rate + mean_unemployment_rate + education_rate + mean_poverty_rate + mean_smoke_rate + binge_drink_rate * education_rate + mean_unemployment_rate * mean_poverty_rate + education_rate * mean_poverty_rate + education_rate * mean_smoke_rate + mean_poverty_rate * mean_smoke_rate, data = overall_regression),direction = &quot;both&quot;, trace = 0)</code></pre>
+<p>Based on the stepwise results, the best model is model_1.</p>
+<p><strong>Model_1:</strong> crudedeath_rate ~ binge_drink_rate + divorce_rate + mean_unemployment_rate + education_rate + mean_poverty_rate + mean_smoke_rate + binge_drink_rate:education_rate.</p>
 <p>This model can be described in the following parameter:</p>
 <pre class="r"><code>summary(stepwise) %&gt;% broom::tidy() %&gt;% knitr::kable()</code></pre>
 <table>
@@ -1015,94 +1194,13 @@ smoke_rate =
 </tbody>
 </table>
 </div>
-<div id="use-regsubset-to-compare-all-possible-models" class="section level3">
-<h3>Use regsubset() to compare all possible models</h3>
+<div id="regsubset-compare-all-possible-models" class="section level3">
+<h3>Regsubset() Compare All Possible Models</h3>
 <pre class="r"><code>reg_subsets = 
   regsubsets(crudedeath_rate ~ binge_drink_rate + divorce_rate + mean_unemployment_rate + education_rate + mean_poverty_rate + mean_smoke_rate + binge_drink_rate * education_rate + mean_unemployment_rate * mean_poverty_rate + education_rate * mean_poverty_rate + education_rate * mean_smoke_rate + mean_poverty_rate * mean_smoke_rate, data = overall_regression, nvmax = 11)
 
 summary(reg_subsets)</code></pre>
-<pre><code>## Subset selection object
-## Call: regsubsets.formula(crudedeath_rate ~ binge_drink_rate + divorce_rate + 
-##     mean_unemployment_rate + education_rate + mean_poverty_rate + 
-##     mean_smoke_rate + binge_drink_rate * education_rate + mean_unemployment_rate * 
-##     mean_poverty_rate + education_rate * mean_poverty_rate + 
-##     education_rate * mean_smoke_rate + mean_poverty_rate * mean_smoke_rate, 
-##     data = overall_regression, nvmax = 11)
-## 11 Variables  (and intercept)
-##                                          Forced in Forced out
-## binge_drink_rate                             FALSE      FALSE
-## divorce_rate                                 FALSE      FALSE
-## mean_unemployment_rate                       FALSE      FALSE
-## education_rate                               FALSE      FALSE
-## mean_poverty_rate                            FALSE      FALSE
-## mean_smoke_rate                              FALSE      FALSE
-## binge_drink_rate:education_rate              FALSE      FALSE
-## mean_unemployment_rate:mean_poverty_rate     FALSE      FALSE
-## education_rate:mean_poverty_rate             FALSE      FALSE
-## education_rate:mean_smoke_rate               FALSE      FALSE
-## mean_poverty_rate:mean_smoke_rate            FALSE      FALSE
-## 1 subsets of each size up to 11
-## Selection Algorithm: exhaustive
-##           binge_drink_rate divorce_rate mean_unemployment_rate education_rate
-## 1  ( 1 )  &quot; &quot;              &quot; &quot;          &quot; &quot;                    &quot; &quot;           
-## 2  ( 1 )  &quot; &quot;              &quot; &quot;          &quot;*&quot;                    &quot; &quot;           
-## 3  ( 1 )  &quot;*&quot;              &quot; &quot;          &quot; &quot;                    &quot; &quot;           
-## 4  ( 1 )  &quot; &quot;              &quot; &quot;          &quot; &quot;                    &quot; &quot;           
-## 5  ( 1 )  &quot; &quot;              &quot;*&quot;          &quot; &quot;                    &quot; &quot;           
-## 6  ( 1 )  &quot;*&quot;              &quot;*&quot;          &quot; &quot;                    &quot; &quot;           
-## 7  ( 1 )  &quot;*&quot;              &quot;*&quot;          &quot; &quot;                    &quot;*&quot;           
-## 8  ( 1 )  &quot;*&quot;              &quot;*&quot;          &quot; &quot;                    &quot;*&quot;           
-## 9  ( 1 )  &quot;*&quot;              &quot;*&quot;          &quot; &quot;                    &quot;*&quot;           
-## 10  ( 1 ) &quot;*&quot;              &quot;*&quot;          &quot; &quot;                    &quot;*&quot;           
-## 11  ( 1 ) &quot;*&quot;              &quot;*&quot;          &quot;*&quot;                    &quot;*&quot;           
-##           mean_poverty_rate mean_smoke_rate binge_drink_rate:education_rate
-## 1  ( 1 )  &quot; &quot;               &quot; &quot;             &quot; &quot;                            
-## 2  ( 1 )  &quot; &quot;               &quot; &quot;             &quot; &quot;                            
-## 3  ( 1 )  &quot; &quot;               &quot;*&quot;             &quot;*&quot;                            
-## 4  ( 1 )  &quot;*&quot;               &quot; &quot;             &quot; &quot;                            
-## 5  ( 1 )  &quot;*&quot;               &quot; &quot;             &quot; &quot;                            
-## 6  ( 1 )  &quot;*&quot;               &quot; &quot;             &quot;*&quot;                            
-## 7  ( 1 )  &quot;*&quot;               &quot; &quot;             &quot;*&quot;                            
-## 8  ( 1 )  &quot;*&quot;               &quot; &quot;             &quot;*&quot;                            
-## 9  ( 1 )  &quot;*&quot;               &quot;*&quot;             &quot;*&quot;                            
-## 10  ( 1 ) &quot;*&quot;               &quot;*&quot;             &quot;*&quot;                            
-## 11  ( 1 ) &quot;*&quot;               &quot;*&quot;             &quot;*&quot;                            
-##           mean_unemployment_rate:mean_poverty_rate
-## 1  ( 1 )  &quot; &quot;                                     
-## 2  ( 1 )  &quot; &quot;                                     
-## 3  ( 1 )  &quot; &quot;                                     
-## 4  ( 1 )  &quot;*&quot;                                     
-## 5  ( 1 )  &quot;*&quot;                                     
-## 6  ( 1 )  &quot;*&quot;                                     
-## 7  ( 1 )  &quot;*&quot;                                     
-## 8  ( 1 )  &quot;*&quot;                                     
-## 9  ( 1 )  &quot;*&quot;                                     
-## 10  ( 1 ) &quot;*&quot;                                     
-## 11  ( 1 ) &quot;*&quot;                                     
-##           education_rate:mean_poverty_rate education_rate:mean_smoke_rate
-## 1  ( 1 )  &quot; &quot;                              &quot;*&quot;                           
-## 2  ( 1 )  &quot; &quot;                              &quot;*&quot;                           
-## 3  ( 1 )  &quot; &quot;                              &quot; &quot;                           
-## 4  ( 1 )  &quot;*&quot;                              &quot; &quot;                           
-## 5  ( 1 )  &quot;*&quot;                              &quot; &quot;                           
-## 6  ( 1 )  &quot; &quot;                              &quot; &quot;                           
-## 7  ( 1 )  &quot; &quot;                              &quot; &quot;                           
-## 8  ( 1 )  &quot;*&quot;                              &quot; &quot;                           
-## 9  ( 1 )  &quot;*&quot;                              &quot; &quot;                           
-## 10  ( 1 ) &quot;*&quot;                              &quot;*&quot;                           
-## 11  ( 1 ) &quot;*&quot;                              &quot;*&quot;                           
-##           mean_poverty_rate:mean_smoke_rate
-## 1  ( 1 )  &quot; &quot;                              
-## 2  ( 1 )  &quot; &quot;                              
-## 3  ( 1 )  &quot; &quot;                              
-## 4  ( 1 )  &quot;*&quot;                              
-## 5  ( 1 )  &quot;*&quot;                              
-## 6  ( 1 )  &quot;*&quot;                              
-## 7  ( 1 )  &quot;*&quot;                              
-## 8  ( 1 )  &quot;*&quot;                              
-## 9  ( 1 )  &quot;*&quot;                              
-## 10  ( 1 ) &quot;*&quot;                              
-## 11  ( 1 ) &quot;*&quot;</code></pre>
+<p><strong>Method: </strong>This table describes the different statistics value for different number of predictors the model contains. For each number, regsubset() produces the best model and outputs the statistics in the following.</p>
 <pre class="r"><code>cri_measure = 
   cbind(
     cp = summary(reg_subsets)$cp,
@@ -1124,8 +1222,8 @@ cri_measure</code></pre>
 ##  [9,]  8.056179 0.6022731 0.5127845  -6.9792544
 ## [10,] 10.000000 0.6028602 0.5010295  -3.1410960
 ## [11,] 12.000000 0.6028602 0.4878987   0.7709268</code></pre>
-<p>Based on different statistics, we get two models from regsubset’s results:</p>
-<p>Model_2. crudedeath_rate ~ mean_poverty_rate + mean_unemployment_rate:mean_poverty_rate + education_rate:mean_poverty_rate + mean_poverty_rate:mean_smoke_rate</p>
+<p>Based on <strong>cp</strong> and <strong>adjusted r</strong> square, the “best” model contain six predictors.</p>
+<p><strong>Model_2:</strong> crudedeath_rate ~ mean_poverty_rate + mean_unemployment_rate:mean_poverty_rate + education_rate:mean_poverty_rate + mean_poverty_rate:mean_smoke_rate</p>
 <p>This model can be described in the following parameter:</p>
 <pre class="r"><code>model_2 = lm(data = overall_regression, formula = crudedeath_rate ~ mean_poverty_rate + mean_unemployment_rate:mean_poverty_rate + education_rate:mean_poverty_rate + mean_poverty_rate:mean_smoke_rate)
 
@@ -1213,7 +1311,8 @@ summary(model_2) %&gt;% broom::tidy() %&gt;% knitr::kable()</code></pre>
 </tr>
 </tbody>
 </table>
-<p>Model_3. crudedeath_rate ~ binge_drink_rate + divorce_rate + mean_poverty_rate + binge_drink_rate:education_rate +mean_unemployment_rate:mean_poverty_rate + mean_poverty_rate:mean_smoke_rate</p>
+<p>Based on <strong>BIC</strong>, we get model_3 as the “best” model.</p>
+<p><strong>Model_3:</strong> crudedeath_rate ~ binge_drink_rate + divorce_rate + mean_poverty_rate + binge_drink_rate:education_rate +mean_unemployment_rate:mean_poverty_rate + mean_poverty_rate:mean_smoke_rate</p>
 <p>This model can be described in the following parameter:</p>
 <pre class="r"><code>model_3 = lm(data = overall_regression, formula = crudedeath_rate ~ binge_drink_rate + divorce_rate + mean_poverty_rate + binge_drink_rate:education_rate +mean_unemployment_rate:mean_poverty_rate + mean_poverty_rate:mean_smoke_rate)
 
@@ -1318,10 +1417,17 @@ summary(model_3) %&gt;% broom::tidy() %&gt;% knitr::kable()</code></pre>
 </div>
 </div>
 <div id="cross-validation" class="section level2">
-<h2>Cross validation</h2>
+<h2>Cross Validation</h2>
+<p>We now have three candidates as considered possible “best” model for drug overdose crude death rate:</p>
+<p><em>Model_1:</em> crudedeath_rate ~ binge_drink_rate + divorce_rate + mean_unemployment_rate + education_rate + mean_poverty_rate + mean_smoke_rate + binge_drink_rate:education_rate.</p>
+<p><em>Model_2:</em> crudedeath_rate ~ mean_poverty_rate + mean_unemployment_rate:mean_poverty_rate + education_rate:mean_poverty_rate + mean_poverty_rate:mean_smoke_rate</p>
+<p><em>Model_3:</em> crudedeath_rate ~ binge_drink_rate + divorce_rate + mean_poverty_rate + binge_drink_rate:education_rate +mean_unemployment_rate:mean_poverty_rate + mean_poverty_rate:mean_smoke_rate</p>
+<p>In cross validation process, we are going to compare the cross-validated prediction error for three model and their result with initial full model.</p>
 <pre class="r"><code>train_df = sample_n(overall_regression, 41)
-test_df = anti_join(overall_regression, train_df)</code></pre>
-<pre class="r"><code>set.seed(1)
+test_df = anti_join(overall_regression, train_df)
+
+
+set.seed(1)
 cv_modeling_df = 
   crossv_mc(overall_regression, 5000) %&gt;% 
   mutate(
@@ -1331,19 +1437,21 @@ cv_modeling_df =
   mutate(
     model_1 = map(.x = train, ~lm(crudedeath_rate ~ binge_drink_rate + divorce_rate +  mean_unemployment_rate + education_rate + mean_poverty_rate +  mean_smoke_rate + binge_drink_rate:education_rate, data = .x)),
     model_2 = map(.x = train, ~lm(crudedeath_rate ~ mean_poverty_rate + mean_unemployment_rate:mean_poverty_rate + education_rate:mean_poverty_rate + mean_poverty_rate:mean_smoke_rate, data = .x)),
-    model_3 = map(.x = train, ~lm(crudedeath_rate ~ binge_drink_rate + divorce_rate + mean_poverty_rate + binge_drink_rate:education_rate +mean_unemployment_rate:mean_poverty_rate + mean_poverty_rate:mean_smoke_rate, data = .x))
+    model_3 = map(.x = train, ~lm(crudedeath_rate ~ binge_drink_rate + divorce_rate + mean_poverty_rate + binge_drink_rate:education_rate +mean_unemployment_rate:mean_poverty_rate + mean_poverty_rate:mean_smoke_rate, data = .x)),
+    model_full = map(.x = train, ~lm(crudedeath_rate ~ binge_drink_rate + divorce_rate + mean_unemployment_rate + education_rate + mean_poverty_rate + mean_smoke_rate + binge_drink_rate * education_rate + mean_unemployment_rate * mean_poverty_rate + education_rate * mean_poverty_rate + education_rate * mean_smoke_rate + mean_poverty_rate * mean_smoke_rate, data = .x))
   ) %&gt;% 
   mutate(
     rmse_model_1 = map2_dbl(.x = model_1, .y = test, ~rmse(model = .x, data = .y)),
     rmse_model_2 = map2_dbl(.x = model_2, .y = test, ~rmse(model = .x, data = .y)),
-    rmse_model_3 = map2_dbl(.x = model_3, .y = test, ~rmse(model = .x, data = .y))
+    rmse_model_3 = map2_dbl(.x = model_3, .y = test, ~rmse(model = .x, data = .y)),
+    rmse_model_full = map2_dbl(.x = model_full, .y = test, ~rmse(model = .x, data = .y))
   )
 
 cv_modeling_output = 
   cv_modeling_df %&gt;% 
   select(.id, starts_with(&quot;rmse&quot;)) %&gt;% 
   pivot_longer(
-    rmse_model_1:rmse_model_3,
+    rmse_model_1:rmse_model_full,
     names_to = &quot;model&quot;,
     values_to = &quot;rmse&quot;,
     names_prefix = &quot;rmse_&quot;
@@ -1352,8 +1460,114 @@ cv_modeling_output =
   geom_violin(aes(fill = model), alpha = 0.5)
 
 cv_modeling_output</code></pre>
-<p><img src="regression_us_files/figure-html/unnamed-chunk-23-1.png" width="90%" /></p>
+<p><img src="regression_us_files/figure-html/unnamed-chunk-17-1.png" width="90%" /></p>
+<p><em>Comments:</em></p>
+<p>All three models we select are better than the initial model. Model_1 may be slightly better than other two.</p>
 </div>
+</div>
+<div id="conclusion" class="section level1">
+<h1>Conclusion</h1>
+<p>The better model to explain the variances (from 2015 - 2019) of crude death rate of drug overdose for fifty states and Washington D.C. is model 1.</p>
+<p><strong>Model_1:</strong> crudedeath_rate ~ binge_drink_rate + divorce_rate + mean_unemployment_rate + education_rate + mean_poverty_rate + mean_smoke_rate + binge_drink_rate:education_rate.</p>
+<pre class="r"><code>summary(stepwise) %&gt;% broom::tidy() %&gt;% knitr::kable()</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="left">term</th>
+<th align="right">estimate</th>
+<th align="right">std.error</th>
+<th align="right">statistic</th>
+<th align="right">p.value</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">(Intercept)</td>
+<td align="right">1.0862671</td>
+<td align="right">0.6386930</td>
+<td align="right">1.7007656</td>
+<td align="right">0.0963811</td>
+</tr>
+<tr class="even">
+<td align="left">binge_drink_rate</td>
+<td align="right">-5.0101976</td>
+<td align="right">1.9933174</td>
+<td align="right">-2.5134972</td>
+<td align="right">0.0158762</td>
+</tr>
+<tr class="odd">
+<td align="left">divorce_rate</td>
+<td align="right">-0.8038224</td>
+<td align="right">0.5669148</td>
+<td align="right">-1.4178894</td>
+<td align="right">0.1636001</td>
+</tr>
+<tr class="even">
+<td align="left">mean_unemployment_rate</td>
+<td align="right">4.3611925</td>
+<td align="right">1.9917000</td>
+<td align="right">2.1896834</td>
+<td align="right">0.0341538</td>
+</tr>
+<tr class="odd">
+<td align="left">education_rate</td>
+<td align="right">-1.8449213</td>
+<td align="right">2.1508996</td>
+<td align="right">-0.8577441</td>
+<td align="right">0.3959022</td>
+</tr>
+<tr class="even">
+<td align="left">mean_poverty_rate</td>
+<td align="right">-1.3177944</td>
+<td align="right">0.9920769</td>
+<td align="right">-1.3283188</td>
+<td align="right">0.1912459</td>
+</tr>
+<tr class="odd">
+<td align="left">mean_smoke_rate</td>
+<td align="right">2.0074717</td>
+<td align="right">0.6351739</td>
+<td align="right">3.1605074</td>
+<td align="right">0.0029198</td>
+</tr>
+<tr class="even">
+<td align="left">binge_drink_rate:education_rate</td>
+<td align="right">19.5408814</td>
+<td align="right">8.8477530</td>
+<td align="right">2.2085700</td>
+<td align="right">0.0327154</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Predictor evaluation:</strong> Binge drink rate, divorce rate, education rate, poverty rate are negatively associated with crude death rate of drug overdose. This means states with the higher value of these predictors may have a lower death rate for drug overdose. Unemployment rate and smoke rate are positively associated with crude death rate of drug overdose. This means that states which have higher prevalence of adult smokers or higher unemployment rate may also have a higher rate of death induced by drug overdose.</p>
+<pre class="r"><code>summary(stepwise) %&gt;% broom::glance() %&gt;% knitr::kable()</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="right">r.squared</th>
+<th align="right">adj.r.squared</th>
+<th align="right">sigma</th>
+<th align="right">statistic</th>
+<th align="right">p.value</th>
+<th align="right">df</th>
+<th align="right">df.residual</th>
+<th align="right">nobs</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="right">0.5775355</td>
+<td align="right">0.5071248</td>
+<td align="right">0.101727</td>
+<td align="right">8.202378</td>
+<td align="right">2.8e-06</td>
+<td align="right">7</td>
+<td align="right">42</td>
+<td align="right">50</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Model description:</strong> Overall, this model explains around 50% of the difference of crude death rate of drug overdose among fifty states and Washington D.C.. However, since the sample size we use is quite small(50 + 1 = 51), this model might not be very reliable.</p>
 </div>
 
 

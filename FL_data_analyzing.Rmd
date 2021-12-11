@@ -270,7 +270,7 @@ Though we only have several points, the smoothed line of the bottom figure still
 
 ## Counties change over the years
 
-Last but not the least, we wanted to draw maps to see what are the distribution of drug overdose death across counties. High crude death rates happened along the coastline for 2003 and 2008, specifically along middle east and west coasts, as well as in Key West Islands. Later in year 2013 and 2018, counties that have high crude death rates aggregated more the center of this peninsular, while the county that has the highest crude death rates is still along the coast. <br>
+Last but not the least, we wanted to draw maps to see what are the distribution of drug overdose death across counties. High crude death rates happened along the coastline for 2003 and 2008, specifically along middle east and west coasts, as well as in Key West Islands. Later in year 2013 and 2018, counties that have high crude death rates aggregated more the center of this peninsular, while the county that has the highest crude death rates is still along the coast. Together with the median household income graph above, we can see that both Miami-Fort Lauderdale-West Palm Beach and Tampa-St. Petersburg-Clearwater regions have low household income and have higher drug overdose death rates. <br>
 
 ### Counties change, 5-yr interval{.tabset}
 ```{r, message=FALSE, warning=FALSE,echo=FALSE}

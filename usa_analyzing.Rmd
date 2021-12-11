@@ -213,10 +213,11 @@ drug_gplt
  - This is a graph based on the drug type. The legends in this picture represent different drug types caused deaths. However, some charts may contain the code of more than one drug. This is because the death of the patient is caused by a mixture of multiple drugs. This means that the increase in mortality may be due to the use of multiple drugs with opioids.<br>
  - It can be clearly seen that most of the deaths caused by drugs have shown an upward trend with the increase of years. And the number of deaths caused by overdose of opioids has been ranked first during 2015-2021. This is because opioids are alkaloids and derivatives extracted from poppy. On the one hand, it has a good analgesic effect, on the other hand, it is also addictive and drug resistant.  And due to the insufficient control of opioids by the US government, opioids have become heroin substitutes when addicts cannot get drugs. However, the deaths of methadone have been in a slow-down trend. This may be because Methadone require a prescription from a doctor to get them, and thus has always shown a low mortality rate.
 
- 
+
 ## Trend of drug overdoes deaths rate:
 2015 vs. 2021<br>
-The plot shows the trend of drug overdoes deaths rate in 2015 and 2021
+The plot shows the trend of drug overdoes deaths rate in 2015 and 2021 <br>
+ - This picture mainly compares the difference between the death rates of various states in 2015 and 2021. The purple line represents 2015 and the yellow line represents 2021. From the figure, we can see that the death rate of each state in 2021 is greater than 2015, and the District of Columbia changes are particularly obvious.
 ```{r message = FALSE, warning=FALSE}
 sum_df = 
   drug_overdose_death %>% 
