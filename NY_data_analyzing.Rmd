@@ -101,6 +101,8 @@ summarize_nyc_drug %>%
 
 Based on the above Number of Drug Overdose Deaths by Drug Categories plot, in New York City, from 2015 to 2021, the number of people who have died because of overdoses of opioids(T40.0-T40.4, T40.6) has reached nearly 2,000, which indicates that the cause of the highest number of drug overdose deaths is synthetic opioids. Based on the overall shape and distribution of all drug categories, there are more outliers in opioids(T40.0-T40.4, T40.6), synthetic opioids, excl. methadone(T40.4), and Natural, semi-synthetic, & synthetic opioids, incl. methadone(T40.2-T40.4).
 
+<br><br>
+
 ## By Year  
 
 **Percent of Drug Overdose Deaths over Total Number of Deaths by Year in NYC**
@@ -156,6 +158,8 @@ nyc_drug_overdose_death_df %>%
 
 In order to see the trending of percent of drug overdose deaths in the past seven years from 2015 to 2021, we lined up all graphs over the years for comparison. Based on the above scatter plot, we can see that overall the percent of drug overdose deaths shows a tendency to increase by each year. Since there may be a time lag in data obtained in 2021, we ignored the data this year. And the value of the percent of drug overdose deaths has increased from around 0.015 in the year 2015 to around 0.027 in the year 2020.
 
+<br><br>
+
 ## Drug ~ Year 
 
 **Number of Drug Overdose Deaths with Drug Categories by Year in NYC**
@@ -176,6 +180,8 @@ summarize_nyc_drug %>%
 ```
 
 After comparing drug overdose deaths by drug categories and drug overdose deaths by years from 2015 to 2021, now we want to compare the number of drug overdose death both by drug types and by year in New York City. Based on the above scatter plot we can see that the number of death is steadily rising each year for each type of drug. Opioids(T40.0-T40.4, T40.6) has made the highest number of people's death in 9 types of drug categories since 2015, which indicates that synthetic opioids are the primary cause of people's death in the case of a drug overdose. 
+
+<br><br>
 
 ## By Age-group & Race
 
@@ -213,6 +219,8 @@ ny_drugoverdose_death_by_age %>%
 
 Based on the above age-adjusted drug overdose death rate by race plot, we can see that for black or African Americans, people among age 55-64 have the highest death rate; and for white, people among age 25-34 have the highest death rate. Black or African Americans have the highest death rate in New York county, and white people have the highest death rate in Richmond county.
 
+<br><br>
+
 ## By Income
 
 **Median Household Income: New York vs. The U.S**
@@ -246,7 +254,8 @@ ny_eco_df %>%
          yaxis = list(title = "Median Household Income"))
 ```
 
-From the above plotly, we can see that all the median household incomes in  New York counties are higher than the median household income in the overall United States. And New York county has the highest median household income in all five counties in NYC. 
+From the above plotly, we can see that all the median household incomes in New York counties are higher than the median household income in the overall United States. And New York county has the highest median household income in all five counties in NYC. 
+<br>
 
 **Income vs. Percent of Drug Overdose Death by Year in NYC**
 
@@ -295,6 +304,8 @@ smooth =
 ```
 
 Based on the above income vs. percent of drug overdose death by year, we can see that in NYC, the overdose death rate and household income are positively correlated. People with a higher income would have a higher drug overdose death rate.
+
+<br><br>
 
 ## Counties change
 
