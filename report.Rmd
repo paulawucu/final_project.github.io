@@ -41,17 +41,24 @@ img {
 </style>
 <img src="./images/oxycontin.jpeg" style="width:80%">
 
+<br>
+
 ## Motivation
-  
-  \“Drug Overdose Deaths Remain High” - the headline posted by CDC rings the bell. Ever since 1999, nearly 841,000 people have died from drug overdoses. 70,630 drug overdose deaths occurred in the United States, in 2019 alone [1,2]. The abuse of and addiction to drugs is a genuine national crisis that influences public health as well as social and financial welfare.
 
-  \Deaths resulting from drug overdose increases drastically in every state of the U.S. especially in states with the legality of cannabis or marijuana in recent years. Drug overdose is becoming an increasingly significant social and public health problem in the United States. 
+“Drug Overdose Deaths Remain High” - the headline posted by CDC rings the bell. Ever since 1999, nearly 841,000 people have died from drug overdoses. 70,630 drug overdose deaths occurred in the United States, in 2019 alone [1,2]. Deaths resulting from drug overdose increase drastically in every state, especially in those who recently passed bills to legalize/decriminalize recreational cannabis or marijuana in recent years. The abuse of and addiction to drugs is a genuine national crisis that influences public health as well as social and financial welfare. 
+<br>
 
-  \Though CDC has posted the US drug overdose death rate and rate change maps from 2014-2019 along with the rate change graphs from 2014-2017, there hasn’t been any update for the past two years. Thus, our group wants to start from here and do more investigation upon the drug overdose death rate across states in the US. Fortunately, there are available drug-overdose-related data online to propel our motivation even further. 
+Though CDC has posted the US drug overdose death rate and rate change maps from 2014-2019 along with the rate change graphs from 2014-2017, there hasn’t been any update for the past 2-3 years. Thus, our group wants to start from here and do more investigation upon the drug overdose death rate across states in the US. Fortunately, there are available drug-overdose-related data online to propel our motivation even further. 
 
-
+<br>
 
 ## Related Work
+
+Recently, several of our group members watched a miniseries called *“Dopesick”* on [Hulu](https://www.youtube.com/watch?v=EzrLrUG2QVk). **Drug overdose death** has once again come to our attention. Unlike *Breaking Bad*, where I (Paula) learned most of my Org-Chem knowledge and enjoyed the tight plot most of the time, Dopesick was more of a true-story-based documentary, revealing the bloody business of Purdue Pharma. The Sackler family, owners of Purdue Pharma, launched a painkiller called “OxyContin” during the 90s and had made billions of profits out of the drug sales. However, the drug itself is murky, in that it is highly addictive but the company purposedly conceals the truth. In real life, OxyContin has caused over 218,000 overdose deaths across the US, and the Sackler family was able to hide behind bankruptcy and free from serious charges. 
+<br>
+
+Let’s set the Time-Turner back and take us to Spring 2020. As the COVID-19 hit the United States, all those self-isolation and tedious quarantine lives have brought barriers to people’s social lives. Aside from the rise in mortality because of the highly contagious virus, suicide attempts, alcohol consumption, and substance abuse all rose high. Inspired by these factors mentioned above, we decided to dig deeper, hoping to make our contribution and bring insights to this topic. 
+
 
 ## Initial Questions
 
