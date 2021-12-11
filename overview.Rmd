@@ -41,7 +41,7 @@ theme_set(theme_minimal() + theme(legend.position = "bottom"))
 
 Github repository of this website is [here](https://github.com/paulawucu/final_project.github.io)
 
-Github repository of previous works (Shiny document is [here] (https://github.com/paulawucu/final_project.git))
+Github repository of previous works (Shiny document is [here](https://github.com/paulawucu/final_project.git))
 
 <br>
 
@@ -62,4 +62,5 @@ Our reports is [here](report.html)
 ## Seek help
 Drug Abuse Helps: Substance Abuse and Mental Health Services Administration, [Behavioral Health Treatment Service Locator](https://findtreatment.samhsa.gov/)
 
+NYC Health: [Prevent Drug Overdose](https://www1.nyc.gov/site/doh/health/health-topics/alcohol-and-drug-use-prevent-overdose.page)
 
