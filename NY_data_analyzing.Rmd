@@ -74,11 +74,6 @@ drug_percent_specified =
 For nyc_drug_overdose_death dataset: The dimension of this dataset is (`r dim(nyc_df)`). The percentages with drugs specified for each month from 2015-2021 in NYC are all above 98%, hence, the drugs' specified data are accurate enough and can be used further. However, the data of death counts for specific drug types in the years 2016 and 2017 are missing. 
 
 ```{r}
-nyc_df %>% 
-  ungroup() %>% 
-  filter(year %in% c("2016","2017")) %>% 
-  select(year, month, indicator, data_value, predicted_value)
-
 summarize_nyc_drug = 
   nyc_df %>% 
   ungroup() %>% 
@@ -251,7 +246,7 @@ ny_eco_df %>%
          yaxis = list(title = "Median Household Income"))
 ```
 
-From the above plotly, we can see that all the median household incomes in  New York counties are higher than the median household income in the overall United States. And New York county has the highest median household income in all five counties in NYC. 
+From the above plotly, we can see that all the median household incomes in New York counties are higher than the median household income in the overall United States. And New York county has the highest median household income in all five counties in NYC. 
 
 **Income vs. Percent of Drug Overdose Death by Year in NYC**
 
