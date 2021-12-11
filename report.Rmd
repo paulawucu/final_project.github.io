@@ -32,3 +32,39 @@ scale_fill_discrete = scale_fill_viridis_d
 
 theme_set(theme_minimal() + theme(legend.position = "bottom"))
 ```
+<style>
+img {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+</style>
+<img src="./images/oxycontin.jpeg" style="width:80%">
+
+## Motivation
+  
+  \“Drug Overdose Deaths Remain High” - the headline posted by CDC rings the bell. Ever since 1999, nearly 841,000 people have died from drug overdoses. 70,630 drug overdose deaths occurred in the United States, in 2019 alone [1,2]. The abuse of and addiction to drugs is a genuine national crisis that influences public health as well as social and financial welfare.
+
+  \Deaths resulting from drug overdose increases drastically in every state of the U.S. especially in states with the legality of cannabis or marijuana in recent years. Drug overdose is becoming an increasingly significant social and public health problem in the United States. 
+
+  \Though CDC has posted the US drug overdose death rate and rate change maps from 2014-2019 along with the rate change graphs from 2014-2017, there hasn’t been any update for the past two years. Thus, our group wants to start from here and do more investigation upon the drug overdose death rate across states in the US. Fortunately, there are available drug-overdose-related data online to propel our motivation even further. 
+
+
+
+## Related Work
+
+## Initial Questions
+
+## Data
+
+## Exploratory Analysis 
+
+## Additional Analysis
+
+## Discussion
+
+## Reference
+[1] Wide-ranging online data for epidemiologic research (WONDER). Atlanta, GA: CDC, National Center for Health Statistics; 2020. Available at [cdc](http://wonder.cdc.gov)
+[2] Drug Overdose Death [CDC Website](https://www.cdc.gov/drugoverdose/deaths/index.html)
+
+

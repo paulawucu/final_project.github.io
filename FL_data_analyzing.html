@@ -9,7 +9,6 @@
 <meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
 
 
-<meta name="author" content="Paula Wu" />
 
 
 <title>FL_data_analyzing</title>
@@ -338,7 +337,7 @@ div.tocify {
   <a href="usa_analyzing.html">Overview</a>
 </li>
 <li>
-  <a href="food.html">Report</a>
+  <a href="report.html">Report</a>
 </li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
@@ -397,14 +396,11 @@ div.tocify {
 
 
 <h1 class="title toc-ignore">FL_data_analyzing</h1>
-<h4 class="author">Paula Wu</h4>
-<h4 class="date">12/7/2021</h4>
 
 </div>
 
 
-<div id="import-the-libraries" class="section level2">
-<h2>Import the libraries</h2>
+<p>Import the libraries</p>
 <pre class="r"><code>drug_overdose = read_csv(&quot;./data/VSRR_Provisional_Drug_Overdose_Death_Counts.csv&quot;) %&gt;% 
   janitor::clean_names()
 state_level = c(state.name[1:8], &quot;District of Columbia&quot;, state.name[9:32],&quot;New York City&quot;, state.name[33:50])
@@ -427,9 +423,8 @@ drug_overdose_52 =
          str_detect(indicator, &quot;T4&quot;)) %&gt;% 
   mutate(opioids_yn = ifelse(str_detect(indicator, &quot;opioids&quot;), TRUE, FALSE)) %&gt;% 
   group_by(year, month, opioids_yn) %&gt;% 
-  summarize(opioids_rate = mean(data_value, na.rm = TRUE))</code></pre>
-<pre><code>## `summarise()` has grouped output by &#39;year&#39;, &#39;month&#39;. You can override using the `.groups` argument.</code></pre>
-<pre class="r"><code>opioids_df %&gt;% 
+  summarize(opioids_rate = mean(data_value, na.rm = TRUE))
+opioids_df %&gt;% 
   ungroup() %&gt;% 
   ggplot(aes(x = month, y = opioids_rate, group = opioids_yn, color = opioids_yn))+
   geom_point()+
@@ -437,7 +432,6 @@ drug_overdose_52 =
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust= 1))+
   facet_grid(.~year)</code></pre>
 <p><img src="FL_data_analyzing_files/figure-html/unnamed-chunk-3-1.png" width="90%" /> <br>If we decided to focus on opioids, this will make my life much easier.</p>
-</div>
 <div id="fl-part" class="section level2">
 <h2>FL part:</h2>
 <p>Overall review:</p>
@@ -454,20 +448,26 @@ drug_overdose_52 =
   group_by(year, month) %&gt;% 
   mutate(
     percent_overdose_death = number_of_drug_overdose_deaths / number_of_deaths
-  )</code></pre>
-<pre><code>## Adding missing grouping variables: `state_name`</code></pre>
-<pre class="r"><code>fl_death  %&gt;% 
+  )
+ 
+fl_death  %&gt;% 
   ggplot(aes(x = month, y = percent_overdose_death, group = year, color = year))+
   geom_point()+
   geom_line()</code></pre>
-<p><img src="FL_data_analyzing_files/figure-html/unnamed-chunk-5-1.png" width="90%" /></p>
+<p><img src="FL_data_analyzing_files/figure-html/unnamed-chunk-4-1.png" width="90%" /></p>
 <pre class="r"><code>fl_death %&gt;% 
-  ggplot(aes(x = month, y = percent_overdose_death, group = NA))+
+  ggplot(aes(x = month, y = percent_overdose_death, group = NA, color = year))+
   geom_point()+
   geom_line()+
+  scale_x_discrete(breaks = c(&quot;January&quot;, &quot;April&quot;, &quot;July&quot;, &quot;October&quot;, &quot;December&quot;),
+                   labels = c(&quot;Jan&quot;, &quot;Apr&quot;, &quot;Jul&quot;, &quot;Oct&quot;, &quot;Dec&quot;)) +
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust= 1))+
   facet_grid(.~year)</code></pre>
-<p><img src="FL_data_analyzing_files/figure-html/unnamed-chunk-6-1.png" width="90%" /> ## Just opioids We can also focus just on opioids Data source: cdc wonder, request by queries, Drug overdose deaths are identified using underlying cause-of-death codes from the Tenth Revision of ICD (ICD–10): X40–X44 (unintentional), X60–X64 (suicide), X85 (homicide), and Y10–Y14 (undetermined). Opioids identified by selecting T40.0-40.4, 40.6</p>
+<p><img src="FL_data_analyzing_files/figure-html/unnamed-chunk-5-1.png" width="100%" /></p>
+</div>
+<div id="just-opioids" class="section level2">
+<h2>Just opioids</h2>
+<p>We can also focus just on opioids Data source: cdc wonder, request by queries, Drug overdose deaths are identified using underlying cause-of-death codes from the Tenth Revision of ICD (ICD–10): X40–X44 (unintentional), X60–X64 (suicide), X85 (homicide), and Y10–Y14 (undetermined). Opioids identified by selecting T40.0-40.4, 40.6</p>
 <pre class="r"><code># read in data
 fl_opi_death = read_csv(&quot;./data/fl_opi_death_15_19.csv&quot;) %&gt;% 
   janitor::clean_names() %&gt;% 
@@ -485,21 +485,31 @@ fl_opi_death = bind_rows(fl_opi_death, fl_opi_death_add) %&gt;%
   month = month.name[match(str_to_title(month), month.abb)],
   month = factor(month, levels = month.name),
   year = factor(year)) %&gt;% 
-  select(-state_name)</code></pre>
+  select(-state_name) %&gt;% 
+  slice(-77)  # May 2021 is fairly provisional and inconsistent with other states</code></pre>
 <p>data could be suppressed as indicated by the cdc website, the data value also supported by florida government</p>
 <p>But anyway let’s plot<br> First by year, this is the death count</p>
 <pre class="r"><code>fl_opi_death  %&gt;% 
   ggplot(aes(x = month, y = deaths, group = year, color = year))+
   geom_point()+
   geom_line()</code></pre>
-<p><img src="FL_data_analyzing_files/figure-html/unnamed-chunk-8-1.png" width="90%" /> what about each month within a year</p>
+<p><img src="FL_data_analyzing_files/figure-html/unnamed-chunk-7-1.png" width="90%" /></p>
+<p>what about each month within a year</p>
 <pre class="r"><code>fl_opi_death %&gt;% 
-  ggplot(aes(x = month, y = deaths, group = NA))+
+  ggplot(aes(x = month, y = deaths, group = NA, color = year))+
   geom_point()+
   geom_line()+
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust= 1))+
-  facet_grid(.~year)</code></pre>
-<p><img src="FL_data_analyzing_files/figure-html/unnamed-chunk-9-1.png" width="90%" /> It’s climbing, every single month. The 2020 data is less probably because it’s provisional and some data still under investigation</p>
+  facet_grid(.~year)+
+  labs(
+      title = &quot;Number of Drug Overdose Deaths with Drug Categories by Year in CA&quot;,
+      x = &quot;Month&quot;,
+      y = &quot;Number of Drug Overdose Deaths&quot;,
+    caption = &quot;Data comes from VSRR_Provisional_Drug_Overdose_Death_Counts dataset between 2015 and 2021.&quot;
+  ) +
+    theme(axis.text.x = element_text(angle = 90, hjust = 1)) </code></pre>
+<p><img src="FL_data_analyzing_files/figure-html/unnamed-chunk-8-1.png" width="90%" /></p>
+<p>It’s climbing, every single month. The 2020 data is less probably because it’s provisional and some data still under investigation</p>
 </div>
 <div id="income" class="section level2">
 <h2>Income</h2>
@@ -511,16 +521,10 @@ fl_opi_death = bind_rows(fl_opi_death, fl_opi_death_add) %&gt;%
   filter(
     str_detect(geography, &quot;FL|United States|Florida&quot;),
     year &gt;= &quot;2015&quot;) %&gt;% 
-  mutate(year = factor(year))</code></pre>
-<pre><code>## Rows: 49 Columns: 7</code></pre>
-<pre><code>## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: &quot;,&quot;
-## chr (3): Geography, ID Geography, Slug Geography
-## dbl (4): ID Year, Year, Household Income by Race, Household Income by Race Moe</code></pre>
-<pre><code>## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
-<pre class="r"><code>fl_eco_df %&gt;% 
+  mutate(year = factor(year))
+
+
+fl_eco_df %&gt;% 
   mutate(text_label = str_c(&quot;Year: &quot;, year, &quot;\nMedian Household Income: $&quot;, household_income_by_race, 
                             &quot;\nMargin of error: ± $&quot;, household_income_by_race_moe)) %&gt;% 
   plot_ly(
@@ -530,8 +534,8 @@ fl_opi_death = bind_rows(fl_opi_death, fl_opi_death_add) %&gt;%
     title = &quot;Median Household Income: FLorida vs. The U.S&quot;,
          xaxis = list(title = &quot;Year&quot;),
          yaxis = list(title = &quot;Median Household Income&quot;))</code></pre>
-<div id="htmlwidget-10da10fe8b1bdf694c4a" style="width:90%;height:576px;" class="plotly html-widget"></div>
-<script type="application/json" data-for="htmlwidget-10da10fe8b1bdf694c4a">{"x":{"visdat":{"16884f10d68a":["function () ","plotlyVisDat"]},"cur_data":"16884f10d68a","attrs":{"16884f10d68a":{"x":{},"y":{},"text":{},"mode":"markers+lines","error_y":{},"color":{},"colors":"viridis","alpha":0.5,"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"scatter"}},"layout":{"margin":{"b":40,"l":60,"t":25,"r":10},"title":"Median Household Income: FLorida vs. The U.S","xaxis":{"domain":[0,1],"automargin":true,"title":"Year","type":"category","categoryorder":"array","categoryarray":["2015","2016","2017","2018","2019"]},"yaxis":{"domain":[0,1],"automargin":true,"title":"Median Household Income"},"hovermode":"closest","showlegend":true},"source":"A","config":{"modeBarButtonsToAdd":["hoverclosest","hovercompare"],"showSendToCloud":false},"data":[{"x":["2019","2018","2017","2016","2015"],"y":[59227,55462,52594,50860,49426],"text":["Year: 2019<br />Median Household Income: $59227<br />Margin of error: ± $443","Year: 2018<br />Median Household Income: $55462<br />Margin of error: ± $384","Year: 2017<br />Median Household Income: $52594<br />Margin of error: ± $364","Year: 2016<br />Median Household Income: $50860<br />Margin of error: ± $241","Year: 2015<br />Median Household Income: $49426<br />Margin of error: ± $331"],"mode":"markers+lines","error_y":{"color":"rgba(68,1,84,0.5)","array":[118,443,680,1173,1146]},"type":"scatter","name":"Florida","marker":{"color":"rgba(68,1,84,0.5)","line":{"color":"rgba(68,1,84,1)"}},"textfont":{"color":"rgba(68,1,84,0.5)"},"error_x":{"color":"rgba(68,1,84,0.5)"},"line":{"color":"rgba(68,1,84,0.5)"},"xaxis":"x","yaxis":"y","frame":null},{"x":["2019","2018","2017","2016","2015"],"y":[60141,56328,54284,51362,50441],"text":["Year: 2019<br />Median Household Income: $60141<br />Margin of error: ± $680","Year: 2018<br />Median Household Income: $56328<br />Margin of error: ± $732","Year: 2017<br />Median Household Income: $54284<br />Margin of error: ± $820","Year: 2016<br />Median Household Income: $51362<br />Margin of error: ± $402","Year: 2015<br />Median Household Income: $50441<br />Margin of error: ± $398"],"mode":"markers+lines","error_y":{"color":"rgba(59,82,139,0.5)","array":[94,384,732,1521,970]},"type":"scatter","name":"Miami-Fort Lauderdale-West Palm Beach, FL","marker":{"color":"rgba(59,82,139,0.5)","line":{"color":"rgba(59,82,139,1)"}},"textfont":{"color":"rgba(59,82,139,0.5)"},"error_x":{"color":"rgba(59,82,139,0.5)"},"line":{"color":"rgba(59,82,139,0.5)"},"xaxis":"x","yaxis":"y","frame":null},{"x":["2019","2018","2017","2016","2015"],"y":[61876,58610,55089,52385,51077],"text":["Year: 2019<br />Median Household Income: $61876<br />Margin of error: ± $1173","Year: 2018<br />Median Household Income: $58610<br />Margin of error: ± $1521","Year: 2017<br />Median Household Income: $55089<br />Margin of error: ± $1026","Year: 2016<br />Median Household Income: $52385<br />Margin of error: ± $963","Year: 2015<br />Median Household Income: $51077<br />Margin of error: ± $824"],"mode":"markers+lines","error_y":{"color":"rgba(33,144,141,0.5)","array":[86,364,820,1026,599]},"type":"scatter","name":"Orlando-Kissimmee-Sanford, FL","marker":{"color":"rgba(33,144,141,0.5)","line":{"color":"rgba(33,144,141,1)"}},"textfont":{"color":"rgba(33,144,141,0.5)"},"error_x":{"color":"rgba(33,144,141,0.5)"},"line":{"color":"rgba(33,144,141,0.5)"},"xaxis":"x","yaxis":"y","frame":null},{"x":["2019","2018","2017","2016","2015"],"y":[57906,54912,52212,51115,48911],"text":["Year: 2019<br />Median Household Income: $57906<br />Margin of error: ± $1146","Year: 2018<br />Median Household Income: $54912<br />Margin of error: ± $970","Year: 2017<br />Median Household Income: $52212<br />Margin of error: ± $599","Year: 2016<br />Median Household Income: $51115<br />Margin of error: ± $514","Year: 2015<br />Median Household Income: $48911<br />Margin of error: ± $891"],"mode":"markers+lines","error_y":{"color":"rgba(93,200,99,0.5)","array":[115,241,402,963,514]},"type":"scatter","name":"Tampa-St. Petersburg-Clearwater, FL","marker":{"color":"rgba(93,200,99,0.5)","line":{"color":"rgba(93,200,99,1)"}},"textfont":{"color":"rgba(93,200,99,0.5)"},"error_x":{"color":"rgba(93,200,99,0.5)"},"line":{"color":"rgba(93,200,99,0.5)"},"xaxis":"x","yaxis":"y","frame":null},{"x":["2019","2018","2017","2016","2015"],"y":[65712,61937,60336,57617,55775],"text":["Year: 2019<br />Median Household Income: $65712<br />Margin of error: ± $118","Year: 2018<br />Median Household Income: $61937<br />Margin of error: ± $94","Year: 2017<br />Median Household Income: $60336<br />Margin of error: ± $86","Year: 2016<br />Median Household Income: $57617<br />Margin of error: ± $115","Year: 2015<br />Median Household Income: $55775<br />Margin of error: ± $85"],"mode":"markers+lines","error_y":{"color":"rgba(253,231,37,0.5)","array":[85,331,398,824,891]},"type":"scatter","name":"United States","marker":{"color":"rgba(253,231,37,0.5)","line":{"color":"rgba(253,231,37,1)"}},"textfont":{"color":"rgba(253,231,37,0.5)"},"error_x":{"color":"rgba(253,231,37,0.5)"},"line":{"color":"rgba(253,231,37,0.5)"},"xaxis":"x","yaxis":"y","frame":null}],"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.2,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":[]}</script>
+<div id="htmlwidget-ab417d67a6db6347e0b4" style="width:90%;height:576px;" class="plotly html-widget"></div>
+<script type="application/json" data-for="htmlwidget-ab417d67a6db6347e0b4">{"x":{"visdat":{"4f4b6038bec9":["function () ","plotlyVisDat"]},"cur_data":"4f4b6038bec9","attrs":{"4f4b6038bec9":{"x":{},"y":{},"text":{},"mode":"markers+lines","error_y":{},"color":{},"colors":"viridis","alpha":0.5,"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"scatter"}},"layout":{"margin":{"b":40,"l":60,"t":25,"r":10},"title":"Median Household Income: FLorida vs. The U.S","xaxis":{"domain":[0,1],"automargin":true,"title":"Year","type":"category","categoryorder":"array","categoryarray":["2015","2016","2017","2018","2019"]},"yaxis":{"domain":[0,1],"automargin":true,"title":"Median Household Income"},"hovermode":"closest","showlegend":true},"source":"A","config":{"modeBarButtonsToAdd":["hoverclosest","hovercompare"],"showSendToCloud":false},"data":[{"x":["2019","2018","2017","2016","2015"],"y":[59227,55462,52594,50860,49426],"text":["Year: 2019<br />Median Household Income: $59227<br />Margin of error: ± $443","Year: 2018<br />Median Household Income: $55462<br />Margin of error: ± $384","Year: 2017<br />Median Household Income: $52594<br />Margin of error: ± $364","Year: 2016<br />Median Household Income: $50860<br />Margin of error: ± $241","Year: 2015<br />Median Household Income: $49426<br />Margin of error: ± $331"],"mode":"markers+lines","error_y":{"color":"rgba(68,1,84,0.5)","array":[118,443,680,1173,1146]},"type":"scatter","name":"Florida","marker":{"color":"rgba(68,1,84,0.5)","line":{"color":"rgba(68,1,84,1)"}},"textfont":{"color":"rgba(68,1,84,0.5)"},"error_x":{"color":"rgba(68,1,84,0.5)"},"line":{"color":"rgba(68,1,84,0.5)"},"xaxis":"x","yaxis":"y","frame":null},{"x":["2019","2018","2017","2016","2015"],"y":[60141,56328,54284,51362,50441],"text":["Year: 2019<br />Median Household Income: $60141<br />Margin of error: ± $680","Year: 2018<br />Median Household Income: $56328<br />Margin of error: ± $732","Year: 2017<br />Median Household Income: $54284<br />Margin of error: ± $820","Year: 2016<br />Median Household Income: $51362<br />Margin of error: ± $402","Year: 2015<br />Median Household Income: $50441<br />Margin of error: ± $398"],"mode":"markers+lines","error_y":{"color":"rgba(59,82,139,0.5)","array":[94,384,732,1521,970]},"type":"scatter","name":"Miami-Fort Lauderdale-West Palm Beach, FL","marker":{"color":"rgba(59,82,139,0.5)","line":{"color":"rgba(59,82,139,1)"}},"textfont":{"color":"rgba(59,82,139,0.5)"},"error_x":{"color":"rgba(59,82,139,0.5)"},"line":{"color":"rgba(59,82,139,0.5)"},"xaxis":"x","yaxis":"y","frame":null},{"x":["2019","2018","2017","2016","2015"],"y":[61876,58610,55089,52385,51077],"text":["Year: 2019<br />Median Household Income: $61876<br />Margin of error: ± $1173","Year: 2018<br />Median Household Income: $58610<br />Margin of error: ± $1521","Year: 2017<br />Median Household Income: $55089<br />Margin of error: ± $1026","Year: 2016<br />Median Household Income: $52385<br />Margin of error: ± $963","Year: 2015<br />Median Household Income: $51077<br />Margin of error: ± $824"],"mode":"markers+lines","error_y":{"color":"rgba(33,144,141,0.5)","array":[86,364,820,1026,599]},"type":"scatter","name":"Orlando-Kissimmee-Sanford, FL","marker":{"color":"rgba(33,144,141,0.5)","line":{"color":"rgba(33,144,141,1)"}},"textfont":{"color":"rgba(33,144,141,0.5)"},"error_x":{"color":"rgba(33,144,141,0.5)"},"line":{"color":"rgba(33,144,141,0.5)"},"xaxis":"x","yaxis":"y","frame":null},{"x":["2019","2018","2017","2016","2015"],"y":[57906,54912,52212,51115,48911],"text":["Year: 2019<br />Median Household Income: $57906<br />Margin of error: ± $1146","Year: 2018<br />Median Household Income: $54912<br />Margin of error: ± $970","Year: 2017<br />Median Household Income: $52212<br />Margin of error: ± $599","Year: 2016<br />Median Household Income: $51115<br />Margin of error: ± $514","Year: 2015<br />Median Household Income: $48911<br />Margin of error: ± $891"],"mode":"markers+lines","error_y":{"color":"rgba(93,200,99,0.5)","array":[115,241,402,963,514]},"type":"scatter","name":"Tampa-St. Petersburg-Clearwater, FL","marker":{"color":"rgba(93,200,99,0.5)","line":{"color":"rgba(93,200,99,1)"}},"textfont":{"color":"rgba(93,200,99,0.5)"},"error_x":{"color":"rgba(93,200,99,0.5)"},"line":{"color":"rgba(93,200,99,0.5)"},"xaxis":"x","yaxis":"y","frame":null},{"x":["2019","2018","2017","2016","2015"],"y":[65712,61937,60336,57617,55775],"text":["Year: 2019<br />Median Household Income: $65712<br />Margin of error: ± $118","Year: 2018<br />Median Household Income: $61937<br />Margin of error: ± $94","Year: 2017<br />Median Household Income: $60336<br />Margin of error: ± $86","Year: 2016<br />Median Household Income: $57617<br />Margin of error: ± $115","Year: 2015<br />Median Household Income: $55775<br />Margin of error: ± $85"],"mode":"markers+lines","error_y":{"color":"rgba(253,231,37,0.5)","array":[85,331,398,824,891]},"type":"scatter","name":"United States","marker":{"color":"rgba(253,231,37,0.5)","line":{"color":"rgba(253,231,37,1)"}},"textfont":{"color":"rgba(253,231,37,0.5)"},"error_x":{"color":"rgba(253,231,37,0.5)"},"line":{"color":"rgba(253,231,37,0.5)"},"xaxis":"x","yaxis":"y","frame":null}],"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.2,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":[]}</script>
 <p>Income and drug overdose death percent , by year</p>
 <pre class="r"><code>#patchwork
 income_drug_df = 
@@ -539,13 +543,54 @@ income_drug_df =
   ungroup() %&gt;% 
   group_by(year) %&gt;% 
   summarize(overdose_death_rate = sum(number_of_drug_overdose_deaths)/sum(number_of_deaths)) %&gt;% 
-  inner_join(., fl_eco_df %&gt;% filter(geography %in% &quot;Florida&quot;))</code></pre>
-<pre><code>## Joining, by = &quot;year&quot;</code></pre>
-<pre class="r"><code>income_drug_df %&gt;% 
-  ggplot(aes(x = household_income_by_race, y = overdose_death_rate, group = NA, color = year))+
+  inner_join(., fl_eco_df %&gt;% filter(geography %in% &quot;Florida&quot;))
+year_death = 
+  income_drug_df %&gt;% 
+  ggplot(aes(x = year, y = overdose_death_rate, group = NA))+
   geom_point()+
-  geom_line()</code></pre>
+  geom_line()
+income_year = 
+  income_drug_df %&gt;% 
+  ggplot(aes(x = year, y = household_income_by_race, group = NA))+
+  geom_point()+
+  geom_line()
+
+smooth = 
+  income_drug_df %&gt;% 
+  ggplot(aes(x = household_income_by_race, y = overdose_death_rate, group = NA))+
+  geom_point()+
+  geom_smooth(method = &quot;lm&quot;, se = FALSE, color = &quot;royalblue4&quot;)
+(year_death + income_year)/smooth</code></pre>
+<p><img src="FL_data_analyzing_files/figure-html/unnamed-chunk-10-1.png" width="90%" /></p>
+</div>
+<div id="by-age-group-and-race" class="section level2">
+<h2>By Age Group and Race</h2>
+<pre class="r"><code>fl_death_by_age = 
+  read_csv(&quot;./data/agegroup_race_state_year_99-19.csv&quot;) %&gt;%
+  janitor::clean_names() %&gt;% 
+  select(state, year, ten_year_age_groups, race, deaths, population) %&gt;% 
+  filter(state %in% c(&quot;Florida&quot;),
+         year &gt;= 2015) %&gt;% 
+  mutate(year = factor(year),
+         crude_rate = deaths/population * 100000)</code></pre>
+<pre><code>## Rows: 8335 Columns: 14</code></pre>
+<pre><code>## ── Column specification ────────────────────────────────────────────────────────
+## Delimiter: &quot;,&quot;
+## chr (9): Notes, State, Ten-Year Age Groups, Ten-Year Age Groups Code, Race, ...
+## dbl (5): State Code, Year, Year Code, Deaths, Population</code></pre>
+<pre><code>## 
+## ℹ Use `spec()` to retrieve the full column specification for this data.
+## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+<pre class="r"><code>fl_death_by_age %&gt;% 
+  mutate(ten_year_age_groups = gsub(&quot;years&quot;, &quot;&quot;, ten_year_age_groups)) %&gt;% 
+  ggplot(aes(x = ten_year_age_groups , y = crude_rate, fill = race)) + 
+  geom_boxplot(alpha = 0.5)+
+  facet_grid(~race)+
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.4, hjust = 1))</code></pre>
 <p><img src="FL_data_analyzing_files/figure-html/unnamed-chunk-11-1.png" width="90%" /></p>
+</div>
+<div id="counties-change-over-the-years" class="section level2">
+<h2>Counties change over the years</h2>
 <pre class="r"><code>fl_county_df = 
   read_csv(&quot;./data/NCHS_-_Drug_Poisoning_Mortality_by_County__United_States.csv&quot;) %&gt;% 
   janitor::clean_names() %&gt;% 
@@ -555,8 +600,7 @@ income_drug_df =
   select(-useless) %&gt;% 
   mutate(year = factor(year),
          county = str_to_lower(county)) %&gt;% 
-  relocate(county)
-#fl_county_df</code></pre>
+  relocate(county)</code></pre>
 <pre class="r"><code>data(county.fips)
 abc = county.fips %&gt;% 
   separate(polyname, into = c(&quot;state&quot;, &quot;county&quot;), sep = &quot;\\,&quot;) %&gt;% 
