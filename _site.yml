@@ -4,7 +4,11 @@ navbar:
   title: "Home"
   right:
     - text: "Overview"
-      href: usa_analyzing.html
+      menu:
+      - text: "Project Overview"
+        href: overview.html
+      - text: "United States Overview"
+        href: usa_analyzing.html
     - text: "Report"
       href: report.html
     - text: "States of Choice"

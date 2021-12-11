@@ -64,7 +64,8 @@ img {
 ## Discussion
 
 ## Reference
-[1] Wide-ranging online data for epidemiologic research (WONDER). Atlanta, GA: CDC, National Center for Health Statistics; 2020. Available at [cdc](http://wonder.cdc.gov)
+[1] Wide-ranging online data for epidemiologic research (WONDER). Atlanta, GA: CDC, National Center for Health Statistics; 2020. Available at [CDC](http://wonder.cdc.gov)
+
 [2] Drug Overdose Death [CDC Website](https://www.cdc.gov/drugoverdose/deaths/index.html)
 
 
