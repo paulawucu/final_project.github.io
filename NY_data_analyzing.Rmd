@@ -1,14 +1,11 @@
 ---
-title: "NY_data_analyzing"
-author: "Yuxuan Chen"
-date: "12/7/2021"
+title: "NY data analyzing"
 output: 
   html_document:
     code_folding: hide
     toc: true
     toc_float: true
 ---
-## Data cleaning
 
 ```{r setup, include=FALSE}
 library(tidyverse)
@@ -39,7 +36,7 @@ options(
 scale_colour_discrete = scale_colour_viridis_d
 scale_fill_discrete = scale_fill_viridis_d
 
-theme_set(theme_minimal() + theme(legend.position = "bottom"))
+theme_set(theme_minimal() + theme(legend.position = "bottom")) + theme(plot.title = element_text(hjust = 0.5))
 ```
 
 ```{r}
@@ -52,7 +49,7 @@ drug_overdose_52 =
   drug_overdose %>% 
   filter(!(state_name %in% c("United States"))) %>% 
   relocate(state_name) %>% 
-  mutate(month = factor(month, levels = month.name), # change month and year to factor
+  mutate(month = factor(month, levels = month.name),
          year = factor(year),
          state_name = factor(state_name, levels = state_level)) %>% 
   arrange(state_name) %>% 
@@ -68,21 +65,19 @@ drug_percent_specified =
   ungroup() %>% 
   select(year, month, indicator, data_value) %>% 
   filter(indicator == "Percent with drugs specified")
-
-# Missing data of death counts for specific drug types in year 2016, 2017
-# Percent with drugs specified	for each month from 2015-2021 are high enough, all above 98%
 ```
 
-## NYC Part:
+## By Drug Type 
 
 **Number of Drug Overdose Deaths by Drug Categories in NYC**
+
+For nyc_drug_overdose_death dataset: The dimension of this dataset is (`r dim(nyc_df)`). The percentages with drugs specified for each month from 2015-2021 in NYC are all above 98%, hence, the drugs' specified data are accurate enough and can be used further. However, the data of death counts for specific drug types in the years 2016 and 2017 are missing. 
 
 ```{r}
 nyc_df %>% 
   ungroup() %>% 
   filter(year %in% c("2016","2017")) %>% 
   select(year, month, indicator, data_value, predicted_value)
-
 
 summarize_nyc_drug = 
   nyc_df %>% 
@@ -95,11 +90,6 @@ summarize_nyc_drug =
     indicator = fct_reorder(indicator, data_value)
   ) 
 
-
-summarize_nyc_drug %>% 
-  summarize(n = sum(data_value)) %>% 
-  arrange(desc(n))
-
 summarize_nyc_drug %>% 
   ggplot(aes(x = indicator, y = data_value, fill = indicator)) +
   geom_violin(alpha = 0.5) +
@@ -111,7 +101,12 @@ summarize_nyc_drug %>%
     y = "Number of Drug Overdose Deaths",
     caption = "Data comes from VSRR_Provisional_Drug_Overdose_Death_Counts dataset."
   )
+
 ```
+
+Based on the above Number of Drug Overdose Deaths by Drug Categories plot, in New York City, from 2015 to 2021, the number of people who have died because of overdoses of opioids(T40.0-T40.4, T40.6) has reached nearly 2,000, which indicates that the cause of the highest number of drug overdose deaths is synthetic opioids. Based on the overall shape and distribution of all drug categories, there are more outliers in opioids(T40.0-T40.4, T40.6), synthetic opioids, excl. methadone(T40.4), and Natural, semi-synthetic, & synthetic opioids, incl. methadone(T40.2-T40.4).
+
+## By Year  
 
 **Percent of Drug Overdose Deaths over Total Number of Deaths by Year in NYC**
 
@@ -145,6 +140,8 @@ nyc_drug_overdose_death_df %>%
 
 ```
 
+Based on the above Percent of Drug Overdose Deaths over Total Number of Deaths by Year plot, in New York City, the year 2015 has the lowest percentage of drug overdose death with a steady performance. In the years 2016 and 2020, both plots have huge oscillations. The percentages of drug overdose death intensely drop in March and Jun in 2016, and May and August in 2020, and rising again in May and August in 2016, and July and September in 2020. And in the years 2017, 2018, and 2019, the percentages are steady across the year. There may be a time lag in data obtained in 2021, hence the data in this year are not reliable. 
+
 ```{r}
 nyc_drug_overdose_death_df %>%
   ungroup() %>% 
@@ -161,6 +158,10 @@ nyc_drug_overdose_death_df %>%
   theme(axis.text.x = element_text(angle = 90, hjust = 1)) 
 
 ```
+
+In order to see the trending of percent of drug overdose deaths in the past seven years from 2015 to 2021, we lined up all graphs over the years for comparison. Based on the above scatter plot, we can see that overall the percent of drug overdose deaths shows a tendency to increase by each year. Since there may be a time lag in data obtained in 2021, we ignored the data this year. And the value of the percent of drug overdose deaths has increased from around 0.015 in the year 2015 to around 0.027 in the year 2020.
+
+## Drug ~ Year 
 
 **Number of Drug Overdose Deaths with Drug Categories by Year in NYC**
 
@@ -179,31 +180,9 @@ summarize_nyc_drug %>%
   )
 ```
 
-**Median Household Income: New York vs. The U.S**
+After comparing drug overdose deaths by drug categories and drug overdose deaths by years from 2015 to 2021, now we want to compare the number of drug overdose death both by drug types and by year in New York City. Based on the above scatter plot we can see that the number of death is steadily rising each year for each type of drug. Opioids(T40.0-T40.4, T40.6) has made the highest number of people's death in 9 types of drug categories since 2015, which indicates that synthetic opioids are the primary cause of people's death in the case of a drug overdose. 
 
-```{r}
-ny_eco_df = 
-  read_csv("./data/median_household_income_ny.csv") %>% 
-  janitor::clean_names() %>% 
-  select(year, household_income_by_race, household_income_by_race_moe, geography) %>% 
-  filter(year >= "2015",
-         !(geography  %in% c("New York-Newark-Jersey City, NY-NJ-PA", "New York"))) %>% 
-  mutate( 
-    geography = str_replace(geography, "New York, NY", "New York City"),
-    geography = str_replace(geography, ", NY", ""),
-    year = factor(year))
-
-ny_eco_df %>% 
-  mutate(text_label = str_c("Year: ", year, "\nMedian Household Income: $", household_income_by_race, 
-                            "\nMargin of error: ± $", household_income_by_race_moe)) %>% 
-  plot_ly(
-    x = ~year, y = ~household_income_by_race, color = ~geography, text = ~text_label, 
-    alpha = 0.5, type = "scatter", mode = "markers+lines", colors = "viridis",error_y = ~list(array = household_income_by_race_moe)) %>% 
-  layout(
-    title = "Median Household Income: New York vs. The U.S",
-         xaxis = list(title = "Year"),
-         yaxis = list(title = "Median Household Income"))
-```
+## By Age-group & Race
 
 **age-adjusted drug overdose death rate by race**
 
@@ -219,7 +198,11 @@ ny_drugoverdose_death_by_age =
   mutate(year = factor(year),
          crude_rate = deaths/population * 100000) %>% 
   group_by(race)
+```
 
+Next, we want to compare the age-adjusted drug overdose death rate by race in NYC. In order to examine the relationship between drug overdose death, age-group, and race in NYC. We obtained this `ny_agegroup_race_state_year_99-19.csv` dataset from CDC wonder and calculated the age-adjusted mortality rate by dividing the number of deaths by the population and multiplying by 100000. The dimension of this dataset is (`r dim(ny_drugoverdose_death_by_age)`). 
+
+```{r}
 ny_drugoverdose_death_by_age %>% 
   ggplot(aes(x = ten_year_age_groups, y = crude_rate, fill = county)) +
   geom_boxplot(outlier.shape = NA, alpha = 0.5) +
@@ -233,7 +216,44 @@ ny_drugoverdose_death_by_age %>%
 
 ```
 
-## Income vs. Percent of Drug Overdose Death by Year in NYC
+Based on the above age-adjusted drug overdose death rate by race plot, we can see that for black or African Americans, people among age 55-64 have the highest death rate; and for white, people among age 25-34 have the highest death rate. Black or African Americans have the highest death rate in New York county, and white people have the highest death rate in Richmond county.
+
+## By Income
+
+**Median Household Income: New York vs. The U.S**
+
+```{r}
+ny_eco_df = 
+  read_csv("./data/median_household_income_ny.csv") %>% 
+  janitor::clean_names() %>% 
+  select(year, household_income_by_race, household_income_by_race_moe, geography) %>% 
+  filter(year >= "2015",
+         !(geography  %in% c("New York-Newark-Jersey City, NY-NJ-PA", "New York"))) %>% 
+  mutate( 
+    geography = str_replace(geography, "New York, NY", "New York City"),
+    geography = str_replace(geography, ", NY", ""),
+    year = factor(year))
+
+```
+
+For nyc_median_household_income dataset: In order to examine the relationship between drug overdose death and income in NYC. We obtained this `median_household_income_ny.csv` dataset from DATA USA, chose years after 2015, and selected all five counties in New York City. The dimension of this dataset is (`r dim(ny_eco_df)`). 
+
+```{r}
+ny_eco_df %>% 
+  mutate(text_label = str_c("Year: ", year, "\nMedian Household Income: $", household_income_by_race, 
+                            "\nMargin of error: ± $", household_income_by_race_moe)) %>% 
+  plot_ly(
+    x = ~year, y = ~household_income_by_race, color = ~geography, text = ~text_label, 
+    alpha = 0.5, type = "scatter", mode = "markers+lines", colors = "viridis",error_y = ~list(array = household_income_by_race_moe)) %>% 
+  layout(
+    title = "Median Household Income: New York vs. The U.S",
+         xaxis = list(title = "Year"),
+         yaxis = list(title = "Median Household Income"))
+```
+
+From the above plotly, we can see that all the median household incomes in  New York counties are higher than the median household income in the overall United States. And New York county has the highest median household income in all five counties in NYC. 
+
+**Income vs. Percent of Drug Overdose Death by Year in NYC**
 
 ```{r}
 income_drug_df_ny = 
@@ -279,7 +299,9 @@ smooth =
 (year_death + income_year)/smooth
 ```
 
-### Map of NYC Counties Drug Overdose Deathrate Change, 5-yr interval{.tabset}
+Based on the above income vs. percent of drug overdose death by year, we can see that in NYC, the overdose death rate and household income are positively correlated. People with a higher income would have a higher drug overdose death rate.
+
+## Counties change
 
 ```{r}
 ny_county_df = 
@@ -296,8 +318,7 @@ ny_county_df =
   mutate(county = str_replace(county, " $", "")) %>% 
   relocate(county)
 
-```
-```{r}
+
 data(county.fips)
 nyc_fip = county.fips %>% 
   filter(str_detect(polyname, "new york")) %>% 
@@ -308,8 +329,8 @@ nyc_fip = county.fips %>%
   as.tibble()
 
 ny_county_df = left_join(ny_county_df,nyc_fip, by = "county")
-```
-```{r}
+
+
 highlight_county = function(county_fips)
 {
   data(county.map, package="choroplethrMaps", envir=environment())
@@ -323,6 +344,10 @@ add_text_county = function(county_fips){
   geom_label(data=df, aes(mean(long), mean(lat), label = paste0(str_to_title(pull(county_fips, county)), " County\nDR: ", round(pull(county_fips, death_rate),2))), fill = "white", size = 3)
 }
 ```
+
+Based on the changes of drug overdose death rates over counties by an interval of 5 years, we can see that in the year 2003, the highest drug overdose death rates occurred in New York county. In the years 2008 and 2013, the highest drug overdose death rates occurred in Richmond county. And in the year 2018, the highest drug overdose death rates occurred in Bronx county.
+
+### Counties change, 5-yr interval{.tabset}
 
 #### 2003
 ```{r, message=FALSE, warning=FALSE}

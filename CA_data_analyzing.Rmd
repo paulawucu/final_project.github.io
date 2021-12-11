@@ -6,9 +6,9 @@ output:
     toc: true
     toc_float: true
 ---
-**Import the libraries**
+**Import the Libraries and Data Cleaning**
 
-```{r message=FALSE}
+```{r message=FALSE, include=FALSE}
 library(tidyverse)
 library(rvest)
 library(httr)
@@ -72,9 +72,8 @@ drug_categories =
 ```
 
 
-### Overall review:
 
-**Drug Overdose Deaths with Drug Categories**
+## By Drug Type
 
 ```{r message=FALSE}
 CA_death = 
@@ -97,7 +96,7 @@ CA_df =
   drug_categories %>% 
   filter(state_name %in% c("California"))
 ggplot(CA_df, aes(indicator, data_value))+ 
-  geom_boxplot() +
+  geom_boxplot(aes(fill = indicator), alpha = 0.5) +
   scale_x_discrete(labels = c("Psychostimulants \n with abuse potential \n (T43.6)", "Methadone \n (T40.3)", "Natural & \n semi-synthetic  \n opioids \n (T40.2)", "Natural & semi-\n synthetic opioids, \n incl. methadone \n (T40.2, T40.3)", "Heroin \n (T40.1)", "Cocaine \n (T40.5)", "Synthetic opioids, \n excl. \n methadone \n (T40.4)", "Natural, \n semi-synthetic, & \n synthetic opioids, \n incl. methadone \n (T40.2-T40.4)", "Opioids \n (T40.0-T40.4,\n T40.6)")) +
   guides(fill = guide_legend(nrow = 6, byrow = TRUE)) +
   labs(
@@ -108,32 +107,42 @@ ggplot(CA_df, aes(indicator, data_value))+
   ) 
 ```
 
+From this graph we can see that highest drug overdose death is caused by Synthetic opioids,methadone (T40.4). The following Drug Categories cause high overdose death are Cocaine and semi-synthetic opioids.
 
-**Drug Overdose Deaths with Drug Categories by Year**
 
+## By Year
 
-```{r message=FALSE}
+```{r message=FALSE, out.width='100%'}
 death_by_year = 
-  drug_overdose_death %>% 
-  filter(state_name %in% c("California"), 
-         indicator %in% c("Number of Deaths") )
+  drug_overdose_52 %>% 
+  filter(state_name %in% c("California")) %>% 
+  ungroup() %>% 
+  select(year, month, indicator, data_value) %>% 
+  filter(indicator %in% c("Number of Deaths", "Number of Drug Overdose Deaths")) %>% 
+  pivot_wider(
+    names_from = indicator,
+    values_from = data_value
+  ) %>% 
+  janitor::clean_names() %>% 
+  group_by(year, month) %>% 
+  mutate(
+    percent_overdose_death = number_of_drug_overdose_deaths / number_of_deaths
+  )
 
-ggplot(death_by_year, aes(x = month, y = data_value, group = year, color = year)) +
-    labs(title = "") + 
-    geom_line() + 
-    geom_point() +
-    theme(plot.title = element_text(hjust = 0.5)) +
-    scale_x_discrete(labels = c("Psychostimulants \n with abuse potential \n (T43.6)", "Methadone \n (T40.3)", "Natural & \n semi-synthetic  \n opioids \n (T40.2)", "Natural & semi-\n synthetic opioids, \n incl. methadone \n (T40.2, T40.3)", "Heroin \n (T40.1)", "Cocaine \n (T40.5)", "Synthetic opioids, \n excl. \n methadone \n (T40.4)", "Natural, \n semi-synthetic, & \n synthetic opioids, \n incl. methadone \n (T40.2-T40.4)", "Opioids \n (T40.0-T40.4,\n T40.6)")) +
-  guides(fill = guide_legend(nrow = 6, byrow = TRUE)) +
-    labs(
-      title = "Number of Drug Overdose Deaths with Drug Categories by Year in CA",
-      x = "Month",
-      y = "Number of Drug Overdose Deaths",
-    caption = "Data comes from VSRR_Provisional_Drug_Overdose_Death_Counts dataset between 2015 and 2021."
+death_by_year %>%
+  ungroup() %>% 
+  ggplot(aes(x = month, y = percent_overdose_death, color = year)) +
+  geom_point() +
+  geom_line(aes(group = year)) +
+  labs(
+    title = "Percent of Drug Overdose Deaths over Total Number of Deaths by Year in CA",
+    x = "Months",
+    y = "Percent of Drug Overdose Deaths",
+    caption = "Data comes from VSRR_Provisional_Drug_Overdose_Death_Counts dataset from 2015 to 2021)."
   )
 ```
 
-**Each month Death Within a Year**
+In the graph of Drug Overdose Deaths with Drug Categories by Year, I can observe that year 2020 have higher number of drug overdose death than other years, which can be cause by covid-19 and self-isolation.
 
 ```{r message=FALSE}
 death_by_year = 
@@ -148,29 +157,34 @@ ggplot(death_by_year, aes(x = month, y = data_value, group = year, color = year)
     facet_grid(.~year) +
   
     labs(
-      title = "Number of Drug Overdose Deaths with Drug Categories by Year in CA",
+      title = "Percent of Number of Drug Overdose Deaths with Drug Categories by Year in CA",
       x = "Month",
-      y = "Number of Drug Overdose Deaths",
+      y = "Percent of Drug Overdose Deaths",
     caption = "Data comes from VSRR_Provisional_Drug_Overdose_Death_Counts dataset between 2015 and 2021."
   ) +
     theme(axis.text.x = element_text(angle = 90, hjust = 1)) 
+
 ```
+
+In the graph of Each month Drug Overdose Death Within a Year, we are able to see the increasing trend of drug overdose in continuous years. Cause by the COVID-19, there is large increase in number of drug overdose death.
+
+## Drug ~ Year
 
 ```{r message=FALSE}
 CA_df %>%
   filter(year %in% (2019:2021))  %>%
   ggplot(aes(x = year, y = data_value, color = indicator)) +
   geom_smooth(aes(group = indicator), se = FALSE) +
-  scale_color_viridis(discrete = TRUE, labels = c("Psychostimulants with abuse potential (T43.6)", "Methadone (T40.3)", "Natural & semi-synthetic opioids (T40.2)", "Natural & semi-synthetic opioids, incl. methadone (T40.2, T40.3)", "Heroin (T40.1)", "Cocaine (T40.5)", "Synthetic opioids, excl. methadone (T40.4)", "Natural, semi-synthetic, & synthetic opioids, incl. methadone (T40.2-T40.4)", "Opioids (T40.0-T40.4,T40.6)")) +
   guides(color = guide_legend(nrow = 6, byrow = TRUE)) +
   labs(
-    title = "Number of Drug Overdose Deaths with Drug Categories by Year in CA",
+    title = "Number of Drug Overdose Deaths by Year in CA",
     x = "Year",
     y = "Number of Drug Overdose Deaths",
-    caption = "Data comes from VSRR_Provisional_Drug_Overdose_Death_Counts dataset between 2015 and 2021."
+    caption = "Data comes from VSRR_Provisional_Drug_Overdose_Death_Counts dataset between 2019 and 2021."
   )
 ```
 
+In the graph of Number of Drug Overdose Deaths with Drug Categories by Year, we can see that drug overdose death keep increasing over the years with almost all type of drug. Since we miss data from 2015-2018, so we just include 2019-2021 in this graph.
 
 **Overdose death by age**
 
@@ -187,11 +201,13 @@ ca_death_by_age %>%
   mutate(ten_year_age_groups = gsub("years", "", ten_year_age_groups)) %>% 
   ggplot(aes(x = ten_year_age_groups , y = crude_rate, fill = race)) + 
   geom_boxplot(alpha = 0.5)+
-  facet_grid(~race)+
+  facet_grid(~race) +
+  labs(
+    title = "Number of Drug Overdose Deaths with Drug Categories by Age and Race in CA")  +
   theme(axis.text.x = element_text(angle = 90, vjust = 0.4, hjust = 1))
 ```
 
-
+Overdose death with Drug Categories by Age and Race shows that people among age 55-64 across all races have highest death rate. Black or African Americans have highest death rate among all races. 
 
 ## Income
 
@@ -217,6 +233,8 @@ CA_income_df %>%
          xaxis = list(title = "Year"),
          yaxis = list(title = "Median Household Income"))
 ```
+
+From the graph Median Household Income: CA vs. The U.S, we can see that California have higher median household income then US and northern part of California have highest income compare other parts of California. 
 
 **Income and drug overdose death percent by year**
 
@@ -253,7 +271,7 @@ smooth =
 
 ```
 
-
+From graph income VS drug overdose we can find that higher drug overdose rate have association with higher income. 
 
 ## CA Drug Map
 
@@ -291,6 +309,8 @@ abc = county.fips %>%
   select(-state) %>% 
   as_tibble()
 ```
+
+We can see that the highest death rate occur in north California across the years. From the income graph, north California have the highest income compare to other part of California. So we can find that higher drug overdose rate have association with higher income. 
 
 ### Counties change, 5-yr interval{.tabset}
 

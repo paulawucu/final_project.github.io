@@ -32,6 +32,8 @@ scale_fill_discrete = scale_fill_viridis_d
 
 theme_set(theme_minimal() + theme(legend.position = "bottom"))
 ```
+Our project intends to identify the factors that are associated with drug overdose and drug overdose death. We first performed a visual analysis using the national drug overdose death data. <br>
+
 An overview of the Top 20 states with the highest drug overdose death from 2015-2021:
 
 <style>
@@ -159,8 +161,8 @@ drug_overdose_52 =
   
 
 ## Analysis by drug 
- - In order to analyze the number of deaths in each state and the trend with time according to the type of drug, we only keep the data with the drug label(T4...) in the indicator column in the table. And the we found that there are 9 states missing the specific each drug type deaths counts data: Alabama, Arkansas, Florida, Idaho, Louisiana, Minnesota, Nebraska, North Dakota, Pennsylvania.
- - This is a graph based on the drug type. It can be seen from the figure that the number of deaths caused by overdose of opioids has been ranked first during 2015-2021. However, the deaths of methadone have been in a slow-down trend. 
+ - In order to analyze the number of deaths in each state and the trend with time according to the type of drug, we only keep the data with the drug label(T4...) in the indicator column in the table. And we found that there are 9 states missing the specific each drug type deaths counts data: Alabama, Arkansas, Florida, Idaho, Louisiana, Minnesota, Nebraska, North Dakota, Pennsylvania.
+
 
 ```{r message = FALSE, warning=FALSE}
 drug_categories = 
@@ -208,11 +210,12 @@ for (i in name_index){
 drug_gplt
 
 ```
-
+ - This is a graph based on the drug type. The legends in this picture represent different drug types caused deaths. However, some charts may contain the code of more than one drug. This is because the death of the patient is caused by a mixture of multiple drugs. This means that the increase in mortality may be due to the use of multiple drugs with opioids.<br>
+ - It can be clearly seen that most of the deaths caused by drugs have shown an upward trend with the increase of years. And the number of deaths caused by overdose of opioids has been ranked first during 2015-2021. This is because opioids are alkaloids and derivatives extracted from poppy. On the one hand, it has a good analgesic effect, on the other hand, it is also addictive and drug resistant.  And due to the insufficient control of opioids by the US government, opioids have become heroin substitutes when addicts cannot get drugs. However, the deaths of methadone have been in a slow-down trend. This may be because Methadone require a prescription from a doctor to get them, and thus has always shown a low mortality rate.
 
  
 ## Trend of drug overdoes deaths rate:
-2015 vs. 2021
+2015 vs. 2021<br>
 The plot shows the trend of drug overdoes deaths rate in 2015 and 2021
 ```{r message = FALSE, warning=FALSE}
 sum_df = 
@@ -272,6 +275,7 @@ overview_year_plot =
 ggplotly(overview_year_plot)
 ```
 
+In order to further and more accurately study the trend of drug overdose in the United States, we obtained the three states with the highest number of deaths each year by mapping the total number of deaths of drug overdose in each state from 2015 to 2021. At the same time, according to the geographic location of each state, the regions of the United States represented by California, Florida, NYC, and Ohio were selected for a more detailed analysis.
 
  
 

@@ -9,10 +9,9 @@
 <meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
 
 
-<meta name="author" content="Yuxuan Chen" />
 
 
-<title>NY_data_analyzing</title>
+<title>NY data analyzing</title>
 
 <script src="site_libs/header-attrs-2.10/header-attrs.js"></script>
 <script src="site_libs/jquery-3.5.1/jquery.min.js"></script>
@@ -411,15 +410,11 @@ div.tocify {
 
 
 
-<h1 class="title toc-ignore">NY_data_analyzing</h1>
-<h4 class="author">Yuxuan Chen</h4>
-<h4 class="date">12/7/2021</h4>
+<h1 class="title toc-ignore">NY data analyzing</h1>
 
 </div>
 
 
-<div id="data-cleaning" class="section level2">
-<h2>Data cleaning</h2>
 <pre class="r"><code>drug_overdose = read_csv(&quot;./data/VSRR_Provisional_Drug_Overdose_Death_Counts.csv&quot;) %&gt;% 
   janitor::clean_names()
 
@@ -429,7 +424,7 @@ drug_overdose_52 =
   drug_overdose %&gt;% 
   filter(!(state_name %in% c(&quot;United States&quot;))) %&gt;% 
   relocate(state_name) %&gt;% 
-  mutate(month = factor(month, levels = month.name), # change month and year to factor
+  mutate(month = factor(month, levels = month.name),
          year = factor(year),
          state_name = factor(state_name, levels = state_level)) %&gt;% 
   arrange(state_name) %&gt;% 
@@ -444,14 +439,11 @@ drug_percent_specified =
   nyc_df %&gt;%
   ungroup() %&gt;% 
   select(year, month, indicator, data_value) %&gt;% 
-  filter(indicator == &quot;Percent with drugs specified&quot;)
-
-# Missing data of death counts for specific drug types in year 2016, 2017
-# Percent with drugs specified  for each month from 2015-2021 are high enough, all above 98%</code></pre>
-</div>
-<div id="nyc-part" class="section level2">
-<h2>NYC Part:</h2>
+  filter(indicator == &quot;Percent with drugs specified&quot;)</code></pre>
+<div id="by-drug-type" class="section level2">
+<h2>By Drug Type</h2>
 <p><strong>Number of Drug Overdose Deaths by Drug Categories in NYC</strong></p>
+<p>For nyc_drug_overdose_death dataset: The dimension of this dataset is (912, 12). The percentages with drugs specified for each month from 2015-2021 in NYC are all above 98%, hence, the drugs’ specified data are accurate enough and can be used further. However, the data of death counts for specific drug types in the years 2016 and 2017 are missing.</p>
 <pre class="r"><code>nyc_df %&gt;% 
   ungroup() %&gt;% 
   filter(year %in% c(&quot;2016&quot;,&quot;2017&quot;)) %&gt;% 
@@ -481,15 +473,7 @@ drug_percent_specified =
     indicator = fct_reorder(indicator, data_value)
   ) 
 
-
 summarize_nyc_drug %&gt;% 
-  summarize(n = sum(data_value)) %&gt;% 
-  arrange(desc(n))</code></pre>
-<pre><code>## # A tibble: 1 × 1
-##        n
-##    &lt;dbl&gt;
-## 1 276444</code></pre>
-<pre class="r"><code>summarize_nyc_drug %&gt;% 
   ggplot(aes(x = indicator, y = data_value, fill = indicator)) +
   geom_violin(alpha = 0.5) +
   scale_x_discrete(labels = c(&quot;Psychostimulants \n with abuse potential \n (T43.6)&quot;, &quot;Methadone \n (T40.3)&quot;, &quot;Natural &amp; \n semi-synthetic  \n opioids \n (T40.2)&quot;, &quot;Natural &amp; semi-\n synthetic opioids, \n incl. methadone \n (T40.2, T40.3)&quot;, &quot;Heroin \n (T40.1)&quot;, &quot;Cocaine \n (T40.5)&quot;, &quot;Synthetic opioids, \n excl. \n methadone \n (T40.4)&quot;, &quot;Natural, \n semi-synthetic, &amp; \n synthetic opioids, \n incl. methadone \n (T40.2-T40.4)&quot;, &quot;Opioids \n (T40.0-T40.4,\n T40.6)&quot;)) +
@@ -501,6 +485,10 @@ summarize_nyc_drug %&gt;%
     caption = &quot;Data comes from VSRR_Provisional_Drug_Overdose_Death_Counts dataset.&quot;
   )</code></pre>
 <p><img src="NY_data_analyzing_files/figure-html/unnamed-chunk-2-1.png" width="90%" /></p>
+<p>Based on the above Number of Drug Overdose Deaths by Drug Categories plot, in New York City, from 2015 to 2021, the number of people who have died because of overdoses of opioids(T40.0-T40.4, T40.6) has reached nearly 2,000, which indicates that the cause of the highest number of drug overdose deaths is synthetic opioids. Based on the overall shape and distribution of all drug categories, there are more outliers in opioids(T40.0-T40.4, T40.6), synthetic opioids, excl. methadone(T40.4), and Natural, semi-synthetic, &amp; synthetic opioids, incl. methadone(T40.2-T40.4).</p>
+</div>
+<div id="by-year" class="section level2">
+<h2>By Year</h2>
 <p><strong>Percent of Drug Overdose Deaths over Total Number of Deaths by Year in NYC</strong></p>
 <pre class="r"><code>nyc_drug_overdose_death_df =
   nyc_df %&gt;% 
@@ -529,6 +517,7 @@ nyc_drug_overdose_death_df %&gt;%
     caption = &quot;Data comes from VSRR_Provisional_Drug_Overdose_Death_Counts dataset from 2015 to 2021).&quot;
   )</code></pre>
 <p><img src="NY_data_analyzing_files/figure-html/unnamed-chunk-3-1.png" width="90%" /></p>
+<p>Based on the above Percent of Drug Overdose Deaths over Total Number of Deaths by Year plot, in New York City, the year 2015 has the lowest percentage of drug overdose death with a steady performance. In the years 2016 and 2020, both plots have huge oscillations. The percentages of drug overdose death intensely drop in March and Jun in 2016, and May and August in 2020, and rising again in May and August in 2016, and July and September in 2020. And in the years 2017, 2018, and 2019, the percentages are steady across the year. There may be a time lag in data obtained in 2021, hence the data in this year are not reliable.</p>
 <pre class="r"><code>nyc_drug_overdose_death_df %&gt;%
   ungroup() %&gt;% 
   ggplot(aes(x = month, y = percent_overdose_death, group = NA, color = year)) +
@@ -543,6 +532,10 @@ nyc_drug_overdose_death_df %&gt;%
   ) +
   theme(axis.text.x = element_text(angle = 90, hjust = 1)) </code></pre>
 <p><img src="NY_data_analyzing_files/figure-html/unnamed-chunk-4-1.png" width="90%" /></p>
+<p>In order to see the trending of percent of drug overdose deaths in the past seven years from 2015 to 2021, we lined up all graphs over the years for comparison. Based on the above scatter plot, we can see that overall the percent of drug overdose deaths shows a tendency to increase by each year. Since there may be a time lag in data obtained in 2021, we ignored the data this year. And the value of the percent of drug overdose deaths has increased from around 0.015 in the year 2015 to around 0.027 in the year 2020.</p>
+</div>
+<div id="drug-year" class="section level2">
+<h2>Drug ~ Year</h2>
 <p><strong>Number of Drug Overdose Deaths with Drug Categories by Year in NYC</strong></p>
 <pre class="r"><code>summarize_nyc_drug %&gt;% 
   ggplot(aes(x = year, y = data_value, color = indicator)) +
@@ -557,30 +550,10 @@ nyc_drug_overdose_death_df %&gt;%
     caption = &quot;Data comes from VSRR_Provisional_Drug_Overdose_Death_Counts dataset between 2015 and 2021.&quot;
   )</code></pre>
 <p><img src="NY_data_analyzing_files/figure-html/unnamed-chunk-5-1.png" width="90%" /></p>
-<p><strong>Median Household Income: New York vs. The U.S</strong></p>
-<pre class="r"><code>ny_eco_df = 
-  read_csv(&quot;./data/median_household_income_ny.csv&quot;) %&gt;% 
-  janitor::clean_names() %&gt;% 
-  select(year, household_income_by_race, household_income_by_race_moe, geography) %&gt;% 
-  filter(year &gt;= &quot;2015&quot;,
-         !(geography  %in% c(&quot;New York-Newark-Jersey City, NY-NJ-PA&quot;, &quot;New York&quot;))) %&gt;% 
-  mutate( 
-    geography = str_replace(geography, &quot;New York, NY&quot;, &quot;New York City&quot;),
-    geography = str_replace(geography, &quot;, NY&quot;, &quot;&quot;),
-    year = factor(year))
-
-ny_eco_df %&gt;% 
-  mutate(text_label = str_c(&quot;Year: &quot;, year, &quot;\nMedian Household Income: $&quot;, household_income_by_race, 
-                            &quot;\nMargin of error: ± $&quot;, household_income_by_race_moe)) %&gt;% 
-  plot_ly(
-    x = ~year, y = ~household_income_by_race, color = ~geography, text = ~text_label, 
-    alpha = 0.5, type = &quot;scatter&quot;, mode = &quot;markers+lines&quot;, colors = &quot;viridis&quot;,error_y = ~list(array = household_income_by_race_moe)) %&gt;% 
-  layout(
-    title = &quot;Median Household Income: New York vs. The U.S&quot;,
-         xaxis = list(title = &quot;Year&quot;),
-         yaxis = list(title = &quot;Median Household Income&quot;))</code></pre>
-<div id="htmlwidget-ae5ed286d42f9aecf5c0" style="width:90%;height:576px;" class="plotly html-widget"></div>
-<script type="application/json" data-for="htmlwidget-ae5ed286d42f9aecf5c0">{"x":{"visdat":{"2e39596c6f77":["function () ","plotlyVisDat"]},"cur_data":"2e39596c6f77","attrs":{"2e39596c6f77":{"x":{},"y":{},"text":{},"mode":"markers+lines","error_y":{},"color":{},"colors":"viridis","alpha":0.5,"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"scatter"}},"layout":{"margin":{"b":40,"l":60,"t":25,"r":10},"title":"Median Household Income: New York vs. The U.S","xaxis":{"domain":[0,1],"automargin":true,"title":"Year","type":"category","categoryorder":"array","categoryarray":["2015","2016","2017","2018","2019"]},"yaxis":{"domain":[0,1],"automargin":true,"title":"Median Household Income"},"hovermode":"closest","showlegend":true},"source":"A","config":{"modeBarButtonsToAdd":["hoverclosest","hovercompare"],"showSendToCloud":false},"data":[{"x":["2019","2018","2017","2016","2015"],"y":[41432,38467,37397,37525,35176],"text":["Year: 2019<br />Median Household Income: $41432<br />Margin of error: ± $1090","Year: 2018<br />Median Household Income: $38467<br />Margin of error: ± $1864","Year: 2017<br />Median Household Income: $37397<br />Margin of error: ± $1444","Year: 2016<br />Median Household Income: $37525<br />Margin of error: ± $1266","Year: 2015<br />Median Household Income: $35176<br />Margin of error: ± $1392"],"mode":"markers+lines","error_y":{"color":"rgba(68,1,84,0.5)","array":[118,1090,1343,3322,1832]},"type":"scatter","name":"Bronx County","marker":{"color":"rgba(68,1,84,0.5)","line":{"color":"rgba(68,1,84,1)"}},"textfont":{"color":"rgba(68,1,84,0.5)"},"error_x":{"color":"rgba(68,1,84,0.5)"},"line":{"color":"rgba(68,1,84,0.5)"},"xaxis":"x","yaxis":"y","frame":null},{"x":["2019","2018","2017","2016","2015"],"y":[66937,61220,56942,55150,51141],"text":["Year: 2019<br />Median Household Income: $66937<br />Margin of error: ± $1343","Year: 2018<br />Median Household Income: $61220<br />Margin of error: ± $1083","Year: 2017<br />Median Household Income: $56942<br />Margin of error: ± $1151","Year: 2016<br />Median Household Income: $55150<br />Margin of error: ± $1015","Year: 2015<br />Median Household Income: $51141<br />Margin of error: ± $566"],"mode":"markers+lines","error_y":{"color":"rgba(68,58,131,0.5)","array":[5711,1121,94,1864,1083]},"type":"scatter","name":"Kings County","marker":{"color":"rgba(68,58,131,0.5)","line":{"color":"rgba(68,58,131,1)"}},"textfont":{"color":"rgba(68,58,131,0.5)"},"error_x":{"color":"rgba(68,58,131,0.5)"},"line":{"color":"rgba(68,58,131,0.5)"},"xaxis":"x","yaxis":"y","frame":null},{"x":["2019","2018","2017","2016","2015"],"y":[69407,63799,60879,58856,55752],"text":["Year: 2019<br />Median Household Income: $69407<br />Margin of error: ± $1121","Year: 2018<br />Median Household Income: $63799<br />Margin of error: ± $1118","Year: 2017<br />Median Household Income: $60879<br />Margin of error: ± $500","Year: 2016<br />Median Household Income: $58856<br />Margin of error: ± $1105","Year: 2015<br />Median Household Income: $55752<br />Margin of error: ± $592"],"mode":"markers+lines","error_y":{"color":"rgba(49,104,142,0.5)","array":[3480,1781,5148,1118,86]},"type":"scatter","name":"New York City","marker":{"color":"rgba(49,104,142,0.5)","line":{"color":"rgba(49,104,142,1)"}},"textfont":{"color":"rgba(49,104,142,0.5)"},"error_x":{"color":"rgba(49,104,142,0.5)"},"line":{"color":"rgba(49,104,142,0.5)"},"xaxis":"x","yaxis":"y","frame":null},{"x":["2019","2018","2017","2016","2015"],"y":[93651,85066,85071,77559,75575],"text":["Year: 2019<br />Median Household Income: $93651<br />Margin of error: ± $3322","Year: 2018<br />Median Household Income: $85066<br />Margin of error: ± $3480","Year: 2017<br />Median Household Income: $85071<br />Margin of error: ± $3520","Year: 2016<br />Median Household Income: $77559<br />Margin of error: ± $2469","Year: 2015<br />Median Household Income: $75575<br />Margin of error: ± $2566"],"mode":"markers+lines","error_y":{"color":"rgba(33,144,141,0.5)","array":[1444,1151,3520,1327,2788]},"type":"scatter","name":"New York County","marker":{"color":"rgba(33,144,141,0.5)","line":{"color":"rgba(33,144,141,1)"}},"textfont":{"color":"rgba(33,144,141,0.5)"},"error_x":{"color":"rgba(33,144,141,0.5)"},"line":{"color":"rgba(33,144,141,0.5)"},"xaxis":"x","yaxis":"y","frame":null},{"x":["2019","2018","2017","2016","2015"],"y":[73696,69320,64509,62207,60422],"text":["Year: 2019<br />Median Household Income: $73696<br />Margin of error: ± $1832","Year: 2018<br />Median Household Income: $69320<br />Margin of error: ± $1781","Year: 2017<br />Median Household Income: $64509<br />Margin of error: ± $1327","Year: 2016<br />Median Household Income: $62207<br />Margin of error: ± $1151","Year: 2015<br />Median Household Income: $60422<br />Margin of error: ± $723"],"mode":"markers+lines","error_y":{"color":"rgba(53,183,121,0.5)","array":[500,115,1266,1015,2469]},"type":"scatter","name":"Queens County","marker":{"color":"rgba(53,183,121,0.5)","line":{"color":"rgba(53,183,121,1)"}},"textfont":{"color":"rgba(53,183,121,0.5)"},"error_x":{"color":"rgba(53,183,121,0.5)"},"line":{"color":"rgba(53,183,121,0.5)"},"xaxis":"x","yaxis":"y","frame":null},{"x":["2019","2018","2017","2016","2015"],"y":[89821,82166,79201,77197,71622],"text":["Year: 2019<br />Median Household Income: $89821<br />Margin of error: ± $5711","Year: 2018<br />Median Household Income: $82166<br />Margin of error: ± $5148","Year: 2017<br />Median Household Income: $79201<br />Margin of error: ± $2788","Year: 2016<br />Median Household Income: $77197<br />Margin of error: ± $4465","Year: 2015<br />Median Household Income: $71622<br />Margin of error: ± $2532"],"mode":"markers+lines","error_y":{"color":"rgba(143,214,68,0.5)","array":[1151,4465,1105,85,1392]},"type":"scatter","name":"Richmond County","marker":{"color":"rgba(143,214,68,0.5)","line":{"color":"rgba(143,214,68,1)"}},"textfont":{"color":"rgba(143,214,68,0.5)"},"error_x":{"color":"rgba(143,214,68,0.5)"},"line":{"color":"rgba(143,214,68,0.5)"},"xaxis":"x","yaxis":"y","frame":null},{"x":["2019","2018","2017","2016","2015"],"y":[65712,61937,60336,57617,55775],"text":["Year: 2019<br />Median Household Income: $65712<br />Margin of error: ± $118","Year: 2018<br />Median Household Income: $61937<br />Margin of error: ± $94","Year: 2017<br />Median Household Income: $60336<br />Margin of error: ± $86","Year: 2016<br />Median Household Income: $57617<br />Margin of error: ± $115","Year: 2015<br />Median Household Income: $55775<br />Margin of error: ± $85"],"mode":"markers+lines","error_y":{"color":"rgba(253,231,37,0.5)","array":[566,2566,723,2532,592]},"type":"scatter","name":"United States","marker":{"color":"rgba(253,231,37,0.5)","line":{"color":"rgba(253,231,37,1)"}},"textfont":{"color":"rgba(253,231,37,0.5)"},"error_x":{"color":"rgba(253,231,37,0.5)"},"line":{"color":"rgba(253,231,37,0.5)"},"xaxis":"x","yaxis":"y","frame":null}],"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.2,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":[]}</script>
+<p>After comparing drug overdose deaths by drug categories and drug overdose deaths by years from 2015 to 2021, now we want to compare the number of drug overdose death both by drug types and by year in New York City. Based on the above scatter plot we can see that the number of death is steadily rising each year for each type of drug. Opioids(T40.0-T40.4, T40.6) has made the highest number of people’s death in 9 types of drug categories since 2015, which indicates that synthetic opioids are the primary cause of people’s death in the case of a drug overdose.</p>
+</div>
+<div id="by-age-group-race" class="section level2">
+<h2>By Age-group &amp; Race</h2>
 <p><strong>age-adjusted drug overdose death rate by race</strong></p>
 <pre class="r"><code>ny_drugoverdose_death_by_age = 
   read_csv(&quot;./data/ny_agegroup_race_state_year_99-19.csv&quot;) %&gt;%
@@ -592,9 +565,9 @@ ny_eco_df %&gt;%
   filter(str_detect(county, &quot;Bronx|Queens|Kings|New York|Richmond&quot;)) %&gt;% 
   mutate(year = factor(year),
          crude_rate = deaths/population * 100000) %&gt;% 
-  group_by(race)
-
-ny_drugoverdose_death_by_age %&gt;% 
+  group_by(race)</code></pre>
+<p>Next, we want to compare the age-adjusted drug overdose death rate by race in NYC. In order to examine the relationship between drug overdose death, age-group, and race in NYC. We obtained this <code>ny_agegroup_race_state_year_99-19.csv</code> dataset from CDC wonder and calculated the age-adjusted mortality rate by dividing the number of deaths by the population and multiplying by 100000. The dimension of this dataset is (609, 7).</p>
+<pre class="r"><code>ny_drugoverdose_death_by_age %&gt;% 
   ggplot(aes(x = ten_year_age_groups, y = crude_rate, fill = county)) +
   geom_boxplot(outlier.shape = NA, alpha = 0.5) +
   facet_grid(~race) +
@@ -605,9 +578,36 @@ ny_drugoverdose_death_by_age %&gt;%
     caption = &quot;Source: NYC drug overdose death counts from CDC, 2015-2019&quot;
   )</code></pre>
 <p><img src="NY_data_analyzing_files/figure-html/unnamed-chunk-7-1.png" width="90%" /></p>
+<p>Based on the above age-adjusted drug overdose death rate by race plot, we can see that for black or African Americans, people among age 55-64 have the highest death rate; and for white, people among age 25-34 have the highest death rate. Black or African Americans have the highest death rate in New York county, and white people have the highest death rate in Richmond county.</p>
 </div>
-<div id="income-vs.-percent-of-drug-overdose-death-by-year-in-nyc" class="section level2">
-<h2>Income vs. Percent of Drug Overdose Death by Year in NYC</h2>
+<div id="by-income" class="section level2">
+<h2>By Income</h2>
+<p><strong>Median Household Income: New York vs. The U.S</strong></p>
+<pre class="r"><code>ny_eco_df = 
+  read_csv(&quot;./data/median_household_income_ny.csv&quot;) %&gt;% 
+  janitor::clean_names() %&gt;% 
+  select(year, household_income_by_race, household_income_by_race_moe, geography) %&gt;% 
+  filter(year &gt;= &quot;2015&quot;,
+         !(geography  %in% c(&quot;New York-Newark-Jersey City, NY-NJ-PA&quot;, &quot;New York&quot;))) %&gt;% 
+  mutate( 
+    geography = str_replace(geography, &quot;New York, NY&quot;, &quot;New York City&quot;),
+    geography = str_replace(geography, &quot;, NY&quot;, &quot;&quot;),
+    year = factor(year))</code></pre>
+<p>For nyc_median_household_income dataset: In order to examine the relationship between drug overdose death and income in NYC. We obtained this <code>median_household_income_ny.csv</code> dataset from DATA USA, chose years after 2015, and selected all five counties in New York City. The dimension of this dataset is (35, 4).</p>
+<pre class="r"><code>ny_eco_df %&gt;% 
+  mutate(text_label = str_c(&quot;Year: &quot;, year, &quot;\nMedian Household Income: $&quot;, household_income_by_race, 
+                            &quot;\nMargin of error: ± $&quot;, household_income_by_race_moe)) %&gt;% 
+  plot_ly(
+    x = ~year, y = ~household_income_by_race, color = ~geography, text = ~text_label, 
+    alpha = 0.5, type = &quot;scatter&quot;, mode = &quot;markers+lines&quot;, colors = &quot;viridis&quot;,error_y = ~list(array = household_income_by_race_moe)) %&gt;% 
+  layout(
+    title = &quot;Median Household Income: New York vs. The U.S&quot;,
+         xaxis = list(title = &quot;Year&quot;),
+         yaxis = list(title = &quot;Median Household Income&quot;))</code></pre>
+<div id="htmlwidget-95974db0970f96cd5b2e" style="width:90%;height:576px;" class="plotly html-widget"></div>
+<script type="application/json" data-for="htmlwidget-95974db0970f96cd5b2e">{"x":{"visdat":{"3f475d9d4943":["function () ","plotlyVisDat"]},"cur_data":"3f475d9d4943","attrs":{"3f475d9d4943":{"x":{},"y":{},"text":{},"mode":"markers+lines","error_y":{},"color":{},"colors":"viridis","alpha":0.5,"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"scatter"}},"layout":{"margin":{"b":40,"l":60,"t":25,"r":10},"title":"Median Household Income: New York vs. The U.S","xaxis":{"domain":[0,1],"automargin":true,"title":"Year","type":"category","categoryorder":"array","categoryarray":["2015","2016","2017","2018","2019"]},"yaxis":{"domain":[0,1],"automargin":true,"title":"Median Household Income"},"hovermode":"closest","showlegend":true},"source":"A","config":{"modeBarButtonsToAdd":["hoverclosest","hovercompare"],"showSendToCloud":false},"data":[{"x":["2019","2018","2017","2016","2015"],"y":[41432,38467,37397,37525,35176],"text":["Year: 2019<br />Median Household Income: $41432<br />Margin of error: ± $1090","Year: 2018<br />Median Household Income: $38467<br />Margin of error: ± $1864","Year: 2017<br />Median Household Income: $37397<br />Margin of error: ± $1444","Year: 2016<br />Median Household Income: $37525<br />Margin of error: ± $1266","Year: 2015<br />Median Household Income: $35176<br />Margin of error: ± $1392"],"mode":"markers+lines","error_y":{"color":"rgba(68,1,84,0.5)","array":[118,1090,1343,3322,1832]},"type":"scatter","name":"Bronx County","marker":{"color":"rgba(68,1,84,0.5)","line":{"color":"rgba(68,1,84,1)"}},"textfont":{"color":"rgba(68,1,84,0.5)"},"error_x":{"color":"rgba(68,1,84,0.5)"},"line":{"color":"rgba(68,1,84,0.5)"},"xaxis":"x","yaxis":"y","frame":null},{"x":["2019","2018","2017","2016","2015"],"y":[66937,61220,56942,55150,51141],"text":["Year: 2019<br />Median Household Income: $66937<br />Margin of error: ± $1343","Year: 2018<br />Median Household Income: $61220<br />Margin of error: ± $1083","Year: 2017<br />Median Household Income: $56942<br />Margin of error: ± $1151","Year: 2016<br />Median Household Income: $55150<br />Margin of error: ± $1015","Year: 2015<br />Median Household Income: $51141<br />Margin of error: ± $566"],"mode":"markers+lines","error_y":{"color":"rgba(68,58,131,0.5)","array":[5711,1121,94,1864,1083]},"type":"scatter","name":"Kings County","marker":{"color":"rgba(68,58,131,0.5)","line":{"color":"rgba(68,58,131,1)"}},"textfont":{"color":"rgba(68,58,131,0.5)"},"error_x":{"color":"rgba(68,58,131,0.5)"},"line":{"color":"rgba(68,58,131,0.5)"},"xaxis":"x","yaxis":"y","frame":null},{"x":["2019","2018","2017","2016","2015"],"y":[69407,63799,60879,58856,55752],"text":["Year: 2019<br />Median Household Income: $69407<br />Margin of error: ± $1121","Year: 2018<br />Median Household Income: $63799<br />Margin of error: ± $1118","Year: 2017<br />Median Household Income: $60879<br />Margin of error: ± $500","Year: 2016<br />Median Household Income: $58856<br />Margin of error: ± $1105","Year: 2015<br />Median Household Income: $55752<br />Margin of error: ± $592"],"mode":"markers+lines","error_y":{"color":"rgba(49,104,142,0.5)","array":[3480,1781,5148,1118,86]},"type":"scatter","name":"New York City","marker":{"color":"rgba(49,104,142,0.5)","line":{"color":"rgba(49,104,142,1)"}},"textfont":{"color":"rgba(49,104,142,0.5)"},"error_x":{"color":"rgba(49,104,142,0.5)"},"line":{"color":"rgba(49,104,142,0.5)"},"xaxis":"x","yaxis":"y","frame":null},{"x":["2019","2018","2017","2016","2015"],"y":[93651,85066,85071,77559,75575],"text":["Year: 2019<br />Median Household Income: $93651<br />Margin of error: ± $3322","Year: 2018<br />Median Household Income: $85066<br />Margin of error: ± $3480","Year: 2017<br />Median Household Income: $85071<br />Margin of error: ± $3520","Year: 2016<br />Median Household Income: $77559<br />Margin of error: ± $2469","Year: 2015<br />Median Household Income: $75575<br />Margin of error: ± $2566"],"mode":"markers+lines","error_y":{"color":"rgba(33,144,141,0.5)","array":[1444,1151,3520,1327,2788]},"type":"scatter","name":"New York County","marker":{"color":"rgba(33,144,141,0.5)","line":{"color":"rgba(33,144,141,1)"}},"textfont":{"color":"rgba(33,144,141,0.5)"},"error_x":{"color":"rgba(33,144,141,0.5)"},"line":{"color":"rgba(33,144,141,0.5)"},"xaxis":"x","yaxis":"y","frame":null},{"x":["2019","2018","2017","2016","2015"],"y":[73696,69320,64509,62207,60422],"text":["Year: 2019<br />Median Household Income: $73696<br />Margin of error: ± $1832","Year: 2018<br />Median Household Income: $69320<br />Margin of error: ± $1781","Year: 2017<br />Median Household Income: $64509<br />Margin of error: ± $1327","Year: 2016<br />Median Household Income: $62207<br />Margin of error: ± $1151","Year: 2015<br />Median Household Income: $60422<br />Margin of error: ± $723"],"mode":"markers+lines","error_y":{"color":"rgba(53,183,121,0.5)","array":[500,115,1266,1015,2469]},"type":"scatter","name":"Queens County","marker":{"color":"rgba(53,183,121,0.5)","line":{"color":"rgba(53,183,121,1)"}},"textfont":{"color":"rgba(53,183,121,0.5)"},"error_x":{"color":"rgba(53,183,121,0.5)"},"line":{"color":"rgba(53,183,121,0.5)"},"xaxis":"x","yaxis":"y","frame":null},{"x":["2019","2018","2017","2016","2015"],"y":[89821,82166,79201,77197,71622],"text":["Year: 2019<br />Median Household Income: $89821<br />Margin of error: ± $5711","Year: 2018<br />Median Household Income: $82166<br />Margin of error: ± $5148","Year: 2017<br />Median Household Income: $79201<br />Margin of error: ± $2788","Year: 2016<br />Median Household Income: $77197<br />Margin of error: ± $4465","Year: 2015<br />Median Household Income: $71622<br />Margin of error: ± $2532"],"mode":"markers+lines","error_y":{"color":"rgba(143,214,68,0.5)","array":[1151,4465,1105,85,1392]},"type":"scatter","name":"Richmond County","marker":{"color":"rgba(143,214,68,0.5)","line":{"color":"rgba(143,214,68,1)"}},"textfont":{"color":"rgba(143,214,68,0.5)"},"error_x":{"color":"rgba(143,214,68,0.5)"},"line":{"color":"rgba(143,214,68,0.5)"},"xaxis":"x","yaxis":"y","frame":null},{"x":["2019","2018","2017","2016","2015"],"y":[65712,61937,60336,57617,55775],"text":["Year: 2019<br />Median Household Income: $65712<br />Margin of error: ± $118","Year: 2018<br />Median Household Income: $61937<br />Margin of error: ± $94","Year: 2017<br />Median Household Income: $60336<br />Margin of error: ± $86","Year: 2016<br />Median Household Income: $57617<br />Margin of error: ± $115","Year: 2015<br />Median Household Income: $55775<br />Margin of error: ± $85"],"mode":"markers+lines","error_y":{"color":"rgba(253,231,37,0.5)","array":[566,2566,723,2532,592]},"type":"scatter","name":"United States","marker":{"color":"rgba(253,231,37,0.5)","line":{"color":"rgba(253,231,37,1)"}},"textfont":{"color":"rgba(253,231,37,0.5)"},"error_x":{"color":"rgba(253,231,37,0.5)"},"line":{"color":"rgba(253,231,37,0.5)"},"xaxis":"x","yaxis":"y","frame":null}],"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.2,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":[]}</script>
+<p>From the above plotly, we can see that all the median household incomes in New York counties are higher than the median household income in the overall United States. And New York county has the highest median household income in all five counties in NYC.</p>
+<p><strong>Income vs. Percent of Drug Overdose Death by Year in NYC</strong></p>
 <pre class="r"><code>income_drug_df_ny = 
   nyc_drug_overdose_death_df %&gt;% 
     ungroup() %&gt;% 
@@ -649,9 +649,11 @@ smooth =
   )
 
 (year_death + income_year)/smooth</code></pre>
-<p><img src="NY_data_analyzing_files/figure-html/unnamed-chunk-8-1.png" width="90%" /></p>
-<div id="map-of-nyc-counties-drug-overdose-deathrate-change-5-yr-interval" class="section level3 tabset">
-<h3 class="tabset">Map of NYC Counties Drug Overdose Deathrate Change, 5-yr interval</h3>
+<p><img src="NY_data_analyzing_files/figure-html/unnamed-chunk-10-1.png" width="90%" /></p>
+<p>Based on the above income vs. percent of drug overdose death by year, we can see that in NYC, the overdose death rate and household income are positively correlated. People with a higher income would have a higher drug overdose death rate.</p>
+</div>
+<div id="counties-change" class="section level2">
+<h2>Counties change</h2>
 <pre class="r"><code>ny_county_df = 
   read_csv(&quot;./data/NCHS_-_Drug_Poisoning_Mortality_by_County__United_States.csv&quot;) %&gt;% 
   janitor::clean_names() %&gt;% 
@@ -664,8 +666,10 @@ smooth =
          county = str_to_lower(county)) %&gt;% 
   filter(str_detect(county, &quot;bronx|queens|kings|new york|richmond&quot;)) %&gt;% 
   mutate(county = str_replace(county, &quot; $&quot;, &quot;&quot;)) %&gt;% 
-  relocate(county)</code></pre>
-<pre class="r"><code>data(county.fips)
+  relocate(county)
+
+
+data(county.fips)
 nyc_fip = county.fips %&gt;% 
   filter(str_detect(polyname, &quot;new york&quot;)) %&gt;% 
   mutate(
@@ -674,8 +678,10 @@ nyc_fip = county.fips %&gt;%
   rename(county = polyname) %&gt;% 
   as.tibble()
 
-ny_county_df = left_join(ny_county_df,nyc_fip, by = &quot;county&quot;)</code></pre>
-<pre class="r"><code>highlight_county = function(county_fips)
+ny_county_df = left_join(ny_county_df,nyc_fip, by = &quot;county&quot;)
+
+
+highlight_county = function(county_fips)
 {
   data(county.map, package=&quot;choroplethrMaps&quot;, envir=environment())
   df = county.map[county.map$region %in% county_fips, ]
@@ -687,6 +693,9 @@ add_text_county = function(county_fips){
   #geom_text(data=df, aes(mean(long), mean(lat), label = paste0(str_to_title(pull(county_fips, county)), &quot; County\n&quot;, pull(county_fips, death_rate))), color = &quot;white&quot;)
   geom_label(data=df, aes(mean(long), mean(lat), label = paste0(str_to_title(pull(county_fips, county)), &quot; County\nDR: &quot;, round(pull(county_fips, death_rate),2))), fill = &quot;white&quot;, size = 3)
 }</code></pre>
+<p>Based on the changes of drug overdose death rates over counties by an interval of 5 years, we can see that in the year 2003, the highest drug overdose death rates occurred in New York county. In the years 2008 and 2013, the highest drug overdose death rates occurred in Richmond county. And in the year 2018, the highest drug overdose death rates occurred in Bronx county.</p>
+<div id="counties-change-5-yr-interval" class="section level3 tabset">
+<h3 class="tabset">Counties change, 5-yr interval</h3>
 <div id="section" class="section level4">
 <h4>2003</h4>
 <pre class="r"><code>year_select = 2003
