@@ -1,0 +1,1152 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+
+
+<title>regression for us</title>
+
+<script src="site_libs/header-attrs-2.11/header-attrs.js"></script>
+<script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/yeti.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/highlightjs-9.12.0/default.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+<link href="site_libs/font-awesome-5.1.0/css/all.css" rel="stylesheet" />
+<link href="site_libs/font-awesome-5.1.0/css/v4-shims.css" rel="stylesheet" />
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+<style type="text/css">code{white-space: pre;}</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+pre code {
+  padding: 0;
+}
+</style>
+
+
+<style type="text/css">
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #adb5bd;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script type="text/javascript">
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark it active
+  menuAnchor.tab('show');
+
+  // if it's got a parent navbar menu mark it active as well
+  menuAnchor.closest('li.dropdown').addClass('active');
+
+  // Navbar adjustments
+  var navHeight = $(".navbar").first().height() + 15;
+  var style = document.createElement('style');
+  var pt = "padding-top: " + navHeight + "px; ";
+  var mt = "margin-top: -" + navHeight + "px; ";
+  var css = "";
+  // offset scroll position for anchor links (for fixed navbar)
+  for (var i = 1; i <= 6; i++) {
+    css += ".section h" + i + "{ " + pt + mt + "}\n";
+  }
+  style.innerHTML = "body {" + pt + "padding-bottom: 40px; }\n" + css;
+  document.head.appendChild(style);
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "&#xe258;";
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">Home</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+    Overview
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="overview.html">Project Overview</a>
+    </li>
+    <li>
+      <a href="usa_analyzing.html">United States Overview</a>
+    </li>
+  </ul>
+</li>
+<li>
+  <a href="report.html">Report</a>
+</li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+    States of Choice
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="CA_data_analyzing.html">California</a>
+    </li>
+    <li>
+      <a href="FL_data_analyzing.html">Florida</a>
+    </li>
+    <li>
+      <a href="NY_data_analyzing.html">New York City</a>
+    </li>
+    <li>
+      <a href="Ohio_data_analyzing.html">Ohio</a>
+    </li>
+  </ul>
+</li>
+<li>
+  <a href="https://paulawucu.shinyapps.io/shiny_dashboard_upload/">Interactive Maps</a>
+</li>
+<li>
+  <a href="regression_us.html">Regression</a>
+</li>
+<li>
+  <a href="food.html">Facts About</a>
+</li>
+<li>
+  <a href="mailto:pw2551@cumc.columbia.edu">
+    <span class="fa fa-envelope fa-lg"></span>
+     
+  </a>
+</li>
+<li>
+  <a href="https://github.com/paulawucu/final_project">
+    <span class="fa fa-github fa-lg"></span>
+     
+  </a>
+</li>
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div id="header">
+
+
+
+<h1 class="title toc-ignore">regression for us</h1>
+
+</div>
+
+
+<div id="load-the-data-for-poverty" class="section level2">
+<h2>load the data for poverty</h2>
+<pre class="r"><code>poverty_2015 = 
+  read_csv(&quot;data_regression_us/povety/poverty_us_2015.csv&quot;) %&gt;% 
+  select(NAME, S1701_C03_001E)
+    
+poverty_2015 =
+    poverty_2015[-1,] %&gt;% 
+    mutate(
+      poverty_population_2015 = as.numeric(S1701_C03_001E),
+      state = NAME
+    ) %&gt;% 
+    select(-c(NAME, S1701_C03_001E)) %&gt;% 
+    relocate(state)
+
+
+
+poverty_2016 = 
+  read_csv(&quot;data_regression_us/povety/poverty_us_2016.csv&quot;) %&gt;% 
+  select(NAME, S1701_C03_001E)
+    
+poverty_2016 =
+    poverty_2016[-1,] %&gt;% 
+    mutate(
+      poverty_population_2016 = as.numeric(S1701_C03_001E),
+      state = NAME
+    ) %&gt;% 
+    select(-c(NAME, S1701_C03_001E)) %&gt;% 
+    relocate(state)
+
+
+
+poverty_2017 = 
+  read_csv(&quot;data_regression_us/povety/poverty_us_2017.csv&quot;) %&gt;% 
+  select(NAME, S1701_C03_001E)
+    
+poverty_2017 =
+    poverty_2017[-1,] %&gt;% 
+    mutate(
+      poverty_population_2017 = as.numeric(S1701_C03_001E),
+      state = NAME
+    ) %&gt;% 
+    select(-c(NAME, S1701_C03_001E)) %&gt;% 
+    relocate(state)
+
+
+
+poverty_2018 = 
+  read_csv(&quot;data_regression_us/povety/poverty_us_2018.csv&quot;) %&gt;% 
+  select(NAME, S1701_C03_001E)
+    
+poverty_2018 =
+    poverty_2018[-1,] %&gt;% 
+    mutate(
+      poverty_population_2018 = as.numeric(S1701_C03_001E),
+      state = NAME
+    ) %&gt;% 
+    select(-c(NAME, S1701_C03_001E)) %&gt;% 
+    relocate(state)
+
+
+
+poverty_2019 = 
+  read_csv(&quot;data_regression_us/povety/poverty_us_2019.csv&quot;) %&gt;% 
+  select(NAME, S1701_C03_001E)
+    
+poverty_2019 =
+    poverty_2019[-1,] %&gt;% 
+    mutate(
+      poverty_population_2019 = as.numeric(S1701_C03_001E),
+      state = NAME
+    ) %&gt;% 
+    select(-c(NAME, S1701_C03_001E)) %&gt;% 
+    relocate(state)
+  
+
+
+poverty_overall =
+  join_all(list(poverty_2019, poverty_2018, poverty_2017, poverty_2016, poverty_2015)) 
+
+poverty_overall = 
+  poverty_overall %&gt;% 
+  mutate(sum_of_rows = rowSums((poverty_overall[,2:6]), na.rm = TRUE),
+         mean_poverty_rate = 0.01 * sum_of_rows/5) %&gt;% 
+  select(state, mean_poverty_rate)</code></pre>
+</div>
+<div id="load-the-population-data" class="section level2">
+<h2>load the population data</h2>
+<pre class="r"><code>population_us = 
+  read_csv(&quot;data_regression_us/population/ACSDT5Y2019.B01003_data_with_overlays_2021-11-16T170855.csv&quot;)
+
+population_us = 
+  population_us[-1,] %&gt;% 
+  mutate(
+    state = NAME,
+    population = as.numeric(B01003_001E)
+  ) %&gt;% 
+select(state, population)</code></pre>
+</div>
+<div id="load-the-education-data" class="section level2">
+<h2>load the education data</h2>
+<pre class="r"><code>education_2015 =
+  read_csv(&quot;data_regression_us/education/education_us_2015.csv&quot;)
+
+education_2015 = 
+  education_2015[-1,] %&gt;% 
+  select(B15003_022E, B15003_023E, B15003_024E, B15003_025E, NAME) %&gt;% 
+  mutate(
+    number_bachelor = as.numeric(B15003_022E),
+    number_master = as.numeric(B15003_023E),
+    number_profesional = as.numeric(B15003_024E),
+    number_doctor = as.numeric(B15003_025E),
+    state = NAME
+  ) %&gt;% 
+  select(state, number_bachelor, number_master, number_profesional, number_doctor) %&gt;% 
+  mutate(sum_high_educ_2015 = number_bachelor + number_master + number_profesional + number_doctor) %&gt;% 
+  select(state, sum_high_educ_2015)
+  
+
+education_2016 =
+  read_csv(&quot;data_regression_us/education/education_us_2016.csv&quot;)
+
+education_2016 = 
+  education_2016[-1,] %&gt;% 
+  select(B15003_022E, B15003_023E, B15003_024E, B15003_025E, NAME) %&gt;% 
+  mutate(
+    number_bachelor = as.numeric(B15003_022E),
+    number_master = as.numeric(B15003_023E),
+    number_profesional = as.numeric(B15003_024E),
+    number_doctor = as.numeric(B15003_025E),
+    state = NAME
+  ) %&gt;% 
+  select(state, number_bachelor, number_master, number_profesional, number_doctor) %&gt;% 
+  mutate(sum_high_educ_2016 = number_bachelor + number_master + number_profesional + number_doctor) %&gt;% 
+  select(state, sum_high_educ_2016)
+
+
+education_2017 =
+  read_csv(&quot;data_regression_us/education/education_us_2017.csv&quot;)
+
+education_2017 = 
+  education_2017[-1,] %&gt;% 
+  select(B15003_022E, B15003_023E, B15003_024E, B15003_025E, NAME) %&gt;% 
+  mutate(
+    number_bachelor = as.numeric(B15003_022E),
+    number_master = as.numeric(B15003_023E),
+    number_profesional = as.numeric(B15003_024E),
+    number_doctor = as.numeric(B15003_025E),
+    state = NAME
+  ) %&gt;% 
+  select(state, number_bachelor, number_master, number_profesional, number_doctor) %&gt;% 
+  mutate(sum_high_educ_2017 = number_bachelor + number_master + number_profesional + number_doctor) %&gt;% 
+  select(state, sum_high_educ_2017)
+
+
+education_2018 =
+  read_csv(&quot;data_regression_us/education/education_us_2018.csv&quot;)
+
+education_2018 = 
+  education_2018[-1,] %&gt;% 
+  select(B15003_022E, B15003_023E, B15003_024E, B15003_025E, NAME) %&gt;% 
+  mutate(
+    number_bachelor = as.numeric(B15003_022E),
+    number_master = as.numeric(B15003_023E),
+    number_profesional = as.numeric(B15003_024E),
+    number_doctor = as.numeric(B15003_025E),
+    state = NAME
+  ) %&gt;% 
+  select(state, number_bachelor, number_master, number_profesional, number_doctor) %&gt;% 
+  mutate(sum_high_educ_2018 = number_bachelor + number_master + number_profesional + number_doctor) %&gt;% 
+  select(state, sum_high_educ_2018)
+
+
+education_2019 =
+  read_csv(&quot;data_regression_us/education/education_us_2019.csv&quot;)
+
+education_2019 = 
+  education_2019[-1,] %&gt;% 
+  select(B15003_022E, B15003_023E, B15003_024E, B15003_025E, NAME) %&gt;% 
+  mutate(
+    number_bachelor = as.numeric(B15003_022E),
+    number_master = as.numeric(B15003_023E),
+    number_profesional = as.numeric(B15003_024E),
+    number_doctor = as.numeric(B15003_025E),
+    state = NAME
+  ) %&gt;% 
+  select(state, number_bachelor, number_master, number_profesional, number_doctor) %&gt;% 
+  mutate(sum_high_educ_2019 = number_bachelor + number_master + number_profesional + number_doctor) %&gt;% 
+  select(state, sum_high_educ_2019)</code></pre>
+<div id="overall-education-data" class="section level3">
+<h3>overall education data</h3>
+<pre class="r"><code>education_overall =
+  join_all(list(education_2019, education_2018, education_2017, education_2016, education_2015))
+
+education_overall =
+  education_overall %&gt;% 
+  mutate(sum_of_rows = rowSums((education_overall[,2:6]), na.rm = TRUE),
+         mean_educ = sum_of_rows/5) %&gt;% 
+  select(state, mean_educ)</code></pre>
+</div>
+<div id="education-rate" class="section level3">
+<h3>education rate</h3>
+<pre class="r"><code>education_rate = 
+  left_join(education_overall, population_us) %&gt;% 
+  mutate(education_rate = mean_educ / population) %&gt;% 
+  select(state, education_rate)</code></pre>
+</div>
+</div>
+<div id="unemployment" class="section level2">
+<h2>unemployment</h2>
+<p>load the unemployment 2015-2019</p>
+<pre class="r"><code>unemployment_2015 =
+  read_csv(&quot;data_regression_us/unemployment/unemployment_2015.csv&quot;)
+
+unemployment_2015 = 
+  unemployment_2015[-1,] %&gt;% 
+  select(NAME, S2301_C04_001E) %&gt;% 
+  mutate(
+    unemployment_rate_2015 = as.numeric(S2301_C04_001E),
+    state = NAME
+  ) %&gt;% 
+  select(state, unemployment_rate_2015)
+
+
+
+unemployment_2016 =
+  read_csv(&quot;data_regression_us/unemployment/unemployment_2016.csv&quot;)
+
+unemployment_2016 = 
+  unemployment_2016[-1,] %&gt;% 
+  select(NAME, S2301_C04_001E) %&gt;% 
+  mutate(
+    unemployment_rate_2016 = as.numeric(S2301_C04_001E),
+    state = NAME
+  ) %&gt;% 
+  select(state, unemployment_rate_2016)
+
+
+unemployment_2017 =
+  read_csv(&quot;data_regression_us/unemployment/unemployment_2017.csv&quot;)
+
+unemployment_2017 = 
+  unemployment_2017[-1,] %&gt;% 
+  select(NAME, S2301_C04_001E) %&gt;% 
+  mutate(
+    unemployment_rate_2017 = as.numeric(S2301_C04_001E),
+    state = NAME
+  ) %&gt;% 
+  select(state, unemployment_rate_2017)
+
+
+unemployment_2018 =
+  read_csv(&quot;data_regression_us/unemployment/unemployment_2018.csv&quot;)
+
+unemployment_2018 = 
+  unemployment_2018[-1,] %&gt;% 
+  select(NAME, S2301_C04_001E) %&gt;% 
+  mutate(
+    unemployment_rate_2018 = as.numeric(S2301_C04_001E),
+    state = NAME
+  ) %&gt;% 
+  select(state, unemployment_rate_2018)
+
+
+unemployment_2019 =
+  read_csv(&quot;data_regression_us/unemployment/unemployment_2019.csv&quot;)
+
+unemployment_2019 = 
+  unemployment_2019[-1,] %&gt;% 
+  select(NAME, S2301_C04_001E) %&gt;% 
+  mutate(
+    unemployment_rate_2019 = as.numeric(S2301_C04_001E),
+    state = NAME
+  ) %&gt;% 
+  select(state, unemployment_rate_2019)</code></pre>
+<div id="overall-unemployment" class="section level3">
+<h3>overall unemployment</h3>
+<pre class="r"><code>unemployment_overall =
+  join_all(list(unemployment_2019, unemployment_2018, unemployment_2017, unemployment_2016, unemployment_2015)) 
+
+unemployment_overall = 
+  unemployment_overall %&gt;% 
+  mutate(sum_of_rows = rowSums((unemployment_overall[,2:6]), na.rm = TRUE),
+         mean_unemployment_rate = 0.01 * sum_of_rows/5) %&gt;% 
+  select(state, mean_unemployment_rate)</code></pre>
+</div>
+</div>
+<div id="crude-divorce-rate" class="section level2">
+<h2>crude divorce rate</h2>
+<p>load the divorce count data from 2015-2019</p>
+<pre class="r"><code>divorce_2015 =
+  read_csv(&quot;data_regression_us/divorce/divorce_number_2015.csv&quot;)
+
+divorce_2015 = 
+  divorce_2015[-1,] %&gt;% 
+  select(NAME, B12503_001E) %&gt;% 
+  mutate(
+    divorce_num_2015 = as.numeric(B12503_001E),
+    state = NAME
+  ) %&gt;% 
+  select(state, divorce_num_2015)
+
+
+divorce_2016 =
+  read_csv(&quot;data_regression_us/divorce/divorce_number_2016.csv&quot;)
+
+divorce_2016 = 
+  divorce_2016[-1,] %&gt;% 
+  select(NAME, B12503_001E) %&gt;% 
+  mutate(
+    divorce_num_2016 = as.numeric(B12503_001E),
+    state = NAME
+  ) %&gt;% 
+  select(state, divorce_num_2016)
+
+
+divorce_2017 =
+  read_csv(&quot;data_regression_us/divorce/divorce_number_2017.csv&quot;)
+
+divorce_2017 = 
+  divorce_2017[-1,] %&gt;% 
+  select(NAME, B12503_001E) %&gt;% 
+  mutate(
+    divorce_num_2017 = as.numeric(B12503_001E),
+    state = NAME
+  ) %&gt;% 
+  select(state, divorce_num_2017)
+
+
+divorce_2018 =
+  read_csv(&quot;data_regression_us/divorce/divorce_number_2018.csv&quot;)
+
+divorce_2018 = 
+  divorce_2018[-1,] %&gt;% 
+  select(NAME, B12503_001E) %&gt;% 
+  mutate(
+    divorce_num_2018 = as.numeric(B12503_001E),
+    state = NAME
+  ) %&gt;% 
+  select(state, divorce_num_2018)
+
+
+divorce_2019 =
+  read_csv(&quot;data_regression_us/divorce/divorce_number_2019.csv&quot;)
+
+divorce_2019 = 
+  divorce_2019[-1,] %&gt;% 
+  select(NAME, B12503_001E) %&gt;% 
+  mutate(
+    divorce_num_2019 = as.numeric(B12503_001E),
+    state = NAME
+  ) %&gt;% 
+  select(state, divorce_num_2019)</code></pre>
+<div id="overall-divorce-count" class="section level3">
+<h3>overall divorce count</h3>
+<pre class="r"><code>divorce_overall = 
+  join_all(list(divorce_2019, divorce_2018, divorce_2017, divorce_2016, divorce_2015)) 
+
+divorce_overall = 
+  divorce_overall %&gt;% 
+  mutate(sum_of_rows = rowSums((divorce_overall[,2:6]), na.rm = TRUE),
+         mean_divorce_num = sum_of_rows/5) %&gt;% 
+  select(state, mean_divorce_num)</code></pre>
+</div>
+<div id="crude-divorce-rate-1" class="section level3">
+<h3>crude divorce rate</h3>
+<pre class="r"><code>divorce_rate = 
+  left_join(divorce_overall, population_us) %&gt;% 
+  mutate(divorce_rate = mean_divorce_num / population) %&gt;% 
+  select(state, divorce_rate)</code></pre>
+</div>
+</div>
+<div id="binge-drinking" class="section level2">
+<h2>binge drinking</h2>
+<pre class="r"><code>state_level = c(state.name[1:8], &quot;District of Columbia&quot;, state.name[9:50])
+
+drinking_19 = 
+  read_excel(&quot;./data/statistic_id378966_us-binge-drinking-among-adults-by-state-2019.xlsx&quot;, range = &quot;Data!B3:C57&quot;) %&gt;% 
+  janitor::clean_names() %&gt;% 
+  slice(-c(1,2)) %&gt;% 
+  mutate(binge_drink_rate = 0.01 * as.numeric(x2)) %&gt;% 
+  select(state = u_s_binge_drinking_among_adults_by_state_2019, binge_drink_rate)</code></pre>
+</div>
+<div id="crude-death-rate" class="section level2">
+<h2>crude death rate</h2>
+<pre class="r"><code>crudedeath_rate = 
+  read.csv(&quot;./data/agegroup_race_state_year_99-19.csv&quot;) %&gt;% 
+  janitor::clean_names() %&gt;% 
+  select(state, year = year_code, age = ten_year_age_groups_code, race, deaths,population) %&gt;% 
+  drop_na() %&gt;%
+  filter(year %in% c(&quot;2015&quot;, &quot;2016&quot;, &quot;2017&quot;, &quot;2018&quot;, &quot;2019&quot;)) %&gt;%
+  group_by(state) %&gt;%
+  dplyr::summarize(total_deaths = sum(deaths),
+           total_population = sum(population)) %&gt;% 
+  mutate(crudedeath_rate = 0.01 * (total_deaths/total_population) * 100000) %&gt;% 
+  select(state, crudedeath_rate)</code></pre>
+</div>
+<div id="smoke-rate" class="section level2">
+<h2>smoke rate</h2>
+<pre class="r"><code>smoke_rate = 
+  read_excel(&quot;data_regression_us/smoke/smoke_rate.xlsx&quot;)
+
+smoke_rate = 
+  smoke_rate %&gt;% 
+  mutate(sum_of_rows = rowSums((smoke_rate[,2:6]), na.rm = TRUE),
+         mean_smoke_rate = sum_of_rows/5) %&gt;% 
+  select(state, mean_smoke_rate)</code></pre>
+</div>
+<div id="regression-overall-data" class="section level2">
+<h2>regression overall data</h2>
+<pre class="r"><code>overall_regression = 
+  join_all(list(crudedeath_rate, drinking_19, divorce_rate, unemployment_overall, education_rate, poverty_overall, smoke_rate)) %&gt;% 
+  select(-state)</code></pre>
+</div>
+<div id="regression-analyses" class="section level1">
+<h1>Regression analyses</h1>
+<div id="correlation-matrix" class="section level2">
+<h2>correlation matrix</h2>
+<pre class="r"><code>corr_matrix =
+  overall_regression %&gt;% 
+  chart.Correlation(histogram = TRUE, method = &quot;pearson&quot;)</code></pre>
+<p><img src="regression_us_files/figure-html/correlation_table-1.png" width="90%" /> <em>Comments:</em></p>
+<p>For those variables that are strongly correlated with each other, we add their interaction into the regression model for further analysis.</p>
+<p>Two-ways interaction we consider: 1. binge_drink_rate * education_rate 2. mean_unemployment_rate * mean_poverty_rate 3. education_rate * mean_poverty_rate 4. education_rate * mean_smoke_rate 5. mean_poverty_rate * mean_smoke_rate</p>
+</div>
+<div id="modeling-crude-death-rate-resulted-from-data-overdose" class="section level2">
+<h2>Modeling crude death rate resulted from data overdose</h2>
+<div id="stepwise-modeling" class="section level3">
+<h3>Stepwise modeling</h3>
+<p>Based on the stepwise results, the best model is model_1 : crudedeath_rate ~ binge_drink_rate + divorce_rate + mean_unemployment_rate + education_rate + mean_poverty_rate + mean_smoke_rate + binge_drink_rate:education_rate</p>
+<p>This model can be described in the following parameter:</p>
+<pre class="r"><code>summary(stepwise) %&gt;% broom::tidy() %&gt;% knitr::kable()</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="left">term</th>
+<th align="right">estimate</th>
+<th align="right">std.error</th>
+<th align="right">statistic</th>
+<th align="right">p.value</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">(Intercept)</td>
+<td align="right">1.0862671</td>
+<td align="right">0.6386930</td>
+<td align="right">1.7007656</td>
+<td align="right">0.0963811</td>
+</tr>
+<tr class="even">
+<td align="left">binge_drink_rate</td>
+<td align="right">-5.0101976</td>
+<td align="right">1.9933174</td>
+<td align="right">-2.5134972</td>
+<td align="right">0.0158762</td>
+</tr>
+<tr class="odd">
+<td align="left">divorce_rate</td>
+<td align="right">-0.8038224</td>
+<td align="right">0.5669148</td>
+<td align="right">-1.4178894</td>
+<td align="right">0.1636001</td>
+</tr>
+<tr class="even">
+<td align="left">mean_unemployment_rate</td>
+<td align="right">4.3611925</td>
+<td align="right">1.9917000</td>
+<td align="right">2.1896834</td>
+<td align="right">0.0341538</td>
+</tr>
+<tr class="odd">
+<td align="left">education_rate</td>
+<td align="right">-1.8449213</td>
+<td align="right">2.1508996</td>
+<td align="right">-0.8577441</td>
+<td align="right">0.3959022</td>
+</tr>
+<tr class="even">
+<td align="left">mean_poverty_rate</td>
+<td align="right">-1.3177944</td>
+<td align="right">0.9920769</td>
+<td align="right">-1.3283188</td>
+<td align="right">0.1912459</td>
+</tr>
+<tr class="odd">
+<td align="left">mean_smoke_rate</td>
+<td align="right">2.0074717</td>
+<td align="right">0.6351739</td>
+<td align="right">3.1605074</td>
+<td align="right">0.0029198</td>
+</tr>
+<tr class="even">
+<td align="left">binge_drink_rate:education_rate</td>
+<td align="right">19.5408814</td>
+<td align="right">8.8477530</td>
+<td align="right">2.2085700</td>
+<td align="right">0.0327154</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code>summary(stepwise) %&gt;% broom::glance() %&gt;% knitr::kable()</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="right">r.squared</th>
+<th align="right">adj.r.squared</th>
+<th align="right">sigma</th>
+<th align="right">statistic</th>
+<th align="right">p.value</th>
+<th align="right">df</th>
+<th align="right">df.residual</th>
+<th align="right">nobs</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="right">0.5775355</td>
+<td align="right">0.5071248</td>
+<td align="right">0.101727</td>
+<td align="right">8.202378</td>
+<td align="right">2.8e-06</td>
+<td align="right">7</td>
+<td align="right">42</td>
+<td align="right">50</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="use-regsubset-to-compare-all-possible-models" class="section level3">
+<h3>Use regsubset() to compare all possible models</h3>
+<pre class="r"><code>cri_measure = 
+  cbind(
+    cp = summary(reg_subsets)$cp,
+    r2 = summary(reg_subsets)$rsq,
+    adj_r2 = summary(reg_subsets)$adjr2,
+    BIC = summary(reg_subsets)$bic
+  )
+
+cri_measure</code></pre>
+<pre><code>##              cp        r2    adj_r2         BIC
+##  [1,] 20.445661 0.3055733 0.2911061 -10.4093868
+##  [2,] 11.206452 0.4230348 0.3984831 -15.7625966
+##  [3,]  6.025456 0.4980837 0.4653500 -18.8180053
+##  [4,]  4.252493 0.5375151 0.4964054 -18.9969573
+##  [5,]  3.707594 0.5641120 0.5145793 -18.0463581
+##  [6,]  3.253801 0.5897567 0.5325134 -17.1660816
+##  [7,]  4.874002 0.5937260 0.5260137 -13.7401882
+##  [8,]  6.364832 0.5990473 0.5208127 -10.4873898
+##  [9,]  8.056179 0.6022731 0.5127845  -6.9792544
+## [10,] 10.000000 0.6028602 0.5010295  -3.1410960
+## [11,] 12.000000 0.6028602 0.4878987   0.7709268</code></pre>
+<p>Based on different statistics, we get two models from regsubset’s results:</p>
+<p>Model_2. crudedeath_rate ~ mean_poverty_rate + mean_unemployment_rate:mean_poverty_rate + education_rate:mean_poverty_rate + mean_poverty_rate:mean_smoke_rate</p>
+<p>This model can be described in the following parameter:</p>
+<pre class="r"><code>model_2 = lm(data = overall_regression, formula = crudedeath_rate ~ mean_poverty_rate + mean_unemployment_rate:mean_poverty_rate + education_rate:mean_poverty_rate + mean_poverty_rate:mean_smoke_rate)
+
+
+summary(model_2) %&gt;% broom::tidy() %&gt;% knitr::kable()</code></pre>
+<table>
+<colgroup>
+<col width="50%" />
+<col width="13%" />
+<col width="12%" />
+<col width="12%" />
+<col width="12%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">term</th>
+<th align="right">estimate</th>
+<th align="right">std.error</th>
+<th align="right">statistic</th>
+<th align="right">p.value</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">(Intercept)</td>
+<td align="right">0.4515386</td>
+<td align="right">0.113453</td>
+<td align="right">3.979962</td>
+<td align="right">0.0002426</td>
+</tr>
+<tr class="even">
+<td align="left">mean_poverty_rate</td>
+<td align="right">-9.9417459</td>
+<td align="right">1.908559</td>
+<td align="right">-5.209033</td>
+<td align="right">0.0000043</td>
+</tr>
+<tr class="odd">
+<td align="left">mean_poverty_rate:mean_unemployment_rate</td>
+<td align="right">47.3280285</td>
+<td align="right">14.203792</td>
+<td align="right">3.332070</td>
+<td align="right">0.0017075</td>
+</tr>
+<tr class="even">
+<td align="left">mean_poverty_rate:education_rate</td>
+<td align="right">15.3892473</td>
+<td align="right">2.762120</td>
+<td align="right">5.571534</td>
+<td align="right">0.0000013</td>
+</tr>
+<tr class="odd">
+<td align="left">mean_poverty_rate:mean_smoke_rate</td>
+<td align="right">17.1090654</td>
+<td align="right">4.248474</td>
+<td align="right">4.027108</td>
+<td align="right">0.0002093</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code>summary(model_2) %&gt;% broom::glance() %&gt;% knitr::kable()</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="right">r.squared</th>
+<th align="right">adj.r.squared</th>
+<th align="right">sigma</th>
+<th align="right">statistic</th>
+<th align="right">p.value</th>
+<th align="right">df</th>
+<th align="right">df.residual</th>
+<th align="right">nobs</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="right">0.5400631</td>
+<td align="right">0.5000686</td>
+<td align="right">0.1017048</td>
+<td align="right">13.50343</td>
+<td align="right">2e-07</td>
+<td align="right">4</td>
+<td align="right">46</td>
+<td align="right">51</td>
+</tr>
+</tbody>
+</table>
+<p>Model_3. crudedeath_rate ~ binge_drink_rate + divorce_rate + mean_poverty_rate + binge_drink_rate:education_rate +mean_unemployment_rate:mean_poverty_rate + mean_poverty_rate:mean_smoke_rate</p>
+<p>This model can be described in the following parameter:</p>
+<pre class="r"><code>model_3 = lm(data = overall_regression, formula = crudedeath_rate ~ binge_drink_rate + divorce_rate + mean_poverty_rate + binge_drink_rate:education_rate +mean_unemployment_rate:mean_poverty_rate + mean_poverty_rate:mean_smoke_rate)
+
+
+summary(model_3) %&gt;% broom::tidy() %&gt;% knitr::kable()</code></pre>
+<table>
+<colgroup>
+<col width="49%" />
+<col width="13%" />
+<col width="13%" />
+<col width="12%" />
+<col width="12%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">term</th>
+<th align="right">estimate</th>
+<th align="right">std.error</th>
+<th align="right">statistic</th>
+<th align="right">p.value</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">(Intercept)</td>
+<td align="right">1.3111049</td>
+<td align="right">0.4582567</td>
+<td align="right">2.861071</td>
+<td align="right">0.0064940</td>
+</tr>
+<tr class="even">
+<td align="left">binge_drink_rate</td>
+<td align="right">-3.0906522</td>
+<td align="right">0.8495998</td>
+<td align="right">-3.637774</td>
+<td align="right">0.0007317</td>
+</tr>
+<tr class="odd">
+<td align="left">divorce_rate</td>
+<td align="right">-0.9438728</td>
+<td align="right">0.5401661</td>
+<td align="right">-1.747375</td>
+<td align="right">0.0877112</td>
+</tr>
+<tr class="even">
+<td align="left">mean_poverty_rate</td>
+<td align="right">-5.8558173</td>
+<td align="right">1.8504849</td>
+<td align="right">-3.164477</td>
+<td align="right">0.0028517</td>
+</tr>
+<tr class="odd">
+<td align="left">binge_drink_rate:education_rate</td>
+<td align="right">11.7665809</td>
+<td align="right">1.9885416</td>
+<td align="right">5.917191</td>
+<td align="right">0.0000005</td>
+</tr>
+<tr class="even">
+<td align="left">mean_poverty_rate:mean_unemployment_rate</td>
+<td align="right">35.9982332</td>
+<td align="right">15.2759818</td>
+<td align="right">2.356525</td>
+<td align="right">0.0230726</td>
+</tr>
+<tr class="odd">
+<td align="left">mean_poverty_rate:mean_smoke_rate</td>
+<td align="right">15.8243553</td>
+<td align="right">3.9971993</td>
+<td align="right">3.958861</td>
+<td align="right">0.0002781</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code>summary(model_3) %&gt;% broom::glance() %&gt;% knitr::kable()</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="right">r.squared</th>
+<th align="right">adj.r.squared</th>
+<th align="right">sigma</th>
+<th align="right">statistic</th>
+<th align="right">p.value</th>
+<th align="right">df</th>
+<th align="right">df.residual</th>
+<th align="right">nobs</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="right">0.5897567</td>
+<td align="right">0.5325134</td>
+<td align="right">0.0990723</td>
+<td align="right">10.30264</td>
+<td align="right">5e-07</td>
+<td align="right">6</td>
+<td align="right">43</td>
+<td align="right">50</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div id="cross-validation" class="section level2">
+<h2>Cross validation</h2>
+<pre class="r"><code>train_df = sample_n(overall_regression, 41)
+test_df = anti_join(overall_regression, train_df)</code></pre>
+<pre class="r"><code>cv_modeling_df = 
+  crossv_mc(overall_regression, 1000) %&gt;% 
+  mutate(
+    train = map(train, as_tibble),
+    test = map(test, as_tibble)
+  ) %&gt;% 
+  mutate(
+    model_1 = map(.x = train, ~lm(crudedeath_rate ~ binge_drink_rate + divorce_rate +  mean_unemployment_rate + education_rate + mean_poverty_rate +  mean_smoke_rate + binge_drink_rate:education_rate, data = .x)),
+    model_2 = map(.x = train, ~lm(crudedeath_rate ~ mean_poverty_rate + mean_unemployment_rate:mean_poverty_rate + education_rate:mean_poverty_rate + mean_poverty_rate:mean_smoke_rate, data = .x)),
+    model_3 = map(.x = train, ~lm(crudedeath_rate ~ binge_drink_rate + divorce_rate + mean_poverty_rate + binge_drink_rate:education_rate +mean_unemployment_rate:mean_poverty_rate + mean_poverty_rate:mean_smoke_rate, data = .x))
+  ) %&gt;% 
+  mutate(
+    rmse_model_1 = map2_dbl(.x = model_1, .y = test, ~rmse(model = .x, data = .y)),
+    rmse_model_2 = map2_dbl(.x = model_2, .y = test, ~rmse(model = .x, data = .y)),
+    rmse_model_3 = map2_dbl(.x = model_3, .y = test, ~rmse(model = .x, data = .y))
+  )
+
+cv_modeling_output = 
+  cv_modeling_df %&gt;% 
+  select(.id, starts_with(&quot;rmse&quot;)) %&gt;% 
+  pivot_longer(
+    rmse_model_1:rmse_model_3,
+    names_to = &quot;model&quot;,
+    values_to = &quot;rmse&quot;,
+    names_prefix = &quot;rmse_&quot;
+  ) %&gt;% 
+  ggplot(aes(x = model, y = rmse)) +
+  geom_boxplot()
+
+cv_modeling_output</code></pre>
+<p><img src="regression_us_files/figure-html/unnamed-chunk-23-1.png" width="90%" /></p>
+</div>
+</div>
+
+
+
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open');
+  });
+});
+</script>
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

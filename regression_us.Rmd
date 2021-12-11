@@ -1,0 +1,615 @@
+---
+title: "regression for us"
+output: html_document
+---
+
+```{r, include = FALSE}
+library(tidyverse)
+library(viridis)
+library(modelr)
+library(plyr)
+library(readxl)
+library(PerformanceAnalytics)
+library(leaps)
+
+
+
+knitr::opts_chunk$set(
+  echo = TRUE,
+  warning = FALSE,
+  fig.width = 8,
+  fig.height = 6,
+  out.width = "90%"
+)
+
+options(
+  ggplot2.continuous.colour = "viridis",
+  ggplot2.continuous.fill = "viridis"
+)
+
+scale_colour_discrete = scale_colour_viridis_d
+scale_fill_discrete = scale_fill_viridis_d
+
+theme_set(theme_minimal() + theme(legend.position = "bottom"))
+```
+
+## load the data for poverty
+
+```{r, message = FALSE, warning = FALSE}
+poverty_2015 = 
+  read_csv("data_regression_us/povety/poverty_us_2015.csv") %>% 
+  select(NAME, S1701_C03_001E)
+    
+poverty_2015 =
+    poverty_2015[-1,] %>% 
+    mutate(
+      poverty_population_2015 = as.numeric(S1701_C03_001E),
+      state = NAME
+    ) %>% 
+    select(-c(NAME, S1701_C03_001E)) %>% 
+    relocate(state)
+
+
+
+poverty_2016 = 
+  read_csv("data_regression_us/povety/poverty_us_2016.csv") %>% 
+  select(NAME, S1701_C03_001E)
+    
+poverty_2016 =
+    poverty_2016[-1,] %>% 
+    mutate(
+      poverty_population_2016 = as.numeric(S1701_C03_001E),
+      state = NAME
+    ) %>% 
+    select(-c(NAME, S1701_C03_001E)) %>% 
+    relocate(state)
+
+
+
+poverty_2017 = 
+  read_csv("data_regression_us/povety/poverty_us_2017.csv") %>% 
+  select(NAME, S1701_C03_001E)
+    
+poverty_2017 =
+    poverty_2017[-1,] %>% 
+    mutate(
+      poverty_population_2017 = as.numeric(S1701_C03_001E),
+      state = NAME
+    ) %>% 
+    select(-c(NAME, S1701_C03_001E)) %>% 
+    relocate(state)
+
+
+
+poverty_2018 = 
+  read_csv("data_regression_us/povety/poverty_us_2018.csv") %>% 
+  select(NAME, S1701_C03_001E)
+    
+poverty_2018 =
+    poverty_2018[-1,] %>% 
+    mutate(
+      poverty_population_2018 = as.numeric(S1701_C03_001E),
+      state = NAME
+    ) %>% 
+    select(-c(NAME, S1701_C03_001E)) %>% 
+    relocate(state)
+
+
+
+poverty_2019 = 
+  read_csv("data_regression_us/povety/poverty_us_2019.csv") %>% 
+  select(NAME, S1701_C03_001E)
+    
+poverty_2019 =
+    poverty_2019[-1,] %>% 
+    mutate(
+      poverty_population_2019 = as.numeric(S1701_C03_001E),
+      state = NAME
+    ) %>% 
+    select(-c(NAME, S1701_C03_001E)) %>% 
+    relocate(state)
+  
+
+
+poverty_overall =
+  join_all(list(poverty_2019, poverty_2018, poverty_2017, poverty_2016, poverty_2015)) 
+
+poverty_overall = 
+  poverty_overall %>% 
+  mutate(sum_of_rows = rowSums((poverty_overall[,2:6]), na.rm = TRUE),
+         mean_poverty_rate = 0.01 * sum_of_rows/5) %>% 
+  select(state, mean_poverty_rate)
+  
+```
+
+## load the population data
+
+```{r, message = FALSE, warning = FALSE}
+population_us = 
+  read_csv("data_regression_us/population/ACSDT5Y2019.B01003_data_with_overlays_2021-11-16T170855.csv")
+
+population_us = 
+  population_us[-1,] %>% 
+  mutate(
+    state = NAME,
+    population = as.numeric(B01003_001E)
+  ) %>% 
+select(state, population)
+```
+
+## load the education data
+
+```{r, message = FALSE, warning = FALSE}
+education_2015 =
+  read_csv("data_regression_us/education/education_us_2015.csv")
+
+education_2015 = 
+  education_2015[-1,] %>% 
+  select(B15003_022E, B15003_023E, B15003_024E, B15003_025E, NAME) %>% 
+  mutate(
+    number_bachelor = as.numeric(B15003_022E),
+    number_master = as.numeric(B15003_023E),
+    number_profesional = as.numeric(B15003_024E),
+    number_doctor = as.numeric(B15003_025E),
+    state = NAME
+  ) %>% 
+  select(state, number_bachelor, number_master, number_profesional, number_doctor) %>% 
+  mutate(sum_high_educ_2015 = number_bachelor + number_master + number_profesional + number_doctor) %>% 
+  select(state, sum_high_educ_2015)
+  
+
+education_2016 =
+  read_csv("data_regression_us/education/education_us_2016.csv")
+
+education_2016 = 
+  education_2016[-1,] %>% 
+  select(B15003_022E, B15003_023E, B15003_024E, B15003_025E, NAME) %>% 
+  mutate(
+    number_bachelor = as.numeric(B15003_022E),
+    number_master = as.numeric(B15003_023E),
+    number_profesional = as.numeric(B15003_024E),
+    number_doctor = as.numeric(B15003_025E),
+    state = NAME
+  ) %>% 
+  select(state, number_bachelor, number_master, number_profesional, number_doctor) %>% 
+  mutate(sum_high_educ_2016 = number_bachelor + number_master + number_profesional + number_doctor) %>% 
+  select(state, sum_high_educ_2016)
+
+
+education_2017 =
+  read_csv("data_regression_us/education/education_us_2017.csv")
+
+education_2017 = 
+  education_2017[-1,] %>% 
+  select(B15003_022E, B15003_023E, B15003_024E, B15003_025E, NAME) %>% 
+  mutate(
+    number_bachelor = as.numeric(B15003_022E),
+    number_master = as.numeric(B15003_023E),
+    number_profesional = as.numeric(B15003_024E),
+    number_doctor = as.numeric(B15003_025E),
+    state = NAME
+  ) %>% 
+  select(state, number_bachelor, number_master, number_profesional, number_doctor) %>% 
+  mutate(sum_high_educ_2017 = number_bachelor + number_master + number_profesional + number_doctor) %>% 
+  select(state, sum_high_educ_2017)
+
+
+education_2018 =
+  read_csv("data_regression_us/education/education_us_2018.csv")
+
+education_2018 = 
+  education_2018[-1,] %>% 
+  select(B15003_022E, B15003_023E, B15003_024E, B15003_025E, NAME) %>% 
+  mutate(
+    number_bachelor = as.numeric(B15003_022E),
+    number_master = as.numeric(B15003_023E),
+    number_profesional = as.numeric(B15003_024E),
+    number_doctor = as.numeric(B15003_025E),
+    state = NAME
+  ) %>% 
+  select(state, number_bachelor, number_master, number_profesional, number_doctor) %>% 
+  mutate(sum_high_educ_2018 = number_bachelor + number_master + number_profesional + number_doctor) %>% 
+  select(state, sum_high_educ_2018)
+
+
+education_2019 =
+  read_csv("data_regression_us/education/education_us_2019.csv")
+
+education_2019 = 
+  education_2019[-1,] %>% 
+  select(B15003_022E, B15003_023E, B15003_024E, B15003_025E, NAME) %>% 
+  mutate(
+    number_bachelor = as.numeric(B15003_022E),
+    number_master = as.numeric(B15003_023E),
+    number_profesional = as.numeric(B15003_024E),
+    number_doctor = as.numeric(B15003_025E),
+    state = NAME
+  ) %>% 
+  select(state, number_bachelor, number_master, number_profesional, number_doctor) %>% 
+  mutate(sum_high_educ_2019 = number_bachelor + number_master + number_profesional + number_doctor) %>% 
+  select(state, sum_high_educ_2019)
+```
+
+### overall education data
+
+```{r, message = FALSE, warning = FALSE}
+education_overall =
+  join_all(list(education_2019, education_2018, education_2017, education_2016, education_2015))
+
+education_overall =
+  education_overall %>% 
+  mutate(sum_of_rows = rowSums((education_overall[,2:6]), na.rm = TRUE),
+         mean_educ = sum_of_rows/5) %>% 
+  select(state, mean_educ)
+```
+
+### education rate
+
+```{r, message = FALSE, warning = FALSE}
+education_rate = 
+  left_join(education_overall, population_us) %>% 
+  mutate(education_rate = mean_educ / population) %>% 
+  select(state, education_rate)
+```
+
+## unemployment
+
+load the unemployment 2015-2019
+
+```{r, message = FALSE, warning = FALSE}
+unemployment_2015 =
+  read_csv("data_regression_us/unemployment/unemployment_2015.csv")
+
+unemployment_2015 = 
+  unemployment_2015[-1,] %>% 
+  select(NAME, S2301_C04_001E) %>% 
+  mutate(
+    unemployment_rate_2015 = as.numeric(S2301_C04_001E),
+    state = NAME
+  ) %>% 
+  select(state, unemployment_rate_2015)
+
+
+
+unemployment_2016 =
+  read_csv("data_regression_us/unemployment/unemployment_2016.csv")
+
+unemployment_2016 = 
+  unemployment_2016[-1,] %>% 
+  select(NAME, S2301_C04_001E) %>% 
+  mutate(
+    unemployment_rate_2016 = as.numeric(S2301_C04_001E),
+    state = NAME
+  ) %>% 
+  select(state, unemployment_rate_2016)
+
+
+unemployment_2017 =
+  read_csv("data_regression_us/unemployment/unemployment_2017.csv")
+
+unemployment_2017 = 
+  unemployment_2017[-1,] %>% 
+  select(NAME, S2301_C04_001E) %>% 
+  mutate(
+    unemployment_rate_2017 = as.numeric(S2301_C04_001E),
+    state = NAME
+  ) %>% 
+  select(state, unemployment_rate_2017)
+
+
+unemployment_2018 =
+  read_csv("data_regression_us/unemployment/unemployment_2018.csv")
+
+unemployment_2018 = 
+  unemployment_2018[-1,] %>% 
+  select(NAME, S2301_C04_001E) %>% 
+  mutate(
+    unemployment_rate_2018 = as.numeric(S2301_C04_001E),
+    state = NAME
+  ) %>% 
+  select(state, unemployment_rate_2018)
+
+
+unemployment_2019 =
+  read_csv("data_regression_us/unemployment/unemployment_2019.csv")
+
+unemployment_2019 = 
+  unemployment_2019[-1,] %>% 
+  select(NAME, S2301_C04_001E) %>% 
+  mutate(
+    unemployment_rate_2019 = as.numeric(S2301_C04_001E),
+    state = NAME
+  ) %>% 
+  select(state, unemployment_rate_2019)
+```
+
+### overall unemployment
+
+```{r, message = FALSE, warning = FALSE}
+unemployment_overall =
+  join_all(list(unemployment_2019, unemployment_2018, unemployment_2017, unemployment_2016, unemployment_2015)) 
+
+unemployment_overall = 
+  unemployment_overall %>% 
+  mutate(sum_of_rows = rowSums((unemployment_overall[,2:6]), na.rm = TRUE),
+         mean_unemployment_rate = 0.01 * sum_of_rows/5) %>% 
+  select(state, mean_unemployment_rate)
+```
+
+## crude divorce rate
+
+load the divorce count data from 2015-2019
+
+```{r, message = FALSE, warning = FALSE}
+divorce_2015 =
+  read_csv("data_regression_us/divorce/divorce_number_2015.csv")
+
+divorce_2015 = 
+  divorce_2015[-1,] %>% 
+  select(NAME, B12503_001E) %>% 
+  mutate(
+    divorce_num_2015 = as.numeric(B12503_001E),
+    state = NAME
+  ) %>% 
+  select(state, divorce_num_2015)
+
+
+divorce_2016 =
+  read_csv("data_regression_us/divorce/divorce_number_2016.csv")
+
+divorce_2016 = 
+  divorce_2016[-1,] %>% 
+  select(NAME, B12503_001E) %>% 
+  mutate(
+    divorce_num_2016 = as.numeric(B12503_001E),
+    state = NAME
+  ) %>% 
+  select(state, divorce_num_2016)
+
+
+divorce_2017 =
+  read_csv("data_regression_us/divorce/divorce_number_2017.csv")
+
+divorce_2017 = 
+  divorce_2017[-1,] %>% 
+  select(NAME, B12503_001E) %>% 
+  mutate(
+    divorce_num_2017 = as.numeric(B12503_001E),
+    state = NAME
+  ) %>% 
+  select(state, divorce_num_2017)
+
+
+divorce_2018 =
+  read_csv("data_regression_us/divorce/divorce_number_2018.csv")
+
+divorce_2018 = 
+  divorce_2018[-1,] %>% 
+  select(NAME, B12503_001E) %>% 
+  mutate(
+    divorce_num_2018 = as.numeric(B12503_001E),
+    state = NAME
+  ) %>% 
+  select(state, divorce_num_2018)
+
+
+divorce_2019 =
+  read_csv("data_regression_us/divorce/divorce_number_2019.csv")
+
+divorce_2019 = 
+  divorce_2019[-1,] %>% 
+  select(NAME, B12503_001E) %>% 
+  mutate(
+    divorce_num_2019 = as.numeric(B12503_001E),
+    state = NAME
+  ) %>% 
+  select(state, divorce_num_2019)
+```
+
+### overall divorce count
+
+```{r, message = FALSE, warning = FALSE}
+divorce_overall = 
+  join_all(list(divorce_2019, divorce_2018, divorce_2017, divorce_2016, divorce_2015)) 
+
+divorce_overall = 
+  divorce_overall %>% 
+  mutate(sum_of_rows = rowSums((divorce_overall[,2:6]), na.rm = TRUE),
+         mean_divorce_num = sum_of_rows/5) %>% 
+  select(state, mean_divorce_num)
+```
+
+### crude divorce rate
+
+```{r, message = FALSE, warning = FALSE}
+divorce_rate = 
+  left_join(divorce_overall, population_us) %>% 
+  mutate(divorce_rate = mean_divorce_num / population) %>% 
+  select(state, divorce_rate)
+```
+
+## binge drinking 
+
+```{r, message = FALSE, warning = FALSE}
+state_level = c(state.name[1:8], "District of Columbia", state.name[9:50])
+
+drinking_19 = 
+  read_excel("./data/statistic_id378966_us-binge-drinking-among-adults-by-state-2019.xlsx", range = "Data!B3:C57") %>% 
+  janitor::clean_names() %>% 
+  slice(-c(1,2)) %>% 
+  mutate(binge_drink_rate = 0.01 * as.numeric(x2)) %>% 
+  select(state = u_s_binge_drinking_among_adults_by_state_2019, binge_drink_rate)
+
+
+```
+
+## crude death rate
+
+```{r, message = FALSE, warning = FALSE}
+crudedeath_rate = 
+  read.csv("./data/agegroup_race_state_year_99-19.csv") %>% 
+  janitor::clean_names() %>% 
+  select(state, year = year_code, age = ten_year_age_groups_code, race, deaths,population) %>% 
+  drop_na() %>%
+  filter(year %in% c("2015", "2016", "2017", "2018", "2019")) %>%
+  group_by(state) %>%
+  dplyr::summarize(total_deaths = sum(deaths),
+           total_population = sum(population)) %>% 
+  mutate(crudedeath_rate = 0.01 * (total_deaths/total_population) * 100000) %>% 
+  select(state, crudedeath_rate)
+```
+
+## smoke rate 
+
+```{r, message = FALSE, warning = FALSE}
+smoke_rate = 
+  read_excel("data_regression_us/smoke/smoke_rate.xlsx")
+
+smoke_rate = 
+  smoke_rate %>% 
+  mutate(sum_of_rows = rowSums((smoke_rate[,2:6]), na.rm = TRUE),
+         mean_smoke_rate = sum_of_rows/5) %>% 
+  select(state, mean_smoke_rate)
+```
+
+
+## regression overall data
+
+```{r, message = FALSE, warning = FALSE}
+overall_regression = 
+  join_all(list(crudedeath_rate, drinking_19, divorce_rate, unemployment_overall, education_rate, poverty_overall, smoke_rate)) %>% 
+  select(-state)
+```
+
+# Regression analyses
+
+## correlation matrix
+
+```{r correlation_table, message = FALSE, warning = FALSE}
+corr_matrix =
+  overall_regression %>% 
+  chart.Correlation(histogram = TRUE, method = "pearson")
+
+```
+*Comments:*
+
+For those variables that are strongly correlated with each other, we add their interaction into the regression model for further analysis. 
+
+Two-ways interaction we consider:
+1. binge_drink_rate * education_rate
+2. mean_unemployment_rate * mean_poverty_rate
+3. education_rate * mean_poverty_rate
+4. education_rate * mean_smoke_rate
+5. mean_poverty_rate * mean_smoke_rate
+
+
+## Modeling crude death rate resulted from data overdose
+
+### Stepwise modeling
+```{r, message = FALSE, warning = FALSE, include = FALSE}
+stepwise = 
+  step(lm(crudedeath_rate ~ binge_drink_rate + divorce_rate + mean_unemployment_rate + education_rate + mean_poverty_rate + mean_smoke_rate + binge_drink_rate * education_rate + mean_unemployment_rate * mean_poverty_rate + education_rate * mean_poverty_rate + education_rate * mean_smoke_rate + mean_poverty_rate * mean_smoke_rate, data = overall_regression),direction = "both")
+
+```
+
+Based on the stepwise results, the best model is model_1 : crudedeath_rate ~ binge_drink_rate + divorce_rate +  mean_unemployment_rate + education_rate + mean_poverty_rate +  mean_smoke_rate + binge_drink_rate:education_rate
+
+
+This model can be described in the following parameter:
+```{r, message = FALSE, warning = FALSE}
+summary(stepwise) %>% broom::tidy() %>% knitr::kable()
+summary(stepwise) %>% broom::glance() %>% knitr::kable()
+```
+
+
+### Use regsubset() to compare all possible models
+
+```{r, message = FALSE, warning = FALSE, include = FALSE}
+reg_subsets = 
+  regsubsets(crudedeath_rate ~ binge_drink_rate + divorce_rate + mean_unemployment_rate + education_rate + mean_poverty_rate + mean_smoke_rate + binge_drink_rate * education_rate + mean_unemployment_rate * mean_poverty_rate + education_rate * mean_poverty_rate + education_rate * mean_smoke_rate + mean_poverty_rate * mean_smoke_rate, data = overall_regression, nvmax = 11)
+
+summary(reg_subsets)
+```
+
+```{r, message = FALSE, warning = FALSE}
+cri_measure = 
+  cbind(
+    cp = summary(reg_subsets)$cp,
+    r2 = summary(reg_subsets)$rsq,
+    adj_r2 = summary(reg_subsets)$adjr2,
+    BIC = summary(reg_subsets)$bic
+  )
+
+cri_measure
+```
+
+Based on different statistics, we get two models from regsubset's results:
+
+Model_2. crudedeath_rate ~ mean_poverty_rate + mean_unemployment_rate:mean_poverty_rate + education_rate:mean_poverty_rate + mean_poverty_rate:mean_smoke_rate
+
+This model can be described in the following parameter:
+
+```{r}
+model_2 = lm(data = overall_regression, formula = crudedeath_rate ~ mean_poverty_rate + mean_unemployment_rate:mean_poverty_rate + education_rate:mean_poverty_rate + mean_poverty_rate:mean_smoke_rate)
+
+
+summary(model_2) %>% broom::tidy() %>% knitr::kable()
+summary(model_2) %>% broom::glance() %>% knitr::kable()
+
+```
+
+Model_3. crudedeath_rate ~ binge_drink_rate + divorce_rate + mean_poverty_rate + binge_drink_rate:education_rate +mean_unemployment_rate:mean_poverty_rate + mean_poverty_rate:mean_smoke_rate
+
+This model can be described in the following parameter:
+
+```{r}
+model_3 = lm(data = overall_regression, formula = crudedeath_rate ~ binge_drink_rate + divorce_rate + mean_poverty_rate + binge_drink_rate:education_rate +mean_unemployment_rate:mean_poverty_rate + mean_poverty_rate:mean_smoke_rate)
+
+
+summary(model_3) %>% broom::tidy() %>% knitr::kable()
+summary(model_3) %>% broom::glance() %>% knitr::kable()
+```
+
+
+## Cross validation
+
+```{r, message = FALSE, warning = FALSE}
+train_df = sample_n(overall_regression, 41)
+test_df = anti_join(overall_regression, train_df)
+```
+
+```{r, message = FALSE, warning = FALSE}
+cv_modeling_df = 
+  crossv_mc(overall_regression, 1000) %>% 
+  mutate(
+    train = map(train, as_tibble),
+    test = map(test, as_tibble)
+  ) %>% 
+  mutate(
+    model_1 = map(.x = train, ~lm(crudedeath_rate ~ binge_drink_rate + divorce_rate +  mean_unemployment_rate + education_rate + mean_poverty_rate +  mean_smoke_rate + binge_drink_rate:education_rate, data = .x)),
+    model_2 = map(.x = train, ~lm(crudedeath_rate ~ mean_poverty_rate + mean_unemployment_rate:mean_poverty_rate + education_rate:mean_poverty_rate + mean_poverty_rate:mean_smoke_rate, data = .x)),
+    model_3 = map(.x = train, ~lm(crudedeath_rate ~ binge_drink_rate + divorce_rate + mean_poverty_rate + binge_drink_rate:education_rate +mean_unemployment_rate:mean_poverty_rate + mean_poverty_rate:mean_smoke_rate, data = .x))
+  ) %>% 
+  mutate(
+    rmse_model_1 = map2_dbl(.x = model_1, .y = test, ~rmse(model = .x, data = .y)),
+    rmse_model_2 = map2_dbl(.x = model_2, .y = test, ~rmse(model = .x, data = .y)),
+    rmse_model_3 = map2_dbl(.x = model_3, .y = test, ~rmse(model = .x, data = .y))
+  )
+
+cv_modeling_output = 
+  cv_modeling_df %>% 
+  select(.id, starts_with("rmse")) %>% 
+  pivot_longer(
+    rmse_model_1:rmse_model_3,
+    names_to = "model",
+    values_to = "rmse",
+    names_prefix = "rmse_"
+  ) %>% 
+  ggplot(aes(x = model, y = rmse)) +
+  geom_boxplot()
+
+cv_modeling_output
+```
+
+
+
