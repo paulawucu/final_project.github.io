@@ -101,7 +101,10 @@ gif = animate(p,nframes = 700, fps=15,width=1000,height=700,
 gif
 anim_save("animation.gif", animation = gif)
 ```
- 
+
+It's an amuse bouche to start our exploration of the drug overdose topic. 
+
+
 ## Data cleaning
 
  - We've found that instead of having the usual 50 states, Washington DC, and New York City, the data set also contains data for the whole US. We choose to focus on the 52 jurisdictions (including the 50 states, DC, and NYC) at first.

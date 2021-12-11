@@ -23,6 +23,8 @@ navbar:
         href: Ohio_data_analyzing.html
     - text: "Interactive Maps"
       href:  https://paulawucu.shinyapps.io/shiny_dashboard_upload/
+    - text: "Regression"
+      href: regression_us.html
     - text: "Facts About"
       href: food.html
     - icon: fa-envelope fa-lg
