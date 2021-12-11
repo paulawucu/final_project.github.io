@@ -1,0 +1,33 @@
+---
+title: "Team Member Biograph"
+output: html_document
+---
+
+<style>
+img {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+</style>
+<img src="images/linkedin.png" style="width:70%">
+<center>
+<p><h3><em>Click our LinkedIn page, Connect, and **Endorse** our R skills if you like our project!</em></h3></p>
+</center>
+<br>
+
+**Jinghan**: the shiny girl. [LinkedIn This Way](https://www.linkedin.com/in/jinghan-liu-9392bb1b2/)
+
+
+**Paula**: the "on behalf of *the others*" push and county maps girl. [LinkedIn This Way](www.linkedin.com/in/paula-pinyiwu)
+
+
+**Yuxuan**: the New York City girl. [LinkedIn This Way](www.linkedin.com/in/yuxuan-claire-chen)
+
+
+**Yuan**: the California girl. [LinkedIn This Way](https://www.linkedin.com/in/yuan-meng-402244158/)
+
+
+**Yijia**: the regression guy. [LinkedIn This Way](https://www.linkedin.com/in/yijia-edgar-chen-76b4a0198/)
+
+

@@ -1,14 +1,11 @@
 ---
-title: "FL_data_analyzing"
+title: "Florida Data Analysis"
 output: 
   html_document:
     code_folding: hide
     toc: true
     toc_float: true
 ---
-
-Import the libraries
-
 ```{r, message=FALSE, include=FALSE}
 library(tidyverse)
 library(rvest)
@@ -40,6 +37,7 @@ scale_fill_discrete = scale_fill_viridis_d
 theme_set(theme_minimal() + theme(legend.position = "bottom"))
 ```
 
+## Florida over all
 ```{r message=FALSE, warning=FALSE}
 drug_overdose = read_csv("./data/VSRR_Provisional_Drug_Overdose_Death_Counts.csv") %>% 
   janitor::clean_names()
@@ -55,33 +53,6 @@ drug_overdose_52 =
   group_by(state_name, year) %>% 
   mutate(month = sort(month))
 
-```
-
-It's hard to find drug-specific data for those state missing specific drug types. Opioids data is much easier to find. We should probably focus on opioids.<br> 
-We drew a map of the opioids to justify our choice.
-```{r message=FALSE, warning=FALSE}
-opioids_df = 
-  drug_overdose_52 %>%  
-  ungroup() %>% 
-  select(state_name, year, month, indicator, data_value) %>% 
-  filter(!(state_name %in% c("Alabama", "Arkansas", "Florida", "Idaho", "Louisiana", "Minnesota", "Nebraska", "North Dakota", "Pennsylvania")),
-         str_detect(indicator, "T4")) %>% 
-  mutate(opioids_yn = ifelse(str_detect(indicator, "opioids"), TRUE, FALSE)) %>% 
-  group_by(year, month, opioids_yn) %>% 
-  summarize(opioids_rate = mean(data_value, na.rm = TRUE))
-opioids_df %>% 
-  ungroup() %>% 
-  ggplot(aes(x = month, y = opioids_rate, group = opioids_yn, color = opioids_yn))+
-  geom_point()+
-  geom_line()+
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust= 1))+
-  facet_grid(.~year)
-```
-<br>If we decided to focus on opioids, this will make my life much easier.
-
-## FL part:
-Overall review:
-```{r message=FALSE, warning=FALSE}
 fl_death = 
   drug_overdose_52 %>% 
   filter(state_name %in% "Florida",
@@ -100,9 +71,11 @@ fl_death =
 fl_death  %>% 
   ggplot(aes(x = month, y = percent_overdose_death, group = year, color = year))+
   geom_point()+
-  geom_line()
-```
-```{r message=FALSE, warning=FALSE, out.width='100%'}
+  geom_line()+
+  ggtitle("Trends in Percent of Drug Overdose Death in FL Across Years") +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  labs(y = "Percent of Drug Overdose Death", x = "Month", caption = "Data comes from VSRR_Provisional_Drug_Overdose_Death_Counts dataset.")
+
 fl_death %>% 
   ggplot(aes(x = month, y = percent_overdose_death, group = NA, color = year))+
   geom_point()+
@@ -110,12 +83,47 @@ fl_death %>%
   scale_x_discrete(breaks = c("January", "April", "July", "October", "December"),
                    labels = c("Jan", "Apr", "Jul", "Oct", "Dec")) +
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust= 1))+
+  ggtitle("Trends in Percent of Drug Overdose Death in FL Across Years") +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  labs(y = "Percent of Drug Overdose Death", x = "Month", caption = "Data comes from VSRR_Provisional_Drug_Overdose_Death_Counts dataset.")+
   facet_grid(.~year)
 ```
 
-## Just opioids
-We can also focus just on opioids 
-Data source: cdc wonder, request by queries, Drug overdose deaths are identified using underlying cause-of-death codes from the Tenth Revision of ICD (ICD–10): X40–X44 (unintentional), X60–X64 (suicide), X85 (homicide), and Y10–Y14 (undetermined). Opioids identified by selecting T40.0-40.4, 40.6
+There's a clear trend from years to years that in Florida, percent of drug overdose deaths increase overtime. In 2016, the percent of drug overdose deaths changes drastically from month to month, while in 2020, the percent of deaths reached its new high, made up more than 3% of the total deaths.
+
+<br><br>
+
+
+## Opioids in years
+
+It's extremely hard to find drug-specific data for those state missing specific drug types. Unfortunately, Florida is one of them. By contrast, data on opioid is much easier to find. There is another reason that we chose to select opioid instead of other drug types: it accounts for most of the death counts in the US across years. We show our justification down below.
+```{r message=FALSE, warning=FALSE}
+opioids_df = 
+  drug_overdose_52 %>%  
+  ungroup() %>% 
+  select(state_name, year, month, indicator, data_value) %>% 
+  filter(!(state_name %in% c("Alabama", "Arkansas", "Florida", "Idaho", "Louisiana", "Minnesota", "Nebraska", "North Dakota", "Pennsylvania")),
+         str_detect(indicator, "T4"),
+         !year %in% c(2016, 2017)) %>% 
+  mutate(opioids_yn = ifelse(str_detect(indicator, "opioids"), TRUE, FALSE)) %>% 
+  group_by(year, month, opioids_yn) %>% 
+  summarize(opioids_rate = mean(data_value, na.rm = TRUE))
+opioids_df %>% 
+  ungroup() %>% 
+  ggplot(aes(x = month, y = opioids_rate, group = opioids_yn, color = opioids_yn))+
+  geom_point()+
+  geom_line()+
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust= 1))+
+  ggtitle("Opioids vs. Other Drugs Combined in US Across Years") +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  labs(y = "Drug Overdose Death Counts", x = "Month", caption = "Data comes from VSRR_Provisional_Drug_Overdose_Death_Counts dataset.")+
+  facet_grid(.~year)
+```
+<br> A picture is worth thousands of words, during the past 6 years, the opioid's line was high above all other drugs combined, which proved our statement above. 
+
+<br>
+
+### Opioid Analyses in Florida
 ```{r, message=FALSE, warning=FALSE}
 # read in data
 fl_opi_death = read_csv("./data/fl_opi_death_15_19.csv") %>% 
@@ -136,40 +144,64 @@ fl_opi_death = bind_rows(fl_opi_death, fl_opi_death_add) %>%
   year = factor(year)) %>% 
   select(-state_name) %>% 
   slice(-77)  # May 2021 is fairly provisional and inconsistent with other states
-```
-data could be suppressed as indicated by the cdc website, the data value also supported by florida government
-
-But anyway let's plot<br>
-First by year, this is the death count
-```{r message=FALSE, warning=FALSE}
 fl_opi_death  %>% 
   ggplot(aes(x = month, y = deaths, group = year, color = year))+
   geom_point()+
-  geom_line()
-```
+  geom_line()+
+  ggtitle("Opioids Deaths in Florida Across Years") +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  labs(y = "Opioids Overdose Death Counts", x = "Month", caption = "Opioids identified by selecting T40.0-40.4, 40.6")
 
-what about each month within a year
-```{r message=FALSE, warning=FALSE}
 fl_opi_death %>% 
   ggplot(aes(x = month, y = deaths, group = NA, color = year))+
   geom_point()+
   geom_line()+
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust= 1))+
+  ggtitle("Opioids Deaths in Florida Across Years") +
+  theme(plot.title = element_text(hjust = 0.5)) +
   facet_grid(.~year)+
   labs(
       title = "Number of Drug Overdose Deaths with Drug Categories by Year in CA",
       x = "Month",
       y = "Number of Drug Overdose Deaths",
-    caption = "Data comes from VSRR_Provisional_Drug_Overdose_Death_Counts dataset between 2015 and 2021."
+    caption = "Opioids identified by selecting T40.0-40.4, 40.6"
   ) +
     theme(axis.text.x = element_text(angle = 90, hjust = 1)) 
 ```
 
-It's climbing, every single month. The 2020 data is less probably because it's provisional and some data still under investigation
+Although in a zig-zag fashion, the death counts cause mainly by Opioids is climbing, every single month. There is a drastic drop between 2019 and 2020, probably because 1. the data is provisional for 2020 and 2021, indicated by the CDC; 2. COVID-19 interfered with the autopsy of drug overdose investigation. 
+
+<br><br>
+
+## By Age Group and Race
+
+```{r message = FALSE, warning=FALSE}
+fl_death_by_age = 
+  read_csv("./data/agegroup_race_state_year_99-19.csv") %>%
+  janitor::clean_names() %>% 
+  select(state, year, ten_year_age_groups, race, deaths, population) %>% 
+  filter(state %in% c("Florida")) %>% 
+  mutate(year = factor(year),
+         crude_rate = deaths/population * 100000)
+
+
+fl_death_by_age %>% 
+  mutate(ten_year_age_groups = gsub("years", "", ten_year_age_groups)) %>% 
+  ggplot(aes(x = ten_year_age_groups , y = crude_rate, fill = race)) + 
+  geom_boxplot(alpha = 0.5)+
+  ggtitle("Crude Death Rate in Florida Across Race and Age Groups") +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  labs(y = "Drug Overdose Death Crude Rates", x = "Age Groups")+
+  facet_grid(~race)+
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.4, hjust = 1))
+```
+
+Asian or Pacific Islanders only have drug overdose deaths cases between 25-44 age groups, while both Black or African Americans and White people have drug overdose deaths cases from age group 15-24 to nearly 85+. It's also clear that in general white people have the highest crude death rates in nearly each age group, and the crude death rates reached as high as 60+ deaths/100,000 white people. 
+
+<br><br>
 
 ## Income 
 
-Let's analyze the number of death vs median household income
 ```{r message=FALSE, warning=FALSE}
 fl_eco_df = 
   read_csv("./data/median_household_income_fl.csv") %>% 
@@ -194,7 +226,8 @@ fl_eco_df %>%
 
 ```
 
-Income and drug overdose death percent , by year
+The median household income of Florida and all of its region divisions all fell below the median household income of US. There's a steady trends in all lines, indicating that the median household income increases over the years. <br>
+
 ```{r message=FALSE, warning=FALSE}
 #patchwork
 income_drug_df = 
@@ -207,44 +240,40 @@ year_death =
   income_drug_df %>% 
   ggplot(aes(x = year, y = overdose_death_rate, group = NA))+
   geom_point()+
-  geom_line()
+  geom_line()+
+  ggtitle("Crude Death Rate Across Years in FL") +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  labs(y = "Drug Overdose Death Crude Rates", x = "Year")
 income_year = 
   income_drug_df %>% 
   ggplot(aes(x = year, y = household_income_by_race, group = NA))+
   geom_point()+
-  geom_line()
+  geom_line()+
+  ggtitle("Median Household Income Across Years in FL") +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  labs(y = "Median Household Income ", x = "Year")
 
 smooth = 
   income_drug_df %>% 
   ggplot(aes(x = household_income_by_race, y = overdose_death_rate, group = NA))+
   geom_point()+
-  geom_smooth(method = "lm", se = FALSE, color = "royalblue4")
+  geom_smooth(method = "lm", se = FALSE, color = "royalblue4")+
+  ggtitle("Crude Death Rate vs. Median Household Income") +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  labs(y = "Drug Overdose Death Crude Rates", x = "Median Household Income")
 (year_death + income_year)/smooth
 ```
 
-## By Age Group and Race
+Though we only have several points, the smoothed line of the bottom figure still showed a positive relation between drug overdose crude rate and median household income. This relationship can also be seen in the above two figure: as year goes by, the income rose, while the drug overdose death crude rates also rose. 
 
-```{r}
-fl_death_by_age = 
-  read_csv("./data/agegroup_race_state_year_99-19.csv") %>%
-  janitor::clean_names() %>% 
-  select(state, year, ten_year_age_groups, race, deaths, population) %>% 
-  filter(state %in% c("Florida"),
-         year >= 2015) %>% 
-  mutate(year = factor(year),
-         crude_rate = deaths/population * 100000)
-
-
-fl_death_by_age %>% 
-  mutate(ten_year_age_groups = gsub("years", "", ten_year_age_groups)) %>% 
-  ggplot(aes(x = ten_year_age_groups , y = crude_rate, fill = race)) + 
-  geom_boxplot(alpha = 0.5)+
-  facet_grid(~race)+
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.4, hjust = 1))
-```
+<br><br>
 
 ## Counties change over the years
-```{r, message=FALSE, warning=FALSE}
+
+Last but not the least, we wanted to draw maps to see what are the distribution of drug overdose death across counties. High crude death rates happened along the coastline for 2003 and 2008, specifically along middle east and west coasts, as well as in Key West Islands. Later in year 2013 and 2018, counties that have high crude death rates aggregated more the center of this peninsular, while the county that has the highest crude death rates is still along the coast. Together with the median household income graph above, we can see that both Miami-Fort Lauderdale-West Palm Beach and Tampa-St. Petersburg-Clearwater regions have low household income and have higher drug overdose death rates. <br>
+
+### Counties change, 5-yr interval{.tabset}
+```{r, message=FALSE, warning=FALSE,echo=FALSE}
 fl_county_df = 
   read_csv("./data/NCHS_-_Drug_Poisoning_Mortality_by_County__United_States.csv") %>% 
   janitor::clean_names() %>% 
@@ -255,8 +284,6 @@ fl_county_df =
   mutate(year = factor(year),
          county = str_to_lower(county)) %>% 
   relocate(county)
-```
-```{r, message=FALSE, warning=FALSE,echo=FALSE}
 highlight_county = function(county_fips)
 {
   data(county.map, package="choroplethrMaps", envir=environment())
@@ -268,8 +295,7 @@ add_text_county = function(county_fips){
   df = county.map[county.map$region %in% county_fips, ]
   geom_label(data=df, aes(mean(long), mean(lat), label = paste0(str_to_title(pull(county_fips, county)), " County\nDR: ", round(pull(county_fips, death_rate),2))), fill = "white", size = 2.5)
 }
-```
-```{r, message=FALSE, warning=FALSE}
+
 data(county.fips)
 abc = county.fips %>% 
   separate(polyname, into = c("state", "county"), sep = "\\,") %>% 
@@ -277,12 +303,6 @@ abc = county.fips %>%
   select(-state) %>% 
   as_tibble()
 ```
-
-
-
-
-### Counties change, 5-yr interval{.tabset}
-
 #### 2003
 ```{r, message=FALSE, warning=FALSE}
 year_select = 2003
@@ -379,5 +399,3 @@ start_county_df %>%
   highlight_county(start_county_df[which.max(pull(start_county_df, death_rate)),])+
   add_text_county(start_county_df[which.max(pull(start_county_df, death_rate)),])
 ```
-
-Back to [homepage](index.html)

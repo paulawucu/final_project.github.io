@@ -11,10 +11,10 @@
 
 
 
-<title>CA data Analyzing</title>
+<title>California Data Analyzing</title>
 
-<script src="site_libs/header-attrs-2.10/header-attrs.js"></script>
-<script src="site_libs/jquery-3.5.1/jquery.min.js"></script>
+<script src="site_libs/header-attrs-2.11/header-attrs.js"></script>
+<script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link href="site_libs/bootstrap-3.3.5/css/yeti.min.css" rel="stylesheet" />
 <script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
@@ -379,13 +379,7 @@ div.tocify {
   <a href="regression_us.html">Regression</a>
 </li>
 <li>
-  <a href="food.html">Facts About</a>
-</li>
-<li>
-  <a href="mailto:pw2551@cumc.columbia.edu">
-    <span class="fa fa-envelope fa-lg"></span>
-     
-  </a>
+  <a href="fact.html">Facts About</a>
 </li>
 <li>
   <a href="https://github.com/paulawucu/final_project">
@@ -410,7 +404,7 @@ div.tocify {
 
 
 
-<h1 class="title toc-ignore">CA data Analyzing</h1>
+<h1 class="title toc-ignore">California Data Analyzing</h1>
 
 </div>
 
@@ -474,11 +468,12 @@ ggplot(CA_df, aes(indicator, data_value))+
     caption = &quot;Data comes from VSRR_Provisional_Drug_Overdose_Death_Counts dataset.&quot;
   ) </code></pre>
 <p><img src="CA_data_analyzing_files/figure-html/unnamed-chunk-3-1.png" width="90%" /></p>
-<p>From this graph we can see that highest drug overdose death is caused by Synthetic opioids,methadone (T40.4). The following Drug Categories cause high overdose death are Cocaine and semi-synthetic opioids.</p>
+<p>From this graph we can see that highest drug overdose death for California is caused by Synthetic opioids,methadone (T40.4). The following Drug Categories cause high overdose death are Cocaine and semi-synthetic opioids.</p>
+<p><br><br></p>
 </div>
 <div id="by-year" class="section level2">
 <h2>By Year</h2>
-<pre class="r"><code>death_by_year = 
+<pre class="r"><code>ca_death_by_year = 
   drug_overdose_52 %&gt;% 
   filter(state_name %in% c(&quot;California&quot;)) %&gt;% 
   ungroup() %&gt;% 
@@ -494,7 +489,7 @@ ggplot(CA_df, aes(indicator, data_value))+
     percent_overdose_death = number_of_drug_overdose_deaths / number_of_deaths
   )
 
-death_by_year %&gt;%
+ca_death_by_year %&gt;%
   ungroup() %&gt;% 
   ggplot(aes(x = month, y = percent_overdose_death, color = year)) +
   geom_point() +
@@ -507,12 +502,7 @@ death_by_year %&gt;%
   )</code></pre>
 <p><img src="CA_data_analyzing_files/figure-html/unnamed-chunk-4-1.png" width="100%" /></p>
 <p>In the graph of Drug Overdose Deaths with Drug Categories by Year, I can observe that year 2020 have higher number of drug overdose death than other years, which can be cause by covid-19 and self-isolation.</p>
-<pre class="r"><code>death_by_year = 
-  drug_overdose_death %&gt;% 
-  filter(state_name %in% c(&quot;California&quot;), 
-         indicator %in% c(&quot;Number of Deaths&quot;) )
-
-ggplot(death_by_year, aes(x = month, y = data_value, group = year, color = year)) +
+<pre class="r"><code>ggplot(ca_death_by_year, aes(x = month, y = percent_overdose_death, group = year, color = year)) +
     labs(title = &quot;&quot;) + 
     geom_line() + 
     geom_point() +
@@ -527,6 +517,7 @@ ggplot(death_by_year, aes(x = month, y = data_value, group = year, color = year)
     theme(axis.text.x = element_text(angle = 90, hjust = 1)) </code></pre>
 <p><img src="CA_data_analyzing_files/figure-html/unnamed-chunk-5-1.png" width="90%" /></p>
 <p>In the graph of Each month Drug Overdose Death Within a Year, we are able to see the increasing trend of drug overdose in continuous years. Cause by the COVID-19, there is large increase in number of drug overdose death.</p>
+<p><br><br></p>
 </div>
 <div id="drug-year" class="section level2">
 <h2>Drug ~ Year</h2>
@@ -543,7 +534,10 @@ ggplot(death_by_year, aes(x = month, y = data_value, group = year, color = year)
   )</code></pre>
 <p><img src="CA_data_analyzing_files/figure-html/unnamed-chunk-6-1.png" width="90%" /></p>
 <p>In the graph of Number of Drug Overdose Deaths with Drug Categories by Year, we can see that drug overdose death keep increasing over the years with almost all type of drug. Since we miss data from 2015-2018, so we just include 2019-2021 in this graph.</p>
-<p><strong>Overdose death by age</strong></p>
+<p><br><br></p>
+</div>
+<div id="by-age-and-race" class="section level2">
+<h2>By Age and Race</h2>
 <pre class="r"><code>ca_death_by_age = 
   read_csv(&quot;./data/agegroup_race_state_year_99-19.csv&quot;) %&gt;%
   janitor::clean_names() %&gt;% 
@@ -562,6 +556,7 @@ ca_death_by_age %&gt;%
   theme(axis.text.x = element_text(angle = 90, vjust = 0.4, hjust = 1))</code></pre>
 <p><img src="CA_data_analyzing_files/figure-html/unnamed-chunk-7-1.png" width="90%" /></p>
 <p>Overdose death with Drug Categories by Age and Race shows that people among age 55-64 across all races have highest death rate. Black or African Americans have highest death rate among all races.</p>
+<p><br><br></p>
 </div>
 <div id="income" class="section level2">
 <h2>Income</h2>
@@ -584,9 +579,10 @@ CA_income_df %&gt;%
     title = &quot;Median Household Income: CA vs. The U.S&quot;,
          xaxis = list(title = &quot;Year&quot;),
          yaxis = list(title = &quot;Median Household Income&quot;))</code></pre>
-<div id="htmlwidget-f1f0b940cfbf27d5408a" style="width:90%;height:576px;" class="plotly html-widget"></div>
-<script type="application/json" data-for="htmlwidget-f1f0b940cfbf27d5408a">{"x":{"visdat":{"f3c4e2ea957":["function () ","plotlyVisDat"]},"cur_data":"f3c4e2ea957","attrs":{"f3c4e2ea957":{"x":{},"y":{},"text":{},"mode":"markers+lines","error_y":{},"color":{},"colors":"viridis","alpha":0.5,"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"scatter"}},"layout":{"margin":{"b":40,"l":60,"t":25,"r":10},"title":"Median Household Income: CA vs. The U.S","xaxis":{"domain":[0,1],"automargin":true,"title":"Year","type":"category","categoryorder":"array","categoryarray":["2015","2016","2017","2018","2019"]},"yaxis":{"domain":[0,1],"automargin":true,"title":"Median Household Income"},"hovermode":"closest","showlegend":true},"source":"A","config":{"modeBarButtonsToAdd":["hoverclosest","hovercompare"],"showSendToCloud":false},"data":[{"x":["2019","2018","2017","2016","2015"],"y":[80440,75277,71805,67739,64500],"text":["Year: 2019<br />Median Household Income: $80440<br />Margin of error: ± $313","Year: 2018<br />Median Household Income: $75277<br />Margin of error: ± $317","Year: 2017<br />Median Household Income: $71805<br />Margin of error: ± $294","Year: 2016<br />Median Household Income: $67739<br />Margin of error: ± $356","Year: 2015<br />Median Household Income: $64500<br />Margin of error: ± $395"],"mode":"markers+lines","error_y":{"color":"rgba(68,1,84,0.5)","array":[118,313,850,1028,1908]},"type":"scatter","name":"California","marker":{"color":"rgba(68,1,84,0.5)","line":{"color":"rgba(68,1,84,1)"}},"textfont":{"color":"rgba(68,1,84,0.5)"},"error_x":{"color":"rgba(68,1,84,0.5)"},"line":{"color":"rgba(68,1,84,0.5)"},"xaxis":"x","yaxis":"y","frame":null},{"x":["2019","2018","2017","2016","2015"],"y":[77774,72563,69992,65950,62544],"text":["Year: 2019<br />Median Household Income: $77774<br />Margin of error: ± $850","Year: 2018<br />Median Household Income: $72563<br />Margin of error: ± $671","Year: 2017<br />Median Household Income: $69992<br />Margin of error: ± $679","Year: 2016<br />Median Household Income: $65950<br />Margin of error: ± $495","Year: 2015<br />Median Household Income: $62544<br />Margin of error: ± $556"],"mode":"markers+lines","error_y":{"color":"rgba(65,68,135,0.5)","array":[1965,94,317,671,906]},"type":"scatter","name":"Los Angeles-Long Beach-Anaheim, CA","marker":{"color":"rgba(65,68,135,0.5)","line":{"color":"rgba(65,68,135,1)"}},"textfont":{"color":"rgba(65,68,135,0.5)"},"error_x":{"color":"rgba(65,68,135,0.5)"},"line":{"color":"rgba(65,68,135,0.5)"},"xaxis":"x","yaxis":"y","frame":null},{"x":["2019","2018","2017","2016","2015"],"y":[70954,65671,61994,58236,56087],"text":["Year: 2019<br />Median Household Income: $70954<br />Margin of error: ± $1028","Year: 2018<br />Median Household Income: $65671<br />Margin of error: ± $906","Year: 2017<br />Median Household Income: $61994<br />Margin of error: ± $688","Year: 2016<br />Median Household Income: $58236<br />Margin of error: ± $1104","Year: 2015<br />Median Household Income: $56087<br />Margin of error: ± $983"],"mode":"markers+lines","error_y":{"color":"rgba(42,120,142,0.5)","array":[1474,1779,86,294,679]},"type":"scatter","name":"Riverside-San Bernardino-Ontario, CA","marker":{"color":"rgba(42,120,142,0.5)","line":{"color":"rgba(42,120,142,1)"}},"textfont":{"color":"rgba(42,120,142,0.5)"},"error_x":{"color":"rgba(42,120,142,0.5)"},"line":{"color":"rgba(42,120,142,0.5)"},"xaxis":"x","yaxis":"y","frame":null},{"x":["2019","2018","2017","2016","2015"],"y":[83985,79079,76207,70824,67320],"text":["Year: 2019<br />Median Household Income: $83985<br />Margin of error: ± $1908","Year: 2018<br />Median Household Income: $79079<br />Margin of error: ± $1474","Year: 2017<br />Median Household Income: $76207<br />Margin of error: ± $1049","Year: 2016<br />Median Household Income: $70824<br />Margin of error: ± $995","Year: 2015<br />Median Household Income: $67320<br />Margin of error: ± $1448"],"mode":"markers+lines","error_y":{"color":"rgba(34,168,132,0.5)","array":[688,1049,833,115,356]},"type":"scatter","name":"San Diego-Carlsbad, CA","marker":{"color":"rgba(34,168,132,0.5)","line":{"color":"rgba(34,168,132,1)"}},"textfont":{"color":"rgba(34,168,132,0.5)"},"error_x":{"color":"rgba(34,168,132,0.5)"},"line":{"color":"rgba(34,168,132,0.5)"},"xaxis":"x","yaxis":"y","frame":null},{"x":["2019","2018","2017","2016","2015"],"y":[114696,107898,101714,96677,88518],"text":["Year: 2019<br />Median Household Income: $114696<br />Margin of error: ± $1965","Year: 2018<br />Median Household Income: $107898<br />Margin of error: ± $1779","Year: 2017<br />Median Household Income: $101714<br />Margin of error: ± $833","Year: 2016<br />Median Household Income: $96677<br />Margin of error: ± $1273","Year: 2015<br />Median Household Income: $88518<br />Margin of error: ± $1665"],"mode":"markers+lines","error_y":{"color":"rgba(122,209,81,0.5)","array":[495,1104,995,1273,85]},"type":"scatter","name":"San Francisco-Oakland-Hayward, CA","marker":{"color":"rgba(122,209,81,0.5)","line":{"color":"rgba(122,209,81,1)"}},"textfont":{"color":"rgba(122,209,81,0.5)"},"error_x":{"color":"rgba(122,209,81,0.5)"},"line":{"color":"rgba(122,209,81,0.5)"},"xaxis":"x","yaxis":"y","frame":null},{"x":["2019","2018","2017","2016","2015"],"y":[65712,61937,60336,57617,55775],"text":["Year: 2019<br />Median Household Income: $65712<br />Margin of error: ± $118","Year: 2018<br />Median Household Income: $61937<br />Margin of error: ± $94","Year: 2017<br />Median Household Income: $60336<br />Margin of error: ± $86","Year: 2016<br />Median Household Income: $57617<br />Margin of error: ± $115","Year: 2015<br />Median Household Income: $55775<br />Margin of error: ± $85"],"mode":"markers+lines","error_y":{"color":"rgba(253,231,37,0.5)","array":[395,556,983,1448,1665]},"type":"scatter","name":"United States","marker":{"color":"rgba(253,231,37,0.5)","line":{"color":"rgba(253,231,37,1)"}},"textfont":{"color":"rgba(253,231,37,0.5)"},"error_x":{"color":"rgba(253,231,37,0.5)"},"line":{"color":"rgba(253,231,37,0.5)"},"xaxis":"x","yaxis":"y","frame":null}],"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.2,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":[]}</script>
+<div id="htmlwidget-c5ae047a48530956d282" style="width:90%;height:576px;" class="plotly html-widget"></div>
+<script type="application/json" data-for="htmlwidget-c5ae047a48530956d282">{"x":{"visdat":{"afbbc2fe9ce":["function () ","plotlyVisDat"]},"cur_data":"afbbc2fe9ce","attrs":{"afbbc2fe9ce":{"x":{},"y":{},"text":{},"mode":"markers+lines","error_y":{},"color":{},"colors":"viridis","alpha":0.5,"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"scatter"}},"layout":{"margin":{"b":40,"l":60,"t":25,"r":10},"title":"Median Household Income: CA vs. The U.S","xaxis":{"domain":[0,1],"automargin":true,"title":"Year","type":"category","categoryorder":"array","categoryarray":["2015","2016","2017","2018","2019"]},"yaxis":{"domain":[0,1],"automargin":true,"title":"Median Household Income"},"hovermode":"closest","showlegend":true},"source":"A","config":{"modeBarButtonsToAdd":["hoverclosest","hovercompare"],"showSendToCloud":false},"data":[{"x":["2019","2018","2017","2016","2015"],"y":[80440,75277,71805,67739,64500],"text":["Year: 2019<br />Median Household Income: $80440<br />Margin of error: ± $313","Year: 2018<br />Median Household Income: $75277<br />Margin of error: ± $317","Year: 2017<br />Median Household Income: $71805<br />Margin of error: ± $294","Year: 2016<br />Median Household Income: $67739<br />Margin of error: ± $356","Year: 2015<br />Median Household Income: $64500<br />Margin of error: ± $395"],"mode":"markers+lines","error_y":{"color":"rgba(68,1,84,0.5)","array":[118,313,850,1028,1908]},"type":"scatter","name":"California","marker":{"color":"rgba(68,1,84,0.5)","line":{"color":"rgba(68,1,84,1)"}},"textfont":{"color":"rgba(68,1,84,0.5)"},"error_x":{"color":"rgba(68,1,84,0.5)"},"line":{"color":"rgba(68,1,84,0.5)"},"xaxis":"x","yaxis":"y","frame":null},{"x":["2019","2018","2017","2016","2015"],"y":[77774,72563,69992,65950,62544],"text":["Year: 2019<br />Median Household Income: $77774<br />Margin of error: ± $850","Year: 2018<br />Median Household Income: $72563<br />Margin of error: ± $671","Year: 2017<br />Median Household Income: $69992<br />Margin of error: ± $679","Year: 2016<br />Median Household Income: $65950<br />Margin of error: ± $495","Year: 2015<br />Median Household Income: $62544<br />Margin of error: ± $556"],"mode":"markers+lines","error_y":{"color":"rgba(65,68,135,0.5)","array":[1965,94,317,671,906]},"type":"scatter","name":"Los Angeles-Long Beach-Anaheim, CA","marker":{"color":"rgba(65,68,135,0.5)","line":{"color":"rgba(65,68,135,1)"}},"textfont":{"color":"rgba(65,68,135,0.5)"},"error_x":{"color":"rgba(65,68,135,0.5)"},"line":{"color":"rgba(65,68,135,0.5)"},"xaxis":"x","yaxis":"y","frame":null},{"x":["2019","2018","2017","2016","2015"],"y":[70954,65671,61994,58236,56087],"text":["Year: 2019<br />Median Household Income: $70954<br />Margin of error: ± $1028","Year: 2018<br />Median Household Income: $65671<br />Margin of error: ± $906","Year: 2017<br />Median Household Income: $61994<br />Margin of error: ± $688","Year: 2016<br />Median Household Income: $58236<br />Margin of error: ± $1104","Year: 2015<br />Median Household Income: $56087<br />Margin of error: ± $983"],"mode":"markers+lines","error_y":{"color":"rgba(42,120,142,0.5)","array":[1474,1779,86,294,679]},"type":"scatter","name":"Riverside-San Bernardino-Ontario, CA","marker":{"color":"rgba(42,120,142,0.5)","line":{"color":"rgba(42,120,142,1)"}},"textfont":{"color":"rgba(42,120,142,0.5)"},"error_x":{"color":"rgba(42,120,142,0.5)"},"line":{"color":"rgba(42,120,142,0.5)"},"xaxis":"x","yaxis":"y","frame":null},{"x":["2019","2018","2017","2016","2015"],"y":[83985,79079,76207,70824,67320],"text":["Year: 2019<br />Median Household Income: $83985<br />Margin of error: ± $1908","Year: 2018<br />Median Household Income: $79079<br />Margin of error: ± $1474","Year: 2017<br />Median Household Income: $76207<br />Margin of error: ± $1049","Year: 2016<br />Median Household Income: $70824<br />Margin of error: ± $995","Year: 2015<br />Median Household Income: $67320<br />Margin of error: ± $1448"],"mode":"markers+lines","error_y":{"color":"rgba(34,168,132,0.5)","array":[688,1049,833,115,356]},"type":"scatter","name":"San Diego-Carlsbad, CA","marker":{"color":"rgba(34,168,132,0.5)","line":{"color":"rgba(34,168,132,1)"}},"textfont":{"color":"rgba(34,168,132,0.5)"},"error_x":{"color":"rgba(34,168,132,0.5)"},"line":{"color":"rgba(34,168,132,0.5)"},"xaxis":"x","yaxis":"y","frame":null},{"x":["2019","2018","2017","2016","2015"],"y":[114696,107898,101714,96677,88518],"text":["Year: 2019<br />Median Household Income: $114696<br />Margin of error: ± $1965","Year: 2018<br />Median Household Income: $107898<br />Margin of error: ± $1779","Year: 2017<br />Median Household Income: $101714<br />Margin of error: ± $833","Year: 2016<br />Median Household Income: $96677<br />Margin of error: ± $1273","Year: 2015<br />Median Household Income: $88518<br />Margin of error: ± $1665"],"mode":"markers+lines","error_y":{"color":"rgba(122,209,81,0.5)","array":[495,1104,995,1273,85]},"type":"scatter","name":"San Francisco-Oakland-Hayward, CA","marker":{"color":"rgba(122,209,81,0.5)","line":{"color":"rgba(122,209,81,1)"}},"textfont":{"color":"rgba(122,209,81,0.5)"},"error_x":{"color":"rgba(122,209,81,0.5)"},"line":{"color":"rgba(122,209,81,0.5)"},"xaxis":"x","yaxis":"y","frame":null},{"x":["2019","2018","2017","2016","2015"],"y":[65712,61937,60336,57617,55775],"text":["Year: 2019<br />Median Household Income: $65712<br />Margin of error: ± $118","Year: 2018<br />Median Household Income: $61937<br />Margin of error: ± $94","Year: 2017<br />Median Household Income: $60336<br />Margin of error: ± $86","Year: 2016<br />Median Household Income: $57617<br />Margin of error: ± $115","Year: 2015<br />Median Household Income: $55775<br />Margin of error: ± $85"],"mode":"markers+lines","error_y":{"color":"rgba(253,231,37,0.5)","array":[395,556,983,1448,1665]},"type":"scatter","name":"United States","marker":{"color":"rgba(253,231,37,0.5)","line":{"color":"rgba(253,231,37,1)"}},"textfont":{"color":"rgba(253,231,37,0.5)"},"error_x":{"color":"rgba(253,231,37,0.5)"},"line":{"color":"rgba(253,231,37,0.5)"},"xaxis":"x","yaxis":"y","frame":null}],"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.2,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":[]}</script>
 <p>From the graph Median Household Income: CA vs. The U.S, we can see that California have higher median household income then US and northern part of California have highest income compare other parts of California.</p>
+<p><br></p>
 <p><strong>Income and drug overdose death percent by year</strong></p>
 <pre class="r"><code>CAincome_drug_df = 
   CA_death %&gt;% 
@@ -619,6 +615,7 @@ smooth =
 (year_death + income_year)/smooth</code></pre>
 <p><img src="CA_data_analyzing_files/figure-html/unnamed-chunk-9-1.png" width="90%" /></p>
 <p>From graph income VS drug overdose we can find that higher drug overdose rate have association with higher income.</p>
+<p><br><br></p>
 </div>
 <div id="ca-drug-map" class="section level2">
 <h2>CA Drug Map</h2>
