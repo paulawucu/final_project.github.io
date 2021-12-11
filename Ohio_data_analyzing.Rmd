@@ -20,6 +20,7 @@ library(readr)
 library(maps)
 library(choroplethr)
 library(choroplethrMaps)
+library(patchwork)
 ```
 
 ```{r setup, include=FALSE}
@@ -216,9 +217,29 @@ OH_income_df %>%
          yaxis = list(title = "Median Household Income"))
 ```
 
-## income
+**Overdose death by age**
 
-**Income and drug overdose death percent , by year**
+```{r message=FALSE}
+ca_death_by_age = 
+  read_csv("./data/agegroup_race_state_year_99-19.csv") %>%
+  janitor::clean_names() %>% 
+  select(state, year, ten_year_age_groups, race, deaths, population) %>% 
+  filter(state %in% c("Ohio")) %>% 
+  mutate(year = factor(year),
+         crude_rate = deaths/population * 100000)
+  
+ca_death_by_age %>% 
+  mutate(ten_year_age_groups = gsub("years", "", ten_year_age_groups)) %>% 
+  ggplot(aes(x = ten_year_age_groups , y = crude_rate, color = race)) + 
+  geom_boxplot(outlier.shape = NA) +
+  facet_grid(~race) +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.4, hjust = 1))
+```
+
+
+## Income
+
+**Income and drug overdose death percent by year**
 
 ```{r}
 OHincome_drug_df = 
@@ -228,15 +249,28 @@ OHincome_drug_df =
   summarize(overdose_death_rate = sum(number_of_drug_overdose_deaths)/sum(number_of_deaths)) %>% 
   inner_join(., OH_income_df %>% filter(geography %in% "Ohio"))
 
-OHincome_drug_df %>% 
-  ggplot(aes(x = household_income_by_race, y = overdose_death_rate, group = NA, color = year))+
+year_death = 
+  OHincome_drug_df %>% 
+  ggplot(aes(x = year, y = overdose_death_rate, group = NA))+
   geom_point()+
   geom_line()
+income_year = 
+  OHincome_drug_df %>% 
+  ggplot(aes(x = year, y = household_income_by_race, group = NA))+
+  geom_point()+
+  geom_line()
+
+smooth = 
+  OHincome_drug_df %>% 
+  ggplot(aes(x = household_income_by_race, y = overdose_death_rate, group = NA))+
+  geom_point()+
+  geom_smooth(method = "lm", se = FALSE, color = "royalblue4")
+(year_death + income_year)/smooth
 ```
 
 
 
-**CA Drug Map** 
+**OH Drug Map** 
 
 ```{r message=FALSE}
 oh_county_df = 

@@ -10,7 +10,7 @@ output:
 ---
 **Import the libraries**
 
-```{r message=FALSE, include=FALSE}
+```{r message=FALSE}
 library(tidyverse)
 library(rvest)
 library(httr)
@@ -21,6 +21,7 @@ library(readr)
 library(maps)
 library(choroplethr)
 library(choroplethrMaps)
+library(patchwork)
 ```
 
 ```{r setup, include=FALSE}
@@ -229,10 +230,24 @@ CAincome_drug_df =
   summarize(overdose_death_rate = sum(number_of_drug_overdose_deaths)/sum(number_of_deaths)) %>% 
   inner_join(., CA_income_df %>% filter(geography %in% "California"))
 
-CAincome_drug_df %>% 
-  ggplot(aes(x = household_income_by_race, y = overdose_death_rate, group = NA, color = year))+
+year_death = 
+  CAincome_drug_df  %>% 
+  ggplot(aes(x = year, y = overdose_death_rate, group = NA))+
   geom_point()+
   geom_line()
+income_year = 
+  CAincome_drug_df  %>% 
+  ggplot(aes(x = year, y = household_income_by_race, group = NA))+
+  geom_point()+
+  geom_line()
+
+smooth = 
+  CAincome_drug_df %>% 
+  ggplot(aes(x = household_income_by_race, y = overdose_death_rate, group = NA))+
+  geom_point()+
+  geom_smooth(method = "lm", se = FALSE, color = "royalblue4")
+(year_death + income_year)/smooth
+
 ```
 
 
