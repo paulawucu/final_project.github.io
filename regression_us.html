@@ -11,7 +11,7 @@
 
 
 
-<title>regression for us</title>
+<title>Regression for US</title>
 
 <script src="site_libs/header-attrs-2.11/header-attrs.js"></script>
 <script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
@@ -29,7 +29,11 @@
        h6 {font-size: 12px;}
        code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
        pre:not([class]) { background-color: white }</style>
+<script src="site_libs/jqueryui-1.11.4/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
 <script src="site_libs/navigation-1.1/tabsets.js"></script>
+<script src="site_libs/navigation-1.1/codefolding.js"></script>
 <link href="site_libs/highlightjs-9.12.0/default.css" rel="stylesheet" />
 <script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
 <link href="site_libs/font-awesome-5.1.0/css/all.css" rel="stylesheet" />
@@ -217,7 +221,73 @@ $(document).ready(function () {
 </style>
 
 <!-- code folding -->
+<style type="text/css">
+.code-folding-btn { margin-bottom: 4px; }
+</style>
 
+
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
 
 
 
@@ -227,6 +297,16 @@ $(document).ready(function () {
 
 
 <div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
 
 
 
@@ -313,9 +393,17 @@ $(document).ready(function () {
 
 <div id="header">
 
+<div class="btn-group pull-right float-right">
+<button type="button" class="btn btn-default btn-xs btn-secondary btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span>Code</span> <span class="caret"></span></button>
+<ul class="dropdown-menu dropdown-menu-right" style="min-width: 50px;">
+<li><a id="rmd-show-all-code" href="#">Show All Code</a></li>
+<li><a id="rmd-hide-all-code" href="#">Hide All Code</a></li>
+</ul>
+</div>
 
 
-<h1 class="title toc-ignore">regression for us</h1>
+
+<h1 class="title toc-ignore">Regression for US</h1>
 
 </div>
 
@@ -749,6 +837,84 @@ smoke_rate =
 <h2>Modeling crude death rate resulted from data overdose</h2>
 <div id="stepwise-modeling" class="section level3">
 <h3>Stepwise modeling</h3>
+<pre class="r"><code>stepwise = 
+  step(lm(crudedeath_rate ~ binge_drink_rate + divorce_rate + mean_unemployment_rate + education_rate + mean_poverty_rate + mean_smoke_rate + binge_drink_rate * education_rate + mean_unemployment_rate * mean_poverty_rate + education_rate * mean_poverty_rate + education_rate * mean_smoke_rate + mean_poverty_rate * mean_smoke_rate, data = overall_regression),direction = &quot;both&quot;)</code></pre>
+<pre><code>## Start:  AIC=-216.35
+## crudedeath_rate ~ binge_drink_rate + divorce_rate + mean_unemployment_rate + 
+##     education_rate + mean_poverty_rate + mean_smoke_rate + binge_drink_rate * 
+##     education_rate + mean_unemployment_rate * mean_poverty_rate + 
+##     education_rate * mean_poverty_rate + education_rate * mean_smoke_rate + 
+##     mean_poverty_rate * mean_smoke_rate
+## 
+##                                            Df Sum of Sq     RSS     AIC
+## - education_rate:mean_smoke_rate            1 0.0004990 0.40908 -218.29
+## - mean_unemployment_rate:mean_poverty_rate  1 0.0038202 0.41240 -217.89
+## - education_rate:mean_poverty_rate          1 0.0057047 0.41428 -217.66
+## - binge_drink_rate:education_rate           1 0.0059806 0.41456 -217.63
+## - mean_poverty_rate:mean_smoke_rate         1 0.0129693 0.42155 -216.79
+## &lt;none&gt;                                                  0.40858 -216.35
+## - divorce_rate                              1 0.0177905 0.42637 -216.22
+## 
+## Step:  AIC=-218.29
+## crudedeath_rate ~ binge_drink_rate + divorce_rate + mean_unemployment_rate + 
+##     education_rate + mean_poverty_rate + mean_smoke_rate + binge_drink_rate:education_rate + 
+##     mean_unemployment_rate:mean_poverty_rate + education_rate:mean_poverty_rate + 
+##     mean_poverty_rate:mean_smoke_rate
+## 
+##                                            Df Sum of Sq     RSS     AIC
+## - mean_unemployment_rate:mean_poverty_rate  1 0.0055805 0.41466 -219.62
+## - binge_drink_rate:education_rate           1 0.0056960 0.41477 -219.60
+## - education_rate:mean_poverty_rate          1 0.0077829 0.41686 -219.35
+## - mean_poverty_rate:mean_smoke_rate         1 0.0163714 0.42545 -218.33
+## &lt;none&gt;                                                  0.40908 -218.29
+## - divorce_rate                              1 0.0192931 0.42837 -217.99
+## + education_rate:mean_smoke_rate            1 0.0004990 0.40858 -216.35
+## 
+## Step:  AIC=-219.62
+## crudedeath_rate ~ binge_drink_rate + divorce_rate + mean_unemployment_rate + 
+##     education_rate + mean_poverty_rate + mean_smoke_rate + binge_drink_rate:education_rate + 
+##     education_rate:mean_poverty_rate + mean_poverty_rate:mean_smoke_rate
+## 
+##                                            Df Sum of Sq     RSS     AIC
+## - education_rate:mean_poverty_rate          1  0.003568 0.41823 -221.19
+## - binge_drink_rate:education_rate           1  0.014708 0.42936 -219.87
+## &lt;none&gt;                                                  0.41466 -219.62
+## - mean_poverty_rate:mean_smoke_rate         1  0.017949 0.43261 -219.50
+## - divorce_rate                              1  0.019600 0.43426 -219.31
+## + mean_unemployment_rate:mean_poverty_rate  1  0.005580 0.40908 -218.29
+## + education_rate:mean_smoke_rate            1  0.002259 0.41240 -217.89
+## - mean_unemployment_rate                    1  0.056867 0.47152 -215.19
+## 
+## Step:  AIC=-221.19
+## crudedeath_rate ~ binge_drink_rate + divorce_rate + mean_unemployment_rate + 
+##     education_rate + mean_poverty_rate + mean_smoke_rate + binge_drink_rate:education_rate + 
+##     mean_poverty_rate:mean_smoke_rate
+## 
+##                                            Df Sum of Sq     RSS     AIC
+## - mean_poverty_rate:mean_smoke_rate         1  0.016406 0.43463 -221.26
+## &lt;none&gt;                                                  0.41823 -221.19
+## - divorce_rate                              1  0.022832 0.44106 -220.53
+## + education_rate:mean_poverty_rate          1  0.003568 0.41466 -219.62
+## + education_rate:mean_smoke_rate            1  0.003325 0.41490 -219.59
+## + mean_unemployment_rate:mean_poverty_rate  1  0.001366 0.41686 -219.35
+## - binge_drink_rate:education_rate           1  0.043396 0.46162 -218.25
+## - mean_unemployment_rate                    1  0.055764 0.47399 -216.93
+## 
+## Step:  AIC=-221.26
+## crudedeath_rate ~ binge_drink_rate + divorce_rate + mean_unemployment_rate + 
+##     education_rate + mean_poverty_rate + mean_smoke_rate + binge_drink_rate:education_rate
+## 
+##                                            Df Sum of Sq     RSS     AIC
+## &lt;none&gt;                                                  0.43463 -221.26
+## - mean_poverty_rate                         1  0.018259 0.45289 -221.21
+## + mean_poverty_rate:mean_smoke_rate         1  0.016406 0.41823 -221.19
+## - divorce_rate                              1  0.020804 0.45544 -220.93
+## + mean_unemployment_rate:mean_poverty_rate  1  0.008822 0.42581 -220.29
+## + education_rate:mean_smoke_rate            1  0.003485 0.43115 -219.67
+## + education_rate:mean_poverty_rate          1  0.002026 0.43261 -219.50
+## - mean_unemployment_rate                    1  0.049617 0.48425 -217.86
+## - binge_drink_rate:education_rate           1  0.050477 0.48511 -217.77
+## - mean_smoke_rate                           1  0.103368 0.53800 -212.60</code></pre>
 <p>Based on the stepwise results, the best model is model_1 : crudedeath_rate ~ binge_drink_rate + divorce_rate + mean_unemployment_rate + education_rate + mean_poverty_rate + mean_smoke_rate + binge_drink_rate:education_rate</p>
 <p>This model can be described in the following parameter:</p>
 <pre class="r"><code>summary(stepwise) %&gt;% broom::tidy() %&gt;% knitr::kable()</code></pre>
@@ -851,6 +1017,92 @@ smoke_rate =
 </div>
 <div id="use-regsubset-to-compare-all-possible-models" class="section level3">
 <h3>Use regsubset() to compare all possible models</h3>
+<pre class="r"><code>reg_subsets = 
+  regsubsets(crudedeath_rate ~ binge_drink_rate + divorce_rate + mean_unemployment_rate + education_rate + mean_poverty_rate + mean_smoke_rate + binge_drink_rate * education_rate + mean_unemployment_rate * mean_poverty_rate + education_rate * mean_poverty_rate + education_rate * mean_smoke_rate + mean_poverty_rate * mean_smoke_rate, data = overall_regression, nvmax = 11)
+
+summary(reg_subsets)</code></pre>
+<pre><code>## Subset selection object
+## Call: regsubsets.formula(crudedeath_rate ~ binge_drink_rate + divorce_rate + 
+##     mean_unemployment_rate + education_rate + mean_poverty_rate + 
+##     mean_smoke_rate + binge_drink_rate * education_rate + mean_unemployment_rate * 
+##     mean_poverty_rate + education_rate * mean_poverty_rate + 
+##     education_rate * mean_smoke_rate + mean_poverty_rate * mean_smoke_rate, 
+##     data = overall_regression, nvmax = 11)
+## 11 Variables  (and intercept)
+##                                          Forced in Forced out
+## binge_drink_rate                             FALSE      FALSE
+## divorce_rate                                 FALSE      FALSE
+## mean_unemployment_rate                       FALSE      FALSE
+## education_rate                               FALSE      FALSE
+## mean_poverty_rate                            FALSE      FALSE
+## mean_smoke_rate                              FALSE      FALSE
+## binge_drink_rate:education_rate              FALSE      FALSE
+## mean_unemployment_rate:mean_poverty_rate     FALSE      FALSE
+## education_rate:mean_poverty_rate             FALSE      FALSE
+## education_rate:mean_smoke_rate               FALSE      FALSE
+## mean_poverty_rate:mean_smoke_rate            FALSE      FALSE
+## 1 subsets of each size up to 11
+## Selection Algorithm: exhaustive
+##           binge_drink_rate divorce_rate mean_unemployment_rate education_rate
+## 1  ( 1 )  &quot; &quot;              &quot; &quot;          &quot; &quot;                    &quot; &quot;           
+## 2  ( 1 )  &quot; &quot;              &quot; &quot;          &quot;*&quot;                    &quot; &quot;           
+## 3  ( 1 )  &quot;*&quot;              &quot; &quot;          &quot; &quot;                    &quot; &quot;           
+## 4  ( 1 )  &quot; &quot;              &quot; &quot;          &quot; &quot;                    &quot; &quot;           
+## 5  ( 1 )  &quot; &quot;              &quot;*&quot;          &quot; &quot;                    &quot; &quot;           
+## 6  ( 1 )  &quot;*&quot;              &quot;*&quot;          &quot; &quot;                    &quot; &quot;           
+## 7  ( 1 )  &quot;*&quot;              &quot;*&quot;          &quot; &quot;                    &quot;*&quot;           
+## 8  ( 1 )  &quot;*&quot;              &quot;*&quot;          &quot; &quot;                    &quot;*&quot;           
+## 9  ( 1 )  &quot;*&quot;              &quot;*&quot;          &quot; &quot;                    &quot;*&quot;           
+## 10  ( 1 ) &quot;*&quot;              &quot;*&quot;          &quot; &quot;                    &quot;*&quot;           
+## 11  ( 1 ) &quot;*&quot;              &quot;*&quot;          &quot;*&quot;                    &quot;*&quot;           
+##           mean_poverty_rate mean_smoke_rate binge_drink_rate:education_rate
+## 1  ( 1 )  &quot; &quot;               &quot; &quot;             &quot; &quot;                            
+## 2  ( 1 )  &quot; &quot;               &quot; &quot;             &quot; &quot;                            
+## 3  ( 1 )  &quot; &quot;               &quot;*&quot;             &quot;*&quot;                            
+## 4  ( 1 )  &quot;*&quot;               &quot; &quot;             &quot; &quot;                            
+## 5  ( 1 )  &quot;*&quot;               &quot; &quot;             &quot; &quot;                            
+## 6  ( 1 )  &quot;*&quot;               &quot; &quot;             &quot;*&quot;                            
+## 7  ( 1 )  &quot;*&quot;               &quot; &quot;             &quot;*&quot;                            
+## 8  ( 1 )  &quot;*&quot;               &quot; &quot;             &quot;*&quot;                            
+## 9  ( 1 )  &quot;*&quot;               &quot;*&quot;             &quot;*&quot;                            
+## 10  ( 1 ) &quot;*&quot;               &quot;*&quot;             &quot;*&quot;                            
+## 11  ( 1 ) &quot;*&quot;               &quot;*&quot;             &quot;*&quot;                            
+##           mean_unemployment_rate:mean_poverty_rate
+## 1  ( 1 )  &quot; &quot;                                     
+## 2  ( 1 )  &quot; &quot;                                     
+## 3  ( 1 )  &quot; &quot;                                     
+## 4  ( 1 )  &quot;*&quot;                                     
+## 5  ( 1 )  &quot;*&quot;                                     
+## 6  ( 1 )  &quot;*&quot;                                     
+## 7  ( 1 )  &quot;*&quot;                                     
+## 8  ( 1 )  &quot;*&quot;                                     
+## 9  ( 1 )  &quot;*&quot;                                     
+## 10  ( 1 ) &quot;*&quot;                                     
+## 11  ( 1 ) &quot;*&quot;                                     
+##           education_rate:mean_poverty_rate education_rate:mean_smoke_rate
+## 1  ( 1 )  &quot; &quot;                              &quot;*&quot;                           
+## 2  ( 1 )  &quot; &quot;                              &quot;*&quot;                           
+## 3  ( 1 )  &quot; &quot;                              &quot; &quot;                           
+## 4  ( 1 )  &quot;*&quot;                              &quot; &quot;                           
+## 5  ( 1 )  &quot;*&quot;                              &quot; &quot;                           
+## 6  ( 1 )  &quot; &quot;                              &quot; &quot;                           
+## 7  ( 1 )  &quot; &quot;                              &quot; &quot;                           
+## 8  ( 1 )  &quot;*&quot;                              &quot; &quot;                           
+## 9  ( 1 )  &quot;*&quot;                              &quot; &quot;                           
+## 10  ( 1 ) &quot;*&quot;                              &quot;*&quot;                           
+## 11  ( 1 ) &quot;*&quot;                              &quot;*&quot;                           
+##           mean_poverty_rate:mean_smoke_rate
+## 1  ( 1 )  &quot; &quot;                              
+## 2  ( 1 )  &quot; &quot;                              
+## 3  ( 1 )  &quot; &quot;                              
+## 4  ( 1 )  &quot;*&quot;                              
+## 5  ( 1 )  &quot;*&quot;                              
+## 6  ( 1 )  &quot;*&quot;                              
+## 7  ( 1 )  &quot;*&quot;                              
+## 8  ( 1 )  &quot;*&quot;                              
+## 9  ( 1 )  &quot;*&quot;                              
+## 10  ( 1 ) &quot;*&quot;                              
+## 11  ( 1 ) &quot;*&quot;</code></pre>
 <pre class="r"><code>cri_measure = 
   cbind(
     cp = summary(reg_subsets)$cp,
@@ -1069,8 +1321,9 @@ summary(model_3) %&gt;% broom::tidy() %&gt;% knitr::kable()</code></pre>
 <h2>Cross validation</h2>
 <pre class="r"><code>train_df = sample_n(overall_regression, 41)
 test_df = anti_join(overall_regression, train_df)</code></pre>
-<pre class="r"><code>cv_modeling_df = 
-  crossv_mc(overall_regression, 1000) %&gt;% 
+<pre class="r"><code>set.seed(1)
+cv_modeling_df = 
+  crossv_mc(overall_regression, 5000) %&gt;% 
   mutate(
     train = map(train, as_tibble),
     test = map(test, as_tibble)
@@ -1096,7 +1349,7 @@ cv_modeling_output =
     names_prefix = &quot;rmse_&quot;
   ) %&gt;% 
   ggplot(aes(x = model, y = rmse)) +
-  geom_boxplot()
+  geom_violin(aes(fill = model), alpha = 0.5)
 
 cv_modeling_output</code></pre>
 <p><img src="regression_us_files/figure-html/unnamed-chunk-23-1.png" width="90%" /></p>
@@ -1105,6 +1358,8 @@ cv_modeling_output</code></pre>
 
 
 
+</div>
+</div>
 
 </div>
 
@@ -1136,7 +1391,41 @@ $(document).ready(function () {
 </script>
 
 <!-- code folding -->
+<script>
+$(document).ready(function () {
+  window.initializeCodeFolding("hide" === "show");
+});
+</script>
 
+<script>
+$(document).ready(function ()  {
+
+    // temporarily add toc-ignore selector to headers for the consistency with Pandoc
+    $('.unlisted.unnumbered').addClass('toc-ignore')
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_');
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
 
 <!-- dynamically load mathjax for compatibility with self-contained -->
 <script>
