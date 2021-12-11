@@ -27,7 +27,7 @@ mine_df =
          !(is.na(state))) %>% 
   select(state, year, deaths, population, crude_rate) %>% 
   mutate(state_name= state.abb[match(state, state.name)],
-         hover = paste0(state, "\nDeath:", crude_rate),
+         hover = paste0(state, "\nDeath Crude Rate:", crude_rate),
          crude_rate = as.numeric(crude_rate)) %>% 
   mutate(crude_rate = replace_na(crude_rate, 0))
 

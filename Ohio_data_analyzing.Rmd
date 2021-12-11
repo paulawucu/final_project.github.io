@@ -1,7 +1,5 @@
 ---
 title: "Ohio_data_analyzing"
-author: "Yuan Meng"
-date: "12/7/2021"
 output: 
   html_document:
     code_folding: hide
@@ -121,7 +119,7 @@ ggplot(Ohio_df, aes(x = indicator, y = data_value, fill = indicator)) +
   scale_x_discrete(labels = c("Psychostimulants \n with abuse potential \n (T43.6)", "Methadone \n (T40.3)", "Natural & \n semi-synthetic  \n opioids \n (T40.2)", "Natural & semi-\n synthetic opioids, \n incl. methadone \n (T40.2, T40.3)", "Heroin \n (T40.1)", "Cocaine \n (T40.5)", "Synthetic opioids, \n excl. \n methadone \n (T40.4)", "Natural, \n semi-synthetic, & \n synthetic opioids, \n incl. methadone \n (T40.2-T40.4)", "Opioids \n (T40.0-T40.4,\n T40.6)")) +
   guides(fill = guide_legend(nrow = 6, byrow = TRUE)) +
   labs(
-    title = "CA Number of Drug Overdose Deaths with Drug Categories (2015 - 2021)",
+    title = "OH Number of Drug Overdose Deaths with Drug Categories (2015 - 2021)",
     x = "Drug Categories",
     y = "Number of Drug Overdose Deaths",
     caption = "Data comes from VSRR_Provisional_Drug_Overdose_Death_Counts dataset."
@@ -201,16 +199,16 @@ OH_income_df =
   read_csv("./data/Median_Household_Income_OH.csv") %>% 
   janitor::clean_names() %>% 
   select(year, household_income_by_race, household_income_by_race_moe, geography) %>% 
-  filter(str_detect(geography,"Ohio|United States"),
+  filter(str_detect(geography,"OH|Ohio|United States"),
     year >= "2015") %>% 
   mutate(year = factor(year))
 
 OH_income_df %>% 
   mutate(text_label = str_c("Year: ", year, "\nMedian Household Income: $", household_income_by_race, 
                             "\nMargin of error: ± $", household_income_by_race_moe)) %>% 
-  plot_ly(
+   plot_ly(
     x = ~year, y = ~household_income_by_race, color = ~geography, text = ~text_label, 
-    alpha = 0.5, type = "scatter", mode = "markers+lines", colors = "viridis") %>% 
+    alpha = 0.5, type = "scatter", mode = "markers+lines", colors = "viridis", error_y = ~list(array = household_income_by_race_moe)) %>% 
   layout(
     title = "Median Household Income: OH vs. The U.S",
          xaxis = list(title = "Year"),
@@ -230,9 +228,9 @@ ca_death_by_age =
   
 ca_death_by_age %>% 
   mutate(ten_year_age_groups = gsub("years", "", ten_year_age_groups)) %>% 
-  ggplot(aes(x = ten_year_age_groups , y = crude_rate, color = race)) + 
-  geom_boxplot(outlier.shape = NA) +
-  facet_grid(~race) +
+  ggplot(aes(x = ten_year_age_groups , y = crude_rate, fill = race)) + 
+  geom_boxplot(alpha = 0.5)+
+  facet_grid(~race)+
   theme(axis.text.x = element_text(angle = 90, vjust = 0.4, hjust = 1))
 ```
 
@@ -386,5 +384,3 @@ start_county_df %>%
   highlight_county(start_county_df[which.max(pull(start_county_df, death_rate)),])+
   add_text_county(start_county_df[which.max(pull(start_county_df, death_rate)),])
 ```
-
-Back to [homepage](index.html)

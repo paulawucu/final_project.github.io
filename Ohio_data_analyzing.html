@@ -9,13 +9,12 @@
 <meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
 
 
-<meta name="author" content="Yuan Meng" />
 
 
 <title>Ohio_data_analyzing</title>
 
-<script src="site_libs/header-attrs-2.10/header-attrs.js"></script>
-<script src="site_libs/jquery-3.5.1/jquery.min.js"></script>
+<script src="site_libs/header-attrs-2.11/header-attrs.js"></script>
+<script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link href="site_libs/bootstrap-3.3.5/css/yeti.min.css" rel="stylesheet" />
 <script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
@@ -334,11 +333,23 @@ div.tocify {
         
       </ul>
       <ul class="nav navbar-nav navbar-right">
-        <li>
-  <a href="usa_analyzing.html">Overview</a>
+        <li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+    Overview
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="overview.html">Project Overview</a>
+    </li>
+    <li>
+      <a href="usa_analyzing.html">United States Overview</a>
+    </li>
+  </ul>
 </li>
 <li>
-  <a href="food.html">Report</a>
+  <a href="report.html">Report</a>
 </li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
@@ -363,6 +374,9 @@ div.tocify {
 </li>
 <li>
   <a href="https://paulawucu.shinyapps.io/shiny_dashboard_upload/">Interactive Maps</a>
+</li>
+<li>
+  <a href="regression_us.html">Regression</a>
 </li>
 <li>
   <a href="food.html">Facts About</a>
@@ -397,8 +411,6 @@ div.tocify {
 
 
 <h1 class="title toc-ignore">Ohio_data_analyzing</h1>
-<h4 class="author">Yuan Meng</h4>
-<h4 class="date">12/7/2021</h4>
 
 </div>
 
@@ -453,7 +465,7 @@ ggplot(Ohio_df, aes(x = indicator, y = data_value, fill = indicator)) +
   scale_x_discrete(labels = c(&quot;Psychostimulants \n with abuse potential \n (T43.6)&quot;, &quot;Methadone \n (T40.3)&quot;, &quot;Natural &amp; \n semi-synthetic  \n opioids \n (T40.2)&quot;, &quot;Natural &amp; semi-\n synthetic opioids, \n incl. methadone \n (T40.2, T40.3)&quot;, &quot;Heroin \n (T40.1)&quot;, &quot;Cocaine \n (T40.5)&quot;, &quot;Synthetic opioids, \n excl. \n methadone \n (T40.4)&quot;, &quot;Natural, \n semi-synthetic, &amp; \n synthetic opioids, \n incl. methadone \n (T40.2-T40.4)&quot;, &quot;Opioids \n (T40.0-T40.4,\n T40.6)&quot;)) +
   guides(fill = guide_legend(nrow = 6, byrow = TRUE)) +
   labs(
-    title = &quot;CA Number of Drug Overdose Deaths with Drug Categories (2015 - 2021)&quot;,
+    title = &quot;OH Number of Drug Overdose Deaths with Drug Categories (2015 - 2021)&quot;,
     x = &quot;Drug Categories&quot;,
     y = &quot;Number of Drug Overdose Deaths&quot;,
     caption = &quot;Data comes from VSRR_Provisional_Drug_Overdose_Death_Counts dataset.&quot;
@@ -505,26 +517,42 @@ ggplot(death_by_year, aes(x = month, y = data_value, group = year, color = year)
   read_csv(&quot;./data/Median_Household_Income_OH.csv&quot;) %&gt;% 
   janitor::clean_names() %&gt;% 
   select(year, household_income_by_race, household_income_by_race_moe, geography) %&gt;% 
-  filter(str_detect(geography,&quot;Ohio|United States&quot;),
+  filter(str_detect(geography,&quot;OH|Ohio|United States&quot;),
     year &gt;= &quot;2015&quot;) %&gt;% 
   mutate(year = factor(year))
 
 OH_income_df %&gt;% 
   mutate(text_label = str_c(&quot;Year: &quot;, year, &quot;\nMedian Household Income: $&quot;, household_income_by_race, 
                             &quot;\nMargin of error: ± $&quot;, household_income_by_race_moe)) %&gt;% 
-  plot_ly(
+   plot_ly(
     x = ~year, y = ~household_income_by_race, color = ~geography, text = ~text_label, 
-    alpha = 0.5, type = &quot;scatter&quot;, mode = &quot;markers+lines&quot;, colors = &quot;viridis&quot;) %&gt;% 
+    alpha = 0.5, type = &quot;scatter&quot;, mode = &quot;markers+lines&quot;, colors = &quot;viridis&quot;, error_y = ~list(array = household_income_by_race_moe)) %&gt;% 
   layout(
     title = &quot;Median Household Income: OH vs. The U.S&quot;,
          xaxis = list(title = &quot;Year&quot;),
          yaxis = list(title = &quot;Median Household Income&quot;))</code></pre>
-<div id="htmlwidget-4c2f2553e3b725f4e884" style="width:90%;height:576px;" class="plotly html-widget"></div>
-<script type="application/json" data-for="htmlwidget-4c2f2553e3b725f4e884">{"x":{"visdat":{"c76f59d9c935":["function () ","plotlyVisDat"]},"cur_data":"c76f59d9c935","attrs":{"c76f59d9c935":{"x":{},"y":{},"text":{},"mode":"markers+lines","color":{},"colors":"viridis","alpha":0.5,"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"scatter"}},"layout":{"margin":{"b":40,"l":60,"t":25,"r":10},"title":"Median Household Income: OH vs. The U.S","xaxis":{"domain":[0,1],"automargin":true,"title":"Year","type":"category","categoryorder":"array","categoryarray":["2015","2016","2017","2018","2019"]},"yaxis":{"domain":[0,1],"automargin":true,"title":"Median Household Income"},"hovermode":"closest","showlegend":true},"source":"A","config":{"modeBarButtonsToAdd":["hoverclosest","hovercompare"],"showSendToCloud":false},"data":[{"x":["2019","2018","2017","2016","2015"],"y":[58642,56111,54021,52334,51075],"text":["Year: 2019<br />Median Household Income: $58642<br />Margin of error: ± $563","Year: 2018<br />Median Household Income: $56111<br />Margin of error: ± $425","Year: 2017<br />Median Household Income: $54021<br />Margin of error: ± $411","Year: 2016<br />Median Household Income: $52334<br />Margin of error: ± $275","Year: 2015<br />Median Household Income: $51075<br />Margin of error: ± $233"],"mode":"markers+lines","type":"scatter","name":"Ohio","marker":{"color":"rgba(68,1,84,0.5)","line":{"color":"rgba(68,1,84,1)"}},"textfont":{"color":"rgba(68,1,84,0.5)"},"error_y":{"color":"rgba(68,1,84,0.5)"},"error_x":{"color":"rgba(68,1,84,0.5)"},"line":{"color":"rgba(68,1,84,0.5)"},"xaxis":"x","yaxis":"y","frame":null},{"x":["2019","2018","2017","2016","2015"],"y":[65712,61937,60336,57617,55775],"text":["Year: 2019<br />Median Household Income: $65712<br />Margin of error: ± $118","Year: 2018<br />Median Household Income: $61937<br />Margin of error: ± $94","Year: 2017<br />Median Household Income: $60336<br />Margin of error: ± $86","Year: 2016<br />Median Household Income: $57617<br />Margin of error: ± $115","Year: 2015<br />Median Household Income: $55775<br />Margin of error: ± $85"],"mode":"markers+lines","type":"scatter","name":"United States","marker":{"color":"rgba(253,231,37,0.5)","line":{"color":"rgba(253,231,37,1)"}},"textfont":{"color":"rgba(253,231,37,0.5)"},"error_y":{"color":"rgba(253,231,37,0.5)"},"error_x":{"color":"rgba(253,231,37,0.5)"},"line":{"color":"rgba(253,231,37,0.5)"},"xaxis":"x","yaxis":"y","frame":null}],"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.2,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":[]}</script>
+<div id="htmlwidget-5c81b76f9ed06fe32cde" style="width:90%;height:576px;" class="plotly html-widget"></div>
+<script type="application/json" data-for="htmlwidget-5c81b76f9ed06fe32cde">{"x":{"visdat":{"843879fa9d25":["function () ","plotlyVisDat"]},"cur_data":"843879fa9d25","attrs":{"843879fa9d25":{"x":{},"y":{},"text":{},"mode":"markers+lines","error_y":{},"color":{},"colors":"viridis","alpha":0.5,"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"scatter"}},"layout":{"margin":{"b":40,"l":60,"t":25,"r":10},"title":"Median Household Income: OH vs. The U.S","xaxis":{"domain":[0,1],"automargin":true,"title":"Year","type":"category","categoryorder":"array","categoryarray":["2015","2016","2017","2018","2019"]},"yaxis":{"domain":[0,1],"automargin":true,"title":"Median Household Income"},"hovermode":"closest","showlegend":true},"source":"A","config":{"modeBarButtonsToAdd":["hoverclosest","hovercompare"],"showSendToCloud":false},"data":[{"x":["2019","2018","2017","2016","2015"],"y":[66825,62743,61653,60260,56826],"text":["Year: 2019<br />Median Household Income: $66825<br />Margin of error: ± $1322","Year: 2018<br />Median Household Income: $62743<br />Margin of error: ± $1087","Year: 2017<br />Median Household Income: $61653<br />Margin of error: ± $967","Year: 2016<br />Median Household Income: $60260<br />Margin of error: ± $1049","Year: 2015<br />Median Household Income: $56826<br />Margin of error: ± $895"],"mode":"markers+lines","error_y":{"color":"rgba(68,1,84,0.5)","array":[118,563,1322,94,425]},"type":"scatter","name":"Cincinnati, OH-KY-IN","marker":{"color":"rgba(68,1,84,0.5)","line":{"color":"rgba(68,1,84,1)"}},"textfont":{"color":"rgba(68,1,84,0.5)"},"error_x":{"color":"rgba(68,1,84,0.5)"},"line":{"color":"rgba(68,1,84,0.5)"},"xaxis":"x","yaxis":"y","frame":null},{"x":["2019","2018","2017","2016","2015"],"y":[58642,56111,54021,52334,51075],"text":["Year: 2019<br />Median Household Income: $58642<br />Margin of error: ± $563","Year: 2018<br />Median Household Income: $56111<br />Margin of error: ± $425","Year: 2017<br />Median Household Income: $54021<br />Margin of error: ± $411","Year: 2016<br />Median Household Income: $52334<br />Margin of error: ± $275","Year: 2015<br />Median Household Income: $51075<br />Margin of error: ± $233"],"mode":"markers+lines","error_y":{"color":"rgba(33,144,141,0.5)","array":[1087,86,411,967,115]},"type":"scatter","name":"Ohio","marker":{"color":"rgba(33,144,141,0.5)","line":{"color":"rgba(33,144,141,1)"}},"textfont":{"color":"rgba(33,144,141,0.5)"},"error_x":{"color":"rgba(33,144,141,0.5)"},"line":{"color":"rgba(33,144,141,0.5)"},"xaxis":"x","yaxis":"y","frame":null},{"x":["2019","2018","2017","2016","2015"],"y":[65712,61937,60336,57617,55775],"text":["Year: 2019<br />Median Household Income: $65712<br />Margin of error: ± $118","Year: 2018<br />Median Household Income: $61937<br />Margin of error: ± $94","Year: 2017<br />Median Household Income: $60336<br />Margin of error: ± $86","Year: 2016<br />Median Household Income: $57617<br />Margin of error: ± $115","Year: 2015<br />Median Household Income: $55775<br />Margin of error: ± $85"],"mode":"markers+lines","error_y":{"color":"rgba(253,231,37,0.5)","array":[275,1049,85,233,895]},"type":"scatter","name":"United States","marker":{"color":"rgba(253,231,37,0.5)","line":{"color":"rgba(253,231,37,1)"}},"textfont":{"color":"rgba(253,231,37,0.5)"},"error_x":{"color":"rgba(253,231,37,0.5)"},"line":{"color":"rgba(253,231,37,0.5)"},"xaxis":"x","yaxis":"y","frame":null}],"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.2,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":[]}</script>
+<p><strong>Overdose death by age</strong></p>
+<pre class="r"><code>ca_death_by_age = 
+  read_csv(&quot;./data/agegroup_race_state_year_99-19.csv&quot;) %&gt;%
+  janitor::clean_names() %&gt;% 
+  select(state, year, ten_year_age_groups, race, deaths, population) %&gt;% 
+  filter(state %in% c(&quot;Ohio&quot;)) %&gt;% 
+  mutate(year = factor(year),
+         crude_rate = deaths/population * 100000)
+  
+ca_death_by_age %&gt;% 
+  mutate(ten_year_age_groups = gsub(&quot;years&quot;, &quot;&quot;, ten_year_age_groups)) %&gt;% 
+  ggplot(aes(x = ten_year_age_groups , y = crude_rate, fill = race)) + 
+  geom_boxplot(alpha = 0.5)+
+  facet_grid(~race)+
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.4, hjust = 1))</code></pre>
+<p><img src="Ohio_data_analyzing_files/figure-html/unnamed-chunk-11-1.png" width="90%" /></p>
 </div>
 <div id="income" class="section level2">
-<h2>income</h2>
-<p><strong>Income and drug overdose death percent , by year</strong></p>
+<h2>Income</h2>
+<p><strong>Income and drug overdose death percent by year</strong></p>
 <pre class="r"><code>OHincome_drug_df = 
   Ohio_death %&gt;% 
   ungroup() %&gt;% 
@@ -532,12 +560,26 @@ OH_income_df %&gt;%
   summarize(overdose_death_rate = sum(number_of_drug_overdose_deaths)/sum(number_of_deaths)) %&gt;% 
   inner_join(., OH_income_df %&gt;% filter(geography %in% &quot;Ohio&quot;))</code></pre>
 <pre><code>## Joining, by = &quot;year&quot;</code></pre>
-<pre class="r"><code>OHincome_drug_df %&gt;% 
-  ggplot(aes(x = household_income_by_race, y = overdose_death_rate, group = NA, color = year))+
+<pre class="r"><code>year_death = 
+  OHincome_drug_df %&gt;% 
+  ggplot(aes(x = year, y = overdose_death_rate, group = NA))+
   geom_point()+
-  geom_line()</code></pre>
-<p><img src="Ohio_data_analyzing_files/figure-html/unnamed-chunk-11-1.png" width="90%" /></p>
-<p><strong>CA Drug Map</strong></p>
+  geom_line()
+income_year = 
+  OHincome_drug_df %&gt;% 
+  ggplot(aes(x = year, y = household_income_by_race, group = NA))+
+  geom_point()+
+  geom_line()
+
+smooth = 
+  OHincome_drug_df %&gt;% 
+  ggplot(aes(x = household_income_by_race, y = overdose_death_rate, group = NA))+
+  geom_point()+
+  geom_smooth(method = &quot;lm&quot;, se = FALSE, color = &quot;royalblue4&quot;)
+(year_death + income_year)/smooth</code></pre>
+<pre><code>## `geom_smooth()` using formula &#39;y ~ x&#39;</code></pre>
+<p><img src="Ohio_data_analyzing_files/figure-html/unnamed-chunk-12-1.png" width="90%" /></p>
+<p><strong>OH Drug Map</strong></p>
 <pre class="r"><code>oh_county_df = 
   read_csv(&quot;./data/NCHS_-_Drug_Poisoning_Mortality_by_County__United_States.csv&quot;) %&gt;% 
   janitor::clean_names() %&gt;% 
@@ -588,7 +630,7 @@ start_county_df %&gt;%
                      legend = &quot;death_rate&quot;)+
   highlight_county(start_county_df[which.max(pull(start_county_df, death_rate)),])+
   add_text_county(start_county_df[which.max(pull(start_county_df, death_rate)),])</code></pre>
-<p><img src="Ohio_data_analyzing_files/figure-html/unnamed-chunk-15-1.png" width="90%" /></p>
+<p><img src="Ohio_data_analyzing_files/figure-html/unnamed-chunk-16-1.png" width="90%" /></p>
 </div>
 <div id="section-1" class="section level4">
 <h4>2008</h4>
@@ -606,7 +648,7 @@ start_county_df %&gt;%
                      legend = &quot;death_rate&quot;)+
   highlight_county(start_county_df[which.max(pull(start_county_df, death_rate)),])+
   add_text_county(start_county_df[which.max(pull(start_county_df, death_rate)),])</code></pre>
-<p><img src="Ohio_data_analyzing_files/figure-html/unnamed-chunk-16-1.png" width="90%" /></p>
+<p><img src="Ohio_data_analyzing_files/figure-html/unnamed-chunk-17-1.png" width="90%" /></p>
 </div>
 <div id="section-2" class="section level4">
 <h4>2013</h4>
@@ -626,12 +668,11 @@ start_county_df %&gt;%
                      legend = &quot;death_rate&quot;)+
   highlight_county(start_county_df[which.max(pull(start_county_df, death_rate)),])+
   add_text_county(start_county_df[which.max(pull(start_county_df, death_rate)),])</code></pre>
-<p><img src="Ohio_data_analyzing_files/figure-html/unnamed-chunk-17-1.png" width="90%" /></p>
+<p><img src="Ohio_data_analyzing_files/figure-html/unnamed-chunk-18-1.png" width="90%" /></p>
 </div>
 <div id="section-3" class="section level4">
 <h4>2018</h4>
-<p><img src="Ohio_data_analyzing_files/figure-html/unnamed-chunk-18-1.png" width="90%" /></p>
-<p>Back to <a href="index.html">homepage</a></p>
+<p><img src="Ohio_data_analyzing_files/figure-html/unnamed-chunk-19-1.png" width="90%" /></p>
 </div>
 </div>
 </div>
