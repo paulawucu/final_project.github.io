@@ -238,6 +238,11 @@ income_year =
   ggplot(aes(x = year, y = household_income_by_race, group = NA))+
   geom_point()+
   geom_line()
+income_year = 
+  CAincome_drug_df  %>% 
+  ggplot(aes(x = year, y = household_income_by_race, group = NA))+
+  geom_point()+
+  geom_line()
 
 smooth = 
   CAincome_drug_df %>% 
