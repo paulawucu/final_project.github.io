@@ -1,15 +1,14 @@
 ---
 title: "CA data Analyzing"
-author: "Yuan Meng"
-date: "12/7/2021"
 output: 
   html_document:
     code_folding: hide
     toc: true
     toc_float: true
 ---
+**Import the libraries**
 
-```{r message=FALSE, include=FALSE}
+```{r message=FALSE}
 library(tidyverse)
 library(rvest)
 library(httr)
@@ -20,6 +19,7 @@ library(readr)
 library(maps)
 library(choroplethr)
 library(choroplethrMaps)
+library(patchwork)
 ```
 
 ```{r setup, include=FALSE}
@@ -41,7 +41,6 @@ scale_fill_discrete = scale_fill_viridis_d
 theme_set(theme_minimal() + theme(legend.position = "bottom"))
 ```
 
-## Import and Clean data ##
 
 ```{r message = FALSE}
 drug_overdose = read_csv("./data/VSRR_Provisional_Drug_Overdose_Death_Counts.csv") %>% 
@@ -59,9 +58,7 @@ drug_overdose_52 =
   arrange(state_name) %>% 
   group_by(state_name, year) %>% 
   mutate(month = sort(month)) 
-```
 
-```{r message=FALSE}
 drug_overdose_death = 
   drug_overdose_52 %>% 
   select(-c(state, footnote_symbol, percent_complete, period, percent_pending_investigation, predicted_value)) %>% 
@@ -74,8 +71,10 @@ drug_categories =
   filter(str_detect(indicator, "T4"))
 ```
 
-## CA part:
-Overall review:
+
+### Overall review:
+
+**Drug Overdose Deaths with Drug Categories**
 
 ```{r message=FALSE}
 CA_death = 
@@ -110,7 +109,7 @@ ggplot(CA_df, aes(indicator, data_value))+
 ```
 
 
-**By year**
+**Drug Overdose Deaths with Drug Categories by Year**
 
 
 ```{r message=FALSE}
@@ -172,7 +171,29 @@ CA_df %>%
   )
 ```
 
-## income
+
+**Overdose death by age**
+
+```{r message=FALSE}
+ca_death_by_age = 
+  read_csv("./data/agegroup_race_state_year_99-19.csv") %>%
+  janitor::clean_names() %>% 
+  select(state, year, ten_year_age_groups, race, deaths, population) %>% 
+  filter(state %in% c("California")) %>% 
+  mutate(year = factor(year),
+         crude_rate = deaths/population * 100000)
+  
+ca_death_by_age %>% 
+  mutate(ten_year_age_groups = gsub("years", "", ten_year_age_groups)) %>% 
+  ggplot(aes(x = ten_year_age_groups , y = crude_rate, fill = race)) + 
+  geom_boxplot(alpha = 0.5)+
+  facet_grid(~race)+
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.4, hjust = 1))
+```
+
+
+
+## Income
 
 **Number of death vs median household income**
 
@@ -197,9 +218,9 @@ CA_income_df %>%
          yaxis = list(title = "Median Household Income"))
 ```
 
-**Income and drug overdose death percent , by year**
+**Income and drug overdose death percent by year**
 
-```{r}
+```{r message=FALSE}
 CAincome_drug_df = 
   CA_death %>% 
   ungroup() %>% 
@@ -207,15 +228,29 @@ CAincome_drug_df =
   summarize(overdose_death_rate = sum(number_of_drug_overdose_deaths)/sum(number_of_deaths)) %>% 
   inner_join(., CA_income_df %>% filter(geography %in% "California"))
 
-CAincome_drug_df %>% 
-  ggplot(aes(x = household_income_by_race, y = overdose_death_rate, group = NA, color = year))+
+year_death = 
+  CAincome_drug_df  %>% 
+  ggplot(aes(x = year, y = overdose_death_rate, group = NA))+
   geom_point()+
   geom_line()
+income_year = 
+  CAincome_drug_df  %>% 
+  ggplot(aes(x = year, y = household_income_by_race, group = NA))+
+  geom_point()+
+  geom_line()
+
+smooth = 
+  CAincome_drug_df %>% 
+  ggplot(aes(x = household_income_by_race, y = overdose_death_rate, group = NA))+
+  geom_point()+
+  geom_smooth(method = "lm", se = FALSE, color = "royalblue4")
+(year_death + income_year)/smooth
+
 ```
 
 
 
-##CA Drug Map
+## CA Drug Map
 
 ```{r message=FALSE}
 ca_county_df = 
@@ -243,8 +278,7 @@ add_text_county = function(county_fips){
   #geom_text(data=df, aes(mean(long), mean(lat), label = paste0(str_to_title(pull(county_fips, county)), " County\n", pull(county_fips, death_rate))), color = "white")
   geom_label(data=df, aes(mean(long), mean(lat), label = paste0(str_to_title(pull(county_fips, county)), " County\nDR: ", round(pull(county_fips, death_rate),2))), fill = "white", size = 2.5)
 }
-```
-```{r, message=FALSE, warning=FALSE}
+
 data(county.fips)
 abc = county.fips %>% 
   separate(polyname, into = c("state", "county"), sep = "\\,") %>% 
@@ -330,5 +364,3 @@ start_county_df %>%
   highlight_county(start_county_df[which.max(pull(start_county_df, death_rate)),])+
   add_text_county(start_county_df[which.max(pull(start_county_df, death_rate)),])
 ```
-
-Back to [homepage](index.html)
