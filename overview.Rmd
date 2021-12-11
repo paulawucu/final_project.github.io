@@ -34,3 +34,32 @@ theme_set(theme_minimal() + theme(legend.position = "bottom"))
 ```
 
 <img src="./images/pills.jpeg" style="width:80%">
+
+<br>
+
+## Links to repositoriy
+
+Github repository of this website is [here](https://github.com/paulawucu/final_project.github.io)
+
+Github repository of previous works (Shiny document is [here] (https://github.com/paulawucu/final_project.git))
+
+<br>
+
+## Reports
+
+Our reports is [here](report.html)
+
+<br>
+
+## Data Sources
+
+<br>
+
+## Videos
+
+<br>
+
+## Seek help
+Drug Abuse Helps: Substance Abuse and Mental Health Services Administration, [Behavioral Health Treatment Service Locator](https://findtreatment.samhsa.gov/)
+
+
