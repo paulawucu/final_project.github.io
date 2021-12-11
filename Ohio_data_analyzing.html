@@ -11,7 +11,7 @@
 
 
 
-<title>Ohio_data_analyzing</title>
+<title>Ohio Data analyzing</title>
 
 <script src="site_libs/header-attrs-2.11/header-attrs.js"></script>
 <script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
@@ -410,13 +410,12 @@ div.tocify {
 
 
 
-<h1 class="title toc-ignore">Ohio_data_analyzing</h1>
+<h1 class="title toc-ignore">Ohio Data analyzing</h1>
 
 </div>
 
 
-<div id="import-and-clean-data" class="section level2">
-<h2>Import and Clean data</h2>
+<p><strong>Import the Libraries and Data Cleaning</strong></p>
 <pre class="r"><code>drug_overdose = read_csv(&quot;./data/VSRR_Provisional_Drug_Overdose_Death_Counts.csv&quot;) %&gt;% 
   janitor::clean_names()
 
@@ -437,9 +436,6 @@ drug_overdose_death =
   drug_overdose_52 %&gt;% 
   select(-c(state, footnote_symbol, percent_complete, period, percent_pending_investigation, predicted_value)) %&gt;% 
   filter(indicator %in% c(&quot;Number of Deaths&quot;, &quot;Percent with drugs specified&quot;, &quot;Number of Drug Overdose Deaths&quot;))</code></pre>
-</div>
-<div id="ohio-part" class="section level2">
-<h2>Ohio part:</h2>
 <pre class="r"><code>Ohio_death = 
   drug_overdose_52 %&gt;% 
   filter(state_name %in% &quot;Ohio&quot;,
@@ -455,8 +451,8 @@ drug_overdose_death =
     percent_overdose_death = number_of_drug_overdose_deaths / number_of_deaths
   )%&gt;% 
 mutate(year = factor(year))</code></pre>
-<pre><code>## Adding missing grouping variables: `state_name`</code></pre>
-<p><strong>By drug type</strong></p>
+<div id="by-drug-type" class="section level2">
+<h2>By Drug Type</h2>
 <pre class="r"><code>Ohio_df = 
   drug_categories %&gt;% 
   filter(state_name %in% c(&quot;Ohio&quot;)) 
@@ -470,48 +466,84 @@ ggplot(Ohio_df, aes(x = indicator, y = data_value, fill = indicator)) +
     y = &quot;Number of Drug Overdose Deaths&quot;,
     caption = &quot;Data comes from VSRR_Provisional_Drug_Overdose_Death_Counts dataset.&quot;
   ) </code></pre>
-<p><img src="Ohio_data_analyzing_files/figure-html/unnamed-chunk-6-1.png" width="90%" /></p>
-<p><strong>By year</strong></p>
-<pre class="r"><code>death_by_year = 
-  drug_overdose_death %&gt;% 
-  filter(state_name %in% c(&quot;Ohio&quot;), 
-         indicator %in% c(&quot;Number of Deaths&quot;) )
+<p><img src="Ohio_data_analyzing_files/figure-html/unnamed-chunk-6-1.png" width="90%" /> From this graph we can see that highest drug overdose death for Ohio is caused by Cocaine and Synthetic opioids,methadone . The following Drug Categories cause high overdose death is opioids.</p>
+<p><br><br></p>
+</div>
+<div id="by-year" class="section level2">
+<h2>By Year</h2>
+<pre class="r"><code>oh_death_by_year = 
+  drug_overdose_52 %&gt;% 
+  filter(state_name %in% c(&quot;Ohio&quot;)) %&gt;% 
+  ungroup() %&gt;% 
+  select(year, month, indicator, data_value) %&gt;% 
+  filter(indicator %in% c(&quot;Number of Deaths&quot;, &quot;Number of Drug Overdose Deaths&quot;)) %&gt;% 
+  pivot_wider(
+    names_from = indicator,
+    values_from = data_value
+  ) %&gt;% 
+  janitor::clean_names() %&gt;% 
+  group_by(year, month) %&gt;% 
+  mutate(
+    percent_overdose_death = number_of_drug_overdose_deaths / number_of_deaths
+  )
 
-ggplot(death_by_year, aes(x = month, y = data_value, group = year, color = year)) +
-    labs(title = &quot;&quot;) + 
-    geom_line() + 
-    geom_point() +
-    theme(plot.title = element_text(hjust = 0.5)) +
-    scale_x_discrete(labels = c(&quot;Psychostimulants \n with abuse potential \n (T43.6)&quot;, &quot;Methadone \n (T40.3)&quot;, &quot;Natural &amp; \n semi-synthetic  \n opioids \n (T40.2)&quot;, &quot;Natural &amp; semi-\n synthetic opioids, \n incl. methadone \n (T40.2, T40.3)&quot;, &quot;Heroin \n (T40.1)&quot;, &quot;Cocaine \n (T40.5)&quot;, &quot;Synthetic opioids, \n excl. \n methadone \n (T40.4)&quot;, &quot;Natural, \n semi-synthetic, &amp; \n synthetic opioids, \n incl. methadone \n (T40.2-T40.4)&quot;, &quot;Opioids \n (T40.0-T40.4,\n T40.6)&quot;)) +
-  guides(fill = guide_legend(nrow = 6, byrow = TRUE)) +
-    labs(
-      title = &quot;Number of Drug Overdose Deaths with Drug Categories by Year in Ohio&quot;,
-      x = &quot;Month&quot;,
-      y = &quot;Number of Drug Overdose Deaths&quot;,
-    caption = &quot;Data comes from VSRR_Provisional_Drug_Overdose_Death_Counts dataset between 2015 and 2021.&quot;
+oh_death_by_year %&gt;%
+  ungroup() %&gt;% 
+  ggplot(aes(x = month, y = percent_overdose_death, color = year)) +
+  geom_point() +
+  geom_line(aes(group = year)) +
+  labs(
+    title = &quot;Percent of Drug Overdose Deaths over Total Number of Deaths by Year in OH&quot;,
+    x = &quot;Months&quot;,
+    y = &quot;Percent of Drug Overdose Deaths&quot;,
+    caption = &quot;Data comes from VSRR_Provisional_Drug_Overdose_Death_Counts dataset from 2015 to 2021).&quot;
   )</code></pre>
-<p><img src="Ohio_data_analyzing_files/figure-html/unnamed-chunk-7-1.png" width="90%" /></p>
-<p><strong>Each month Death Within a Year</strong></p>
-<pre class="r"><code>death_by_year = 
-  drug_overdose_death %&gt;% 
-  filter(state_name %in% c(&quot;Ohio&quot;), 
-         indicator %in% c(&quot;Number of Deaths&quot;) )
-
-ggplot(death_by_year, aes(x = month, y = data_value, group = year, color = year)) +
-    labs(title = &quot;&quot;) + 
-    geom_line() + 
-    geom_point() +
-    facet_grid(.~year) +
-  
-    labs(
-      title = &quot;Number of Drug Overdose Deaths with Drug Categories by Year in CA&quot;,
-      x = &quot;Month&quot;,
-      y = &quot;Number of Drug Overdose Deaths&quot;,
-    caption = &quot;Data comes from VSRR_Provisional_Drug_Overdose_Death_Counts dataset between 2015 and 2021.&quot;
+<p><img src="Ohio_data_analyzing_files/figure-html/unnamed-chunk-7-1.png" width="100%" /> In the graph of Drug Overdose Deaths with Drug Categories by Year, I can observe that year 2017 have higher number of drug overdose death than other years.</p>
+<pre class="r"><code>oh_death_by_year %&gt;%
+  ungroup() %&gt;% 
+  ggplot(aes(x = month, y = percent_overdose_death, group = NA, color = year)) +
+  geom_point() +
+  geom_line() +
+  facet_grid(.~ year) +
+  labs(
+    title = &quot;Percent of Drug Overdose Deaths over Total Number of Deaths by Year in OH&quot;,
+    x = &quot;Months&quot;,
+    y = &quot;Percent of Drug Overdose Deaths&quot;,
+    caption = &quot;Data comes from VSRR_Provisional_Drug_Overdose_Death_Counts dataset from 2015 to 2021.&quot;
   ) +
-    theme(axis.text.x = element_text(angle = 90, hjust = 1)) </code></pre>
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) </code></pre>
 <p><img src="Ohio_data_analyzing_files/figure-html/unnamed-chunk-8-1.png" width="90%" /></p>
+<p>In the graph of Each month Drug Overdose Death Within a Year, we are able to see the trend changing of drug overdose in continuous years. The highest percentage of drug overdose death is 2017. There is increase percentage of cause drug overdose death in 2020 which is by the COVID-19.</p>
+<p><br><br></p>
+</div>
+<div id="drug-year" class="section level2">
+<h2>Drug ~ Year</h2>
 <p><img src="Ohio_data_analyzing_files/figure-html/unnamed-chunk-9-1.png" width="90%" /></p>
+<p>In the graph of Number of Drug Overdose Deaths with Drug Categories by Year, we can see that drug overdose death in Ohio keep increasing over the years with Heroin, Opioids, Synthetic Opioids.Since we miss data from 2015-2018, so we just include 2019-2021 in this graph.</p>
+<p><br><br></p>
+</div>
+<div id="by-age-and-race" class="section level2">
+<h2>By Age and Race</h2>
+<pre class="r"><code>ca_death_by_age = 
+  read_csv(&quot;./data/agegroup_race_state_year_99-19.csv&quot;) %&gt;%
+  janitor::clean_names() %&gt;% 
+  select(state, year, ten_year_age_groups, race, deaths, population) %&gt;% 
+  filter(state %in% c(&quot;Ohio&quot;)) %&gt;% 
+  mutate(year = factor(year),
+         crude_rate = deaths/population * 100000)
+  
+ca_death_by_age %&gt;% 
+  mutate(ten_year_age_groups = gsub(&quot;years&quot;, &quot;&quot;, ten_year_age_groups)) %&gt;% 
+  ggplot(aes(x = ten_year_age_groups , y = crude_rate, fill = race)) + 
+  geom_boxplot(alpha = 0.5)+
+  facet_grid(~race)+
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.4, hjust = 1))</code></pre>
+<p><img src="Ohio_data_analyzing_files/figure-html/unnamed-chunk-10-1.png" width="90%" /></p>
+<p>Overdose death with Drug Categories by Age and Race shows that black or African American people in Ohio among age 55-64 have highest drug overdose death rate. White people in Ohio among age 35-44 have highest drug overdose death rate.</p>
+<p><br><br></p>
+</div>
+<div id="income" class="section level2">
+<h2>Income</h2>
 <p><strong>Number of death vs median household income</strong></p>
 <pre class="r"><code>OH_income_df = 
   read_csv(&quot;./data/Median_Household_Income_OH.csv&quot;) %&gt;% 
@@ -531,36 +563,19 @@ OH_income_df %&gt;%
     title = &quot;Median Household Income: OH vs. The U.S&quot;,
          xaxis = list(title = &quot;Year&quot;),
          yaxis = list(title = &quot;Median Household Income&quot;))</code></pre>
-<div id="htmlwidget-5c81b76f9ed06fe32cde" style="width:90%;height:576px;" class="plotly html-widget"></div>
-<script type="application/json" data-for="htmlwidget-5c81b76f9ed06fe32cde">{"x":{"visdat":{"843879fa9d25":["function () ","plotlyVisDat"]},"cur_data":"843879fa9d25","attrs":{"843879fa9d25":{"x":{},"y":{},"text":{},"mode":"markers+lines","error_y":{},"color":{},"colors":"viridis","alpha":0.5,"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"scatter"}},"layout":{"margin":{"b":40,"l":60,"t":25,"r":10},"title":"Median Household Income: OH vs. The U.S","xaxis":{"domain":[0,1],"automargin":true,"title":"Year","type":"category","categoryorder":"array","categoryarray":["2015","2016","2017","2018","2019"]},"yaxis":{"domain":[0,1],"automargin":true,"title":"Median Household Income"},"hovermode":"closest","showlegend":true},"source":"A","config":{"modeBarButtonsToAdd":["hoverclosest","hovercompare"],"showSendToCloud":false},"data":[{"x":["2019","2018","2017","2016","2015"],"y":[66825,62743,61653,60260,56826],"text":["Year: 2019<br />Median Household Income: $66825<br />Margin of error: ± $1322","Year: 2018<br />Median Household Income: $62743<br />Margin of error: ± $1087","Year: 2017<br />Median Household Income: $61653<br />Margin of error: ± $967","Year: 2016<br />Median Household Income: $60260<br />Margin of error: ± $1049","Year: 2015<br />Median Household Income: $56826<br />Margin of error: ± $895"],"mode":"markers+lines","error_y":{"color":"rgba(68,1,84,0.5)","array":[118,563,1322,94,425]},"type":"scatter","name":"Cincinnati, OH-KY-IN","marker":{"color":"rgba(68,1,84,0.5)","line":{"color":"rgba(68,1,84,1)"}},"textfont":{"color":"rgba(68,1,84,0.5)"},"error_x":{"color":"rgba(68,1,84,0.5)"},"line":{"color":"rgba(68,1,84,0.5)"},"xaxis":"x","yaxis":"y","frame":null},{"x":["2019","2018","2017","2016","2015"],"y":[58642,56111,54021,52334,51075],"text":["Year: 2019<br />Median Household Income: $58642<br />Margin of error: ± $563","Year: 2018<br />Median Household Income: $56111<br />Margin of error: ± $425","Year: 2017<br />Median Household Income: $54021<br />Margin of error: ± $411","Year: 2016<br />Median Household Income: $52334<br />Margin of error: ± $275","Year: 2015<br />Median Household Income: $51075<br />Margin of error: ± $233"],"mode":"markers+lines","error_y":{"color":"rgba(33,144,141,0.5)","array":[1087,86,411,967,115]},"type":"scatter","name":"Ohio","marker":{"color":"rgba(33,144,141,0.5)","line":{"color":"rgba(33,144,141,1)"}},"textfont":{"color":"rgba(33,144,141,0.5)"},"error_x":{"color":"rgba(33,144,141,0.5)"},"line":{"color":"rgba(33,144,141,0.5)"},"xaxis":"x","yaxis":"y","frame":null},{"x":["2019","2018","2017","2016","2015"],"y":[65712,61937,60336,57617,55775],"text":["Year: 2019<br />Median Household Income: $65712<br />Margin of error: ± $118","Year: 2018<br />Median Household Income: $61937<br />Margin of error: ± $94","Year: 2017<br />Median Household Income: $60336<br />Margin of error: ± $86","Year: 2016<br />Median Household Income: $57617<br />Margin of error: ± $115","Year: 2015<br />Median Household Income: $55775<br />Margin of error: ± $85"],"mode":"markers+lines","error_y":{"color":"rgba(253,231,37,0.5)","array":[275,1049,85,233,895]},"type":"scatter","name":"United States","marker":{"color":"rgba(253,231,37,0.5)","line":{"color":"rgba(253,231,37,1)"}},"textfont":{"color":"rgba(253,231,37,0.5)"},"error_x":{"color":"rgba(253,231,37,0.5)"},"line":{"color":"rgba(253,231,37,0.5)"},"xaxis":"x","yaxis":"y","frame":null}],"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.2,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":[]}</script>
-<p><strong>Overdose death by age</strong></p>
-<pre class="r"><code>ca_death_by_age = 
-  read_csv(&quot;./data/agegroup_race_state_year_99-19.csv&quot;) %&gt;%
-  janitor::clean_names() %&gt;% 
-  select(state, year, ten_year_age_groups, race, deaths, population) %&gt;% 
-  filter(state %in% c(&quot;Ohio&quot;)) %&gt;% 
-  mutate(year = factor(year),
-         crude_rate = deaths/population * 100000)
-  
-ca_death_by_age %&gt;% 
-  mutate(ten_year_age_groups = gsub(&quot;years&quot;, &quot;&quot;, ten_year_age_groups)) %&gt;% 
-  ggplot(aes(x = ten_year_age_groups , y = crude_rate, fill = race)) + 
-  geom_boxplot(alpha = 0.5)+
-  facet_grid(~race)+
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.4, hjust = 1))</code></pre>
-<p><img src="Ohio_data_analyzing_files/figure-html/unnamed-chunk-11-1.png" width="90%" /></p>
-</div>
-<div id="income" class="section level2">
-<h2>Income</h2>
+<div id="htmlwidget-89475f4c599d07df8ba9" style="width:90%;height:576px;" class="plotly html-widget"></div>
+<script type="application/json" data-for="htmlwidget-89475f4c599d07df8ba9">{"x":{"visdat":{"a85c5113a6b3":["function () ","plotlyVisDat"]},"cur_data":"a85c5113a6b3","attrs":{"a85c5113a6b3":{"x":{},"y":{},"text":{},"mode":"markers+lines","error_y":{},"color":{},"colors":"viridis","alpha":0.5,"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"scatter"}},"layout":{"margin":{"b":40,"l":60,"t":25,"r":10},"title":"Median Household Income: OH vs. The U.S","xaxis":{"domain":[0,1],"automargin":true,"title":"Year","type":"category","categoryorder":"array","categoryarray":["2015","2016","2017","2018","2019"]},"yaxis":{"domain":[0,1],"automargin":true,"title":"Median Household Income"},"hovermode":"closest","showlegend":true},"source":"A","config":{"modeBarButtonsToAdd":["hoverclosest","hovercompare"],"showSendToCloud":false},"data":[{"x":["2019","2018","2017","2016","2015"],"y":[66825,62743,61653,60260,56826],"text":["Year: 2019<br />Median Household Income: $66825<br />Margin of error: ± $1322","Year: 2018<br />Median Household Income: $62743<br />Margin of error: ± $1087","Year: 2017<br />Median Household Income: $61653<br />Margin of error: ± $967","Year: 2016<br />Median Household Income: $60260<br />Margin of error: ± $1049","Year: 2015<br />Median Household Income: $56826<br />Margin of error: ± $895"],"mode":"markers+lines","error_y":{"color":"rgba(68,1,84,0.5)","array":[118,563,1322,94,425]},"type":"scatter","name":"Cincinnati, OH-KY-IN","marker":{"color":"rgba(68,1,84,0.5)","line":{"color":"rgba(68,1,84,1)"}},"textfont":{"color":"rgba(68,1,84,0.5)"},"error_x":{"color":"rgba(68,1,84,0.5)"},"line":{"color":"rgba(68,1,84,0.5)"},"xaxis":"x","yaxis":"y","frame":null},{"x":["2019","2018","2017","2016","2015"],"y":[58642,56111,54021,52334,51075],"text":["Year: 2019<br />Median Household Income: $58642<br />Margin of error: ± $563","Year: 2018<br />Median Household Income: $56111<br />Margin of error: ± $425","Year: 2017<br />Median Household Income: $54021<br />Margin of error: ± $411","Year: 2016<br />Median Household Income: $52334<br />Margin of error: ± $275","Year: 2015<br />Median Household Income: $51075<br />Margin of error: ± $233"],"mode":"markers+lines","error_y":{"color":"rgba(33,144,141,0.5)","array":[1087,86,411,967,115]},"type":"scatter","name":"Ohio","marker":{"color":"rgba(33,144,141,0.5)","line":{"color":"rgba(33,144,141,1)"}},"textfont":{"color":"rgba(33,144,141,0.5)"},"error_x":{"color":"rgba(33,144,141,0.5)"},"line":{"color":"rgba(33,144,141,0.5)"},"xaxis":"x","yaxis":"y","frame":null},{"x":["2019","2018","2017","2016","2015"],"y":[65712,61937,60336,57617,55775],"text":["Year: 2019<br />Median Household Income: $65712<br />Margin of error: ± $118","Year: 2018<br />Median Household Income: $61937<br />Margin of error: ± $94","Year: 2017<br />Median Household Income: $60336<br />Margin of error: ± $86","Year: 2016<br />Median Household Income: $57617<br />Margin of error: ± $115","Year: 2015<br />Median Household Income: $55775<br />Margin of error: ± $85"],"mode":"markers+lines","error_y":{"color":"rgba(253,231,37,0.5)","array":[275,1049,85,233,895]},"type":"scatter","name":"United States","marker":{"color":"rgba(253,231,37,0.5)","line":{"color":"rgba(253,231,37,1)"}},"textfont":{"color":"rgba(253,231,37,0.5)"},"error_x":{"color":"rgba(253,231,37,0.5)"},"line":{"color":"rgba(253,231,37,0.5)"},"xaxis":"x","yaxis":"y","frame":null}],"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.2,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":[]}</script>
+<p>Ohio around Cincinnati,KY,IN have the higher income compare to other part of Ohio and US.</p>
+<p><br></p>
 <p><strong>Income and drug overdose death percent by year</strong></p>
 <pre class="r"><code>OHincome_drug_df = 
   Ohio_death %&gt;% 
   ungroup() %&gt;% 
   group_by(year) %&gt;% 
   summarize(overdose_death_rate = sum(number_of_drug_overdose_deaths)/sum(number_of_deaths)) %&gt;% 
-  inner_join(., OH_income_df %&gt;% filter(geography %in% &quot;Ohio&quot;))</code></pre>
-<pre><code>## Joining, by = &quot;year&quot;</code></pre>
-<pre class="r"><code>year_death = 
+  inner_join(., OH_income_df %&gt;% filter(geography %in% &quot;Ohio&quot;))
+
+year_death = 
   OHincome_drug_df %&gt;% 
   ggplot(aes(x = year, y = overdose_death_rate, group = NA))+
   geom_point()+
@@ -577,40 +592,19 @@ smooth =
   geom_point()+
   geom_smooth(method = &quot;lm&quot;, se = FALSE, color = &quot;royalblue4&quot;)
 (year_death + income_year)/smooth</code></pre>
-<pre><code>## `geom_smooth()` using formula &#39;y ~ x&#39;</code></pre>
 <p><img src="Ohio_data_analyzing_files/figure-html/unnamed-chunk-12-1.png" width="90%" /></p>
-<p><strong>OH Drug Map</strong></p>
-<pre class="r"><code>oh_county_df = 
-  read_csv(&quot;./data/NCHS_-_Drug_Poisoning_Mortality_by_County__United_States.csv&quot;) %&gt;% 
-  janitor::clean_names() %&gt;% 
-  filter(state %in% &quot;Ohio&quot;) %&gt;% 
-  select(year, county, population, death_rate = model_based_death_rate) %&gt;% 
-  separate(county, into = c(&quot;county&quot;, &quot;useless&quot;), sep = &quot; County&quot;) %&gt;% 
-  select(-useless) %&gt;% 
-  mutate(year = factor(year),
-         county = str_to_lower(county)) %&gt;% 
-  relocate(county)
-oh_county_df</code></pre>
-<pre><code>## # A tibble: 1,408 × 4
-##    county year  population death_rate
-##    &lt;chr&gt;  &lt;fct&gt;      &lt;dbl&gt;      &lt;dbl&gt;
-##  1 adams  2003       28111       17.1
-##  2 adams  2004       28328       18.0
-##  3 adams  2005       28522       21.3
-##  4 adams  2006       28615       23.0
-##  5 adams  2007       28538       22.8
-##  6 adams  2008       28686       25.2
-##  7 adams  2009       28500       26.4
-##  8 adams  2010       28559       25.2
-##  9 adams  2011       28473       26.2
-## 10 adams  2012       28309       29.3
-## # … with 1,398 more rows</code></pre>
+<p>From graph income VS drug overdose we can find that higher drug overdose rate have association with higher income.</p>
+<p><br><br></p>
+</div>
+<div id="oh-drug-map" class="section level2">
+<h2>OH Drug Map</h2>
 <pre class="r"><code>data(county.fips)
 abc = county.fips %&gt;% 
   separate(polyname, into = c(&quot;state&quot;, &quot;county&quot;), sep = &quot;\\,&quot;) %&gt;% 
   filter(state %in% &quot;ohio&quot;) %&gt;% 
   select(-state) %&gt;% 
   as_tibble()</code></pre>
+<p>We can see that the highest death rate occur in south Ohio across the years. From the income graph, OH around Cincinnati,KY,IN have the higher income compare to other part of Ohio, which is close to the region have higher death rate.</p>
 <div id="counties-change-5-yr-interval" class="section level3 tabset">
 <h3 class="tabset">Counties change, 5-yr interval</h3>
 <div id="section" class="section level4">
@@ -630,7 +624,7 @@ start_county_df %&gt;%
                      legend = &quot;death_rate&quot;)+
   highlight_county(start_county_df[which.max(pull(start_county_df, death_rate)),])+
   add_text_county(start_county_df[which.max(pull(start_county_df, death_rate)),])</code></pre>
-<p><img src="Ohio_data_analyzing_files/figure-html/unnamed-chunk-16-1.png" width="90%" /></p>
+<p><img src="Ohio_data_analyzing_files/figure-html/unnamed-chunk-15-1.png" width="90%" /></p>
 </div>
 <div id="section-1" class="section level4">
 <h4>2008</h4>
@@ -648,7 +642,7 @@ start_county_df %&gt;%
                      legend = &quot;death_rate&quot;)+
   highlight_county(start_county_df[which.max(pull(start_county_df, death_rate)),])+
   add_text_county(start_county_df[which.max(pull(start_county_df, death_rate)),])</code></pre>
-<p><img src="Ohio_data_analyzing_files/figure-html/unnamed-chunk-17-1.png" width="90%" /></p>
+<p><img src="Ohio_data_analyzing_files/figure-html/unnamed-chunk-16-1.png" width="90%" /></p>
 </div>
 <div id="section-2" class="section level4">
 <h4>2013</h4>
@@ -668,11 +662,11 @@ start_county_df %&gt;%
                      legend = &quot;death_rate&quot;)+
   highlight_county(start_county_df[which.max(pull(start_county_df, death_rate)),])+
   add_text_county(start_county_df[which.max(pull(start_county_df, death_rate)),])</code></pre>
-<p><img src="Ohio_data_analyzing_files/figure-html/unnamed-chunk-18-1.png" width="90%" /></p>
+<p><img src="Ohio_data_analyzing_files/figure-html/unnamed-chunk-17-1.png" width="90%" /></p>
 </div>
 <div id="section-3" class="section level4">
 <h4>2018</h4>
-<p><img src="Ohio_data_analyzing_files/figure-html/unnamed-chunk-19-1.png" width="90%" /></p>
+<p><img src="Ohio_data_analyzing_files/figure-html/unnamed-chunk-18-1.png" width="90%" /></p>
 </div>
 </div>
 </div>

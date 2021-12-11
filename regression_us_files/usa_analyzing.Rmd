@@ -1,0 +1,288 @@
+---
+title: "USA Drug Overdoes Analyzing"
+output: 
+  html_document:
+    code_folding: hide
+    toc: true
+    toc_float: true
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(readxl)
+library(plotly)
+library(rvest)
+library(httr)
+library(gganimate)
+
+knitr::opts_chunk$set(
+	echo = TRUE,
+	warning = FALSE,
+	fig.width = 8, 
+  fig.height = 6,
+  out.width = "90%"
+)
+options(
+  ggplot2.continuous.colour = "viridis",
+  ggplot2.continuous.fill = "viridis"
+)
+
+scale_colour_discrete = scale_colour_viridis_d
+scale_fill_discrete = scale_fill_viridis_d
+
+theme_set(theme_minimal() + theme(legend.position = "bottom"))
+```
+Our project intends to identify the factors that are associated with drug overdose and drug overdose death. We first performed a visual analysis using the national drug overdose death data. <br>
+
+An overview of the Top 20 states with the highest drug overdose death from 2015-2021:
+
+<style>
+img {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+</style>
+<img src="./images/animation.gif">
+
+```{r, eval = FALSE}
+# Codes for the animation above. Set eval=FALSE. 
+# Run previously and save as a gif a head of time to save loading time
+data_2 = 
+  sum_df %>% 
+  group_by(year, month) %>% 
+  arrange(year, month, -number_of_drug_overdose_deaths) %>% 
+  mutate(rank = 1:n(),
+         month = match(month, month.name),
+         date = str_c(year,"-",month),
+         date = as.Date(paste(date, "-01", sep =''))) %>% 
+  filter(rank<=20)
+
+my_plot = 
+  data_2 %>% 
+  ggplot()+
+  aes(xmin = 0,
+      xmax = number_of_drug_overdose_deaths) +
+  aes(ymin = rank - 0.45,
+      ymax = rank + 0.45,
+      y = rank) +
+  facet_wrap(~ date) +
+  geom_rect(alpaha = 0.7) +
+  aes(fill = state_name)+
+  scale_fill_viridis_d(option = "magma",
+                       direction = -1) +
+  scale_x_continuous(
+    limits = c(-1000, 12000),
+    breaks = c(-1000, 0, 3000, 6000,9000,12000)
+  )+
+  geom_text(col = "darkblue",
+            hjust = "right",
+            aes(label = state_name),
+            x = -100)+
+  geom_text(col = "darkblue",
+            hjust = "right",
+            aes(label = paste(number_of_drug_overdose_deaths),x=12000))+
+  scale_y_reverse()+
+  labs(fill = NULL)+
+  labs(x = "Death cases")+
+  labs(y = "States")+
+  theme(legend.position = "none")
+
+p = my_plot + 
+  facet_null()+
+  geom_text(x = 8000, y = -20,
+            family = "Times",
+            aes(label = as.character(date)),
+            size = 10, col = "black")+
+  aes(group = state_name)+
+  transition_time(date)
+
+#animate(p, nframes=350,fps=5,width=1000)
+gif = animate(p,nframes = 700, fps=15,width=1000,height=700,
+              renderer = gifski_renderer())
+gif
+anim_save("animation.gif", animation = gif)
+```
+
+It's an amuse bouche to start our exploration of the drug overdose topic. 
+
+
+## Data cleaning
+
+ - We've found that instead of having the usual 50 states, Washington DC, and New York City, the data set also contains data for the whole US. We choose to focus on the 52 jurisdictions (including the 50 states, DC, and NYC) at first.
+
+```{r message = FALSE, warning=FALSE}
+drug_overdose = read_csv("./data/VSRR_Provisional_Drug_Overdose_Death_Counts.csv") %>% 
+  janitor::clean_names()
+
+unique(pull(drug_overdose, state))
+ 
+# contains 50 states, Washington DC, whole US, and the City of New York.
+```
+
+
+
+### Tidy data:
+```{r message = FALSE, warning=FALSE}
+state_level = c(state.name[1:8], "District of Columbia", state.name[9:32],"New York City", state.name[33:50])
+drug_overdose_52 = 
+  drug_overdose %>% 
+  filter(!(state_name %in% c("United States"))) %>% 
+  relocate(state_name) %>% 
+  mutate(month = factor(month, levels = month.name), # change month and year to factor
+         year = factor(year),
+         state_name = factor(state_name, levels = state_level)) %>% 
+  arrange(state_name) %>% 
+  group_by(state_name, year) %>% 
+  mutate(month = sort(month)) # sort by month order
+```
+
+ - Since the dataset mostly doesn't have the death count values for specific types of drug overdose, for this dataset, we only choose the data_value with indicator of `Number of Deaths`, `Percent with drugs specified`, and `Number of Drug Overdose Deaths`.
+ 
+```{r message = FALSE, warning=FALSE}
+drug_overdose_death = 
+  drug_overdose_52 %>% 
+  select(-c( footnote_symbol, percent_complete, period, percent_pending_investigation, predicted_value)) %>% 
+  filter(indicator %in% c("Number of Deaths", "Percent with drugs specified", "Number of Drug Overdose Deaths"))
+```
+  - `Number of Drug Overdose Deaths` is predicted since the `Percent with drugs specified` is not 100%. 
+  
+  
+### Footnote Categorization: 
+```{r message = FALSE, warning=FALSE}
+#unique(pull(drug_overdose_51, footnote))
+drug_overdose_52 = 
+  drug_overdose_52 %>%
+  mutate(low_data_quality = ifelse(str_detect(footnote, "low data quality"), 1, 0), # data_value not shown, predicted yes?
+         suppressed = ifelse(str_detect(footnote, "suppressed"), 1, 0),
+         underreported = ifelse(str_detect(footnote, "Underreported"), 1, 0)) %>% 
+  relocate(footnote, .after = last_col())
+```
+  
+
+## Analysis by drug 
+ - In order to analyze the number of deaths in each state and the trend with time according to the type of drug, we only keep the data with the drug label(T4...) in the indicator column in the table. And we found that there are 9 states missing the specific each drug type deaths counts data: Alabama, Arkansas, Florida, Idaho, Louisiana, Minnesota, Nebraska, North Dakota, Pennsylvania.
+
+
+```{r message = FALSE, warning=FALSE}
+drug_categories = 
+  drug_overdose_52 %>%
+  ungroup() %>% 
+  select(-c(state, footnote_symbol, percent_complete, period, percent_pending_investigation, footnote, predicted_value)) %>% 
+  filter(str_detect(indicator, "T4"))
+knitr::kable(drug_categories[1:3,])
+
+
+# missing states' data:
+miss_states = 
+  drug_overdose_52 %>% 
+  ungroup() %>% 
+  select(state_name) %>%
+  unique() %>% 
+  filter(!(state_name %in% drug_categories$state_name))
+knitr::kable(miss_states)
+
+drug_type_plot = 
+  drug_overdose %>% 
+  filter(state %in% c("US")) %>% 
+  filter(!(indicator %in% c("Number of Deaths", "Number of Drug Overdose Deaths", "Percent with drugs specified")))%>% 
+  relocate(state) %>% 
+  mutate(month = factor(month, levels = month.name), # change month and year to factor
+         year = factor(year)) %>% 
+  arrange(state) %>% 
+  group_by(state, year) %>% 
+  mutate(month = sort(month)) %>% 
+  ggplot(aes(x = month, y = data_value,color = indicator)) +
+  geom_point()+
+  scale_x_discrete(labels = month.abb)+
+  facet_grid(~year)+
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1))
+
+drug_gplt = plotly_build(drug_type_plot) %>% 
+  layout(legend = list(orientation = "h"))
+name_change = c("T40.5", "T40.1", "T40.3", "T40.2","T40.2, T40.3", 
+                "T40.2-T40.4", "T40.0-T40.4,T40.6","T43.6", "T40.4")
+name_index = c(1,8,15,22,29,36,43,50,57)
+for (i in name_index){
+  drug_gplt$x$data[[i]]$name = name_change[which(name_index == i)]
+}
+
+drug_gplt
+
+```
+ - This is a graph based on the drug type. The legends in this picture represent different drug types caused deaths. However, some charts may contain the code of more than one drug. This is because the death of the patient is caused by a mixture of multiple drugs. This means that the increase in mortality may be due to the use of multiple drugs with opioids.<br>
+ - It can be clearly seen that most of the deaths caused by drugs have shown an upward trend with the increase of years. And the number of deaths caused by overdose of opioids has been ranked first during 2015-2021. This is because opioids are alkaloids and derivatives extracted from poppy. On the one hand, it has a good analgesic effect, on the other hand, it is also addictive and drug resistant.  And due to the insufficient control of opioids by the US government, opioids have become heroin substitutes when addicts cannot get drugs. However, the deaths of methadone have been in a slow-down trend. This may be because Methadone require a prescription from a doctor to get them, and thus has always shown a low mortality rate.
+
+
+## Trend of drug overdoes deaths rate:
+2015 vs. 2021<br>
+The plot shows the trend of drug overdoes deaths rate in 2015 and 2021 <br>
+ - This picture mainly compares the difference between the death rates of various states in 2015 and 2021. The purple line represents 2015 and the yellow line represents 2021. From the figure, we can see that the death rate of each state in 2021 is greater than 2015, and the District of Columbia changes are particularly obvious.
+```{r message = FALSE, warning=FALSE}
+sum_df = 
+  drug_overdose_death %>% 
+  ungroup() %>% 
+  filter(indicator %in%  c("Number of Deaths", "Number of Drug Overdose Deaths")) %>% 
+  select(state_name, year, month, indicator, deaths = data_value) %>% 
+  pivot_wider(
+    names_from = indicator,
+    values_from = deaths
+  ) %>% 
+  janitor::clean_names() 
+plot_df = sum_df %>% 
+  group_by(state_name, year, month) %>% 
+  ungroup() %>% 
+  group_by(state_name, year) %>% 
+  summarize(number_of_total_deaths = sum(number_of_deaths),
+            number_of_total_drug_deaths = sum(number_of_drug_overdose_deaths)) %>% 
+  mutate(percent_overdose_death = number_of_total_drug_deaths / number_of_total_deaths) %>% 
+  filter(year == c(2015, 2020)) %>% 
+  ungroup()
+
+p = ggplot(data = plot_df, aes(x = percent_overdose_death, y=reorder(state_name, percent_overdose_death)))+
+  geom_line(aes(group = state_name), alpha = 0.5)+
+  geom_point(aes(color = year), alpha = 0.6, size = 4)
+ggplotly(p)
+```
+
+## By year/month: 
+
+### Which states have highest death in each year
+ - In 2015, top three high deaths state are: California, Ohio, Texas <br>
+ - In 2016, top three high deaths state are: Florida, Pennsylvania, California <br>
+ - In 2017, top three high deaths state are: Ohio, California, Florida <br>
+ - In 2018, top three high deaths state are: Florida, Pennsylvania, California <br>
+ - In 2019, top three high deaths state are: Florida, Pennsylvania, California <br>
+ - In 2020, top three high deaths state are: California, Ohio, Florida  <br>
+
+ Because our dataset is provisional, the data for 2021 is not yet complete. From the figure, we can see that the data for some states are missing, so we will not analyze it here.
+```{r message = FALSE, warning=FALSE}
+overview_year = 
+  drug_overdose %>% 
+  filter(indicator == c("Number of Deaths", "Number of Drug Overdose Deaths")) %>% 
+  select("state", "year", "month", "indicator", "data_value") %>% 
+  filter(!(state == "US")) %>% 
+  filter(str_detect(indicator, "Drug Overdose Deaths")) %>% 
+  group_by(state, year, indicator) %>% 
+  summarize(data_value = sum(data_value)) 
+ 
+  
+overview_year_plot = 
+  overview_year %>% 
+   ggplot(aes(x = year, y = data_value, color = state)) +
+  geom_point() +
+  geom_line()+
+  theme_set(theme_minimal() + theme(legend.position = "bottom"))
+ggplotly(overview_year_plot)
+```
+
+In order to further and more accurately study the trend of drug overdose in the United States, we obtained the three states with the highest number of deaths each year by mapping the total number of deaths of drug overdose in each state from 2015 to 2021. At the same time, according to the geographic location of each state, the regions of the United States represented by California, Florida, NYC, and Ohio were selected for a more detailed analysis.
+
+ 
+
+
+
+
+
+ 
+ 

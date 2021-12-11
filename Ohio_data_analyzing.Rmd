@@ -1,13 +1,14 @@
 ---
-title: "Ohio_data_analyzing"
+title: "Ohio Data analyzing"
 output: 
   html_document:
     code_folding: hide
     toc: true
     toc_float: true
 ---
+**Import the Libraries and Data Cleaning**
 
-```{r message=FALSE, echo = FALSE}
+```{r message=FALSE, include=FALSE}
 library(tidyverse)
 library(rvest)
 library(httr)
@@ -40,7 +41,6 @@ scale_fill_discrete = scale_fill_viridis_d
 theme_set(theme_minimal() + theme(legend.position = "bottom"))
 ```
 
-## Import and Clean data ##
 
 ```{r message = FALSE}
 drug_overdose = read_csv("./data/VSRR_Provisional_Drug_Overdose_Death_Counts.csv") %>% 
@@ -86,9 +86,9 @@ predicted_deathrate_bycounty =
          state %in% "New York")
 ```
 
-## Ohio part:
 
-```{r}
+
+```{r message = FALSE}
 Ohio_death = 
   drug_overdose_52 %>% 
   filter(state_name %in% "Ohio",
@@ -107,7 +107,7 @@ mutate(year = factor(year))
  
 ```
 
-**By drug type**
+## By Drug Type
 
 
 ```{r message=FALSE}
@@ -125,55 +125,66 @@ ggplot(Ohio_df, aes(x = indicator, y = data_value, fill = indicator)) +
     caption = "Data comes from VSRR_Provisional_Drug_Overdose_Death_Counts dataset."
   ) 
 ```
+From this graph we can see that highest drug overdose death for Ohio is caused by  Cocaine and Synthetic opioids,methadone . The following Drug Categories cause high overdose death is opioids.
 
+<br><br>
 
+## By Year
 
-**By year**
+```{r message=FALSE, out.width='100%'}
+oh_death_by_year = 
+  drug_overdose_52 %>% 
+  filter(state_name %in% c("Ohio")) %>% 
+  ungroup() %>% 
+  select(year, month, indicator, data_value) %>% 
+  filter(indicator %in% c("Number of Deaths", "Number of Drug Overdose Deaths")) %>% 
+  pivot_wider(
+    names_from = indicator,
+    values_from = data_value
+  ) %>% 
+  janitor::clean_names() %>% 
+  group_by(year, month) %>% 
+  mutate(
+    percent_overdose_death = number_of_drug_overdose_deaths / number_of_deaths
+  )
 
-
-```{r message=FALSE}
-death_by_year = 
-  drug_overdose_death %>% 
-  filter(state_name %in% c("Ohio"), 
-         indicator %in% c("Number of Deaths") )
-
-ggplot(death_by_year, aes(x = month, y = data_value, group = year, color = year)) +
-    labs(title = "") + 
-    geom_line() + 
-    geom_point() +
-    theme(plot.title = element_text(hjust = 0.5)) +
-    scale_x_discrete(labels = c("Psychostimulants \n with abuse potential \n (T43.6)", "Methadone \n (T40.3)", "Natural & \n semi-synthetic  \n opioids \n (T40.2)", "Natural & semi-\n synthetic opioids, \n incl. methadone \n (T40.2, T40.3)", "Heroin \n (T40.1)", "Cocaine \n (T40.5)", "Synthetic opioids, \n excl. \n methadone \n (T40.4)", "Natural, \n semi-synthetic, & \n synthetic opioids, \n incl. methadone \n (T40.2-T40.4)", "Opioids \n (T40.0-T40.4,\n T40.6)")) +
-  guides(fill = guide_legend(nrow = 6, byrow = TRUE)) +
-    labs(
-      title = "Number of Drug Overdose Deaths with Drug Categories by Year in Ohio",
-      x = "Month",
-      y = "Number of Drug Overdose Deaths",
-    caption = "Data comes from VSRR_Provisional_Drug_Overdose_Death_Counts dataset between 2015 and 2021."
+oh_death_by_year %>%
+  ungroup() %>% 
+  ggplot(aes(x = month, y = percent_overdose_death, color = year)) +
+  geom_point() +
+  geom_line(aes(group = year)) +
+  labs(
+    title = "Percent of Drug Overdose Deaths over Total Number of Deaths by Year in OH",
+    x = "Months",
+    y = "Percent of Drug Overdose Deaths",
+    caption = "Data comes from VSRR_Provisional_Drug_Overdose_Death_Counts dataset from 2015 to 2021)."
   )
 ```
+In the graph of Drug Overdose Deaths with Drug Categories by Year, I can observe that year 2017 have higher number of drug overdose death than other years.
 
-**Each month Death Within a Year**
+
 
 ```{r message=FALSE}
-death_by_year = 
-  drug_overdose_death %>% 
-  filter(state_name %in% c("Ohio"), 
-         indicator %in% c("Number of Deaths") )
-
-ggplot(death_by_year, aes(x = month, y = data_value, group = year, color = year)) +
-    labs(title = "") + 
-    geom_line() + 
-    geom_point() +
-    facet_grid(.~year) +
-  
-    labs(
-      title = "Number of Drug Overdose Deaths with Drug Categories by Year in CA",
-      x = "Month",
-      y = "Number of Drug Overdose Deaths",
-    caption = "Data comes from VSRR_Provisional_Drug_Overdose_Death_Counts dataset between 2015 and 2021."
+oh_death_by_year %>%
+  ungroup() %>% 
+  ggplot(aes(x = month, y = percent_overdose_death, group = NA, color = year)) +
+  geom_point() +
+  geom_line() +
+  facet_grid(.~ year) +
+  labs(
+    title = "Percent of Drug Overdose Deaths over Total Number of Deaths by Year in OH",
+    x = "Months",
+    y = "Percent of Drug Overdose Deaths",
+    caption = "Data comes from VSRR_Provisional_Drug_Overdose_Death_Counts dataset from 2015 to 2021."
   ) +
-    theme(axis.text.x = element_text(angle = 90, hjust = 1)) 
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) 
 ```
+
+In the graph of Each month Drug Overdose Death Within a Year, we are able to see the trend changing of drug overdose in continuous years. The highest percentage of drug overdose death is 2017. There is increase percentage of cause drug overdose death in 2020 which is by the COVID-19.
+
+<br><br>
+
+## Drug ~ Year
 
 ```{r message=FALSE, echo = FALSE}
   Ohio_df %>%
@@ -191,8 +202,36 @@ ggplot(death_by_year, aes(x = month, y = data_value, group = year, color = year)
 ```
 
 
-**Number of death vs median household income**
+In the graph of Number of Drug Overdose Deaths with Drug Categories by Year, we can see that drug overdose death in Ohio keep increasing over the years with Heroin, Opioids, Synthetic Opioids.Since we miss data from 2015-2018, so we just include 2019-2021 in this graph.
 
+<br><br>
+
+## By Age and Race
+
+```{r message=FALSE}
+ca_death_by_age = 
+  read_csv("./data/agegroup_race_state_year_99-19.csv") %>%
+  janitor::clean_names() %>% 
+  select(state, year, ten_year_age_groups, race, deaths, population) %>% 
+  filter(state %in% c("Ohio")) %>% 
+  mutate(year = factor(year),
+         crude_rate = deaths/population * 100000)
+  
+ca_death_by_age %>% 
+  mutate(ten_year_age_groups = gsub("years", "", ten_year_age_groups)) %>% 
+  ggplot(aes(x = ten_year_age_groups , y = crude_rate, fill = race)) + 
+  geom_boxplot(alpha = 0.5)+
+  facet_grid(~race)+
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.4, hjust = 1))
+```
+
+Overdose death with Drug Categories by Age and Race shows that black or African American people in Ohio among age 55-64 have highest drug overdose death rate. White people in Ohio among age 35-44 have highest drug overdose death rate.
+
+<br><br>
+
+## Income
+
+**Number of death vs median household income**
 
 ```{r message=FALSE}
 OH_income_df = 
@@ -215,31 +254,12 @@ OH_income_df %>%
          yaxis = list(title = "Median Household Income"))
 ```
 
-**Overdose death by age**
+Ohio around Cincinnati,KY,IN have the higher income compare to other part of Ohio and US.
 
-```{r message=FALSE}
-ca_death_by_age = 
-  read_csv("./data/agegroup_race_state_year_99-19.csv") %>%
-  janitor::clean_names() %>% 
-  select(state, year, ten_year_age_groups, race, deaths, population) %>% 
-  filter(state %in% c("Ohio")) %>% 
-  mutate(year = factor(year),
-         crude_rate = deaths/population * 100000)
-  
-ca_death_by_age %>% 
-  mutate(ten_year_age_groups = gsub("years", "", ten_year_age_groups)) %>% 
-  ggplot(aes(x = ten_year_age_groups , y = crude_rate, fill = race)) + 
-  geom_boxplot(alpha = 0.5)+
-  facet_grid(~race)+
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.4, hjust = 1))
-```
-
-
-## Income
+<br>
 
 **Income and drug overdose death percent by year**
-
-```{r}
+```{r message=FALSE}
 OHincome_drug_df = 
   Ohio_death %>% 
   ungroup() %>% 
@@ -266,11 +286,13 @@ smooth =
 (year_death + income_year)/smooth
 ```
 
+From graph income VS drug overdose we can find that higher drug overdose rate have association with higher income.
 
+<br><br>
 
-**OH Drug Map** 
+## OH Drug Map 
 
-```{r message=FALSE}
+```{r message=FALSE, warning=FALSE,echo=FALSE}
 oh_county_df = 
   read_csv("./data/NCHS_-_Drug_Poisoning_Mortality_by_County__United_States.csv") %>% 
   janitor::clean_names() %>% 
@@ -281,10 +303,7 @@ oh_county_df =
   mutate(year = factor(year),
          county = str_to_lower(county)) %>% 
   relocate(county)
-oh_county_df
-```
 
-```{r, message=FALSE, warning=FALSE,echo=FALSE}
 highlight_county = function(county_fips)
 {
   data(county.map, package="choroplethrMaps", envir=environment())
@@ -306,6 +325,9 @@ abc = county.fips %>%
   select(-state) %>% 
   as_tibble()
 ```
+
+We can see that the highest death rate occur in south Ohio across the years. From the income graph, OH around Cincinnati,KY,IN have the higher income compare to other part of Ohio, which is close to the region have higher death rate. 
+
 
 ### Counties change, 5-yr interval{.tabset}
 
