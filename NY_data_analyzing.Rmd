@@ -8,7 +8,6 @@ output:
     toc: true
     toc_float: true
 ---
-
 ## Data cleaning
 
 ```{r setup, include=FALSE}
@@ -19,6 +18,7 @@ library(viridis)
 library(dplyr)
 library(plotly)
 library(readr)
+library(patchwork)
 library(maps)
 library(choroplethr)
 library(choroplethrMaps)
@@ -73,7 +73,9 @@ drug_percent_specified =
 # Percent with drugs specified	for each month from 2015-2021 are high enough, all above 98%
 ```
 
-## Number of Drug Overdose Deaths by Drug Categories in NYC
+## NYC Part:
+
+**Number of Drug Overdose Deaths by Drug Categories in NYC**
 
 ```{r}
 nyc_df %>% 
@@ -111,7 +113,7 @@ summarize_nyc_drug %>%
   )
 ```
 
-## Percent of Drug Overdose Deaths over Total Number of Deaths by Year in NYC: 
+**Percent of Drug Overdose Deaths over Total Number of Deaths by Year in NYC**
 
 ```{r}
 nyc_drug_overdose_death_df =
@@ -146,7 +148,7 @@ nyc_drug_overdose_death_df %>%
 ```{r}
 nyc_drug_overdose_death_df %>%
   ungroup() %>% 
-  ggplot(aes(x = month, y = percent_overdose_death, group = NA)) +
+  ggplot(aes(x = month, y = percent_overdose_death, group = NA, color = year)) +
   geom_point() +
   geom_line() +
   facet_grid(.~ year) +
@@ -160,7 +162,7 @@ nyc_drug_overdose_death_df %>%
 
 ```
 
-## Number of Drug Overdose Deaths with Drug Categories by Year in NYC
+**Number of Drug Overdose Deaths with Drug Categories by Year in NYC**
 
 ```{r}
 summarize_nyc_drug %>% 
@@ -177,7 +179,7 @@ summarize_nyc_drug %>%
   )
 ```
 
-## Median Household Income: New York vs. The U.S
+**Median Household Income: New York vs. The U.S**
 
 ```{r}
 ny_eco_df = 
@@ -203,6 +205,34 @@ ny_eco_df %>%
          yaxis = list(title = "Median Household Income"))
 ```
 
+**age-adjusted drug overdose death rate by race**
+
+```{r}
+ny_drugoverdose_death_by_age = 
+  read_csv("./data/ny_agegroup_race_state_year_99-19.csv") %>%
+  janitor::clean_names() %>%
+  #filter(year == (2015:2019)) %>% 
+  mutate(county = str_replace(county, " County, NY", ""),
+         ten_year_age_groups = gsub("years", "", ten_year_age_groups)) %>% 
+  select(county, year, ten_year_age_groups, race, deaths, population) %>% 
+  filter(str_detect(county, "Bronx|Queens|Kings|New York|Richmond")) %>% 
+  mutate(year = factor(year),
+         crude_rate = deaths/population * 100000) %>% 
+  group_by(race)
+
+ny_drugoverdose_death_by_age %>% 
+  ggplot(aes(x = ten_year_age_groups, y = crude_rate, fill = county)) +
+  geom_boxplot(outlier.shape = NA, alpha = 0.5) +
+  facet_grid(~race) +
+  labs(
+    title = "Age-Adjusted Drug Overdose Mortality Rate by Race in NYC",
+    x = "Age Groups",
+    y = "Age-Adjusted Mortality Rate \n(per 100,000)",
+    caption = "Source: NYC drug overdose death counts from CDC, 2015-2019"
+  )
+
+```
+
 ## Income vs. Percent of Drug Overdose Death by Year in NYC
 
 ```{r}
@@ -213,15 +243,40 @@ income_drug_df_ny =
     summarize(overdose_death_rate = sum(number_of_drug_overdose_deaths)/sum(number_of_deaths)) %>% 
     inner_join(., ny_eco_df %>% filter(geography %in% "New York City"))
 
-income_drug_df_ny %>% 
-  ggplot(aes(x = household_income_by_race, y = overdose_death_rate, group = NA, color = year)) +
+year_death = 
+  income_drug_df_ny %>% 
+  ggplot(aes(x = year, y = overdose_death_rate, group = NA)) +
   geom_point() +
   geom_line() +
+  ggtitle('Drug Overdose Death Rate by Year') +
   labs(
-    title = "Income vs. Percent of Drug Overdose Death by Year in NYC",
-    x = "Household Income by Race",
-    y = "Percent of Drug Overdose Death"
+    x = "Year",
+    y = "Overdose Death Rate"
   )
+
+income_year = 
+  income_drug_df_ny %>% 
+  ggplot(aes(x = year, y = household_income_by_race, group = NA)) +
+  geom_point() +
+  geom_line() +
+  ggtitle('Income by Year') +
+  labs(
+    x = "Year",
+    y = "Household Income"
+  )
+
+smooth = 
+  income_drug_df_ny %>% 
+  ggplot(aes(x = household_income_by_race, y = overdose_death_rate, group = NA)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE, color = "royalblue4") +
+  ggtitle('Drug Overdose Death Rate vs. Income') +
+   labs(
+    x = "Household Income",
+    y = "Overdose Death Rate"
+  )
+
+(year_death + income_year)/smooth
 ```
 
 ### Map of NYC Counties Drug Overdose Deathrate Change, 5-yr interval{.tabset}
@@ -240,9 +295,8 @@ ny_county_df =
   filter(str_detect(county, "bronx|queens|kings|new york|richmond")) %>% 
   mutate(county = str_replace(county, " $", "")) %>% 
   relocate(county)
-ny_county_df
-```
 
+```
 ```{r}
 data(county.fips)
 nyc_fip = county.fips %>% 
@@ -255,7 +309,6 @@ nyc_fip = county.fips %>%
 
 ny_county_df = left_join(ny_county_df,nyc_fip, by = "county")
 ```
-
 ```{r}
 highlight_county = function(county_fips)
 {
@@ -292,7 +345,7 @@ add_text_county(start_county_df[which.max(pull(start_county_df, death_rate)),])
 ```
 
 #### 2008
-```{r, message=FALSE, warning=FALSE, echo=FALSE}
+```{r, message=FALSE, warning=FALSE}
 year_select = 2008
 start_county_df = ny_county_df %>% 
   select(county, year, death_rate, fips) %>% 
@@ -312,7 +365,7 @@ add_text_county(start_county_df[which.max(pull(start_county_df, death_rate)),])
 ```
 
 #### 2013
-```{r, message=FALSE, warning=FALSE, echo=FALSE}
+```{r, message=FALSE, warning=FALSE}
 year_select = 2013
 start_county_df = ny_county_df %>% 
   select(county, year, death_rate, fips) %>% 
@@ -350,5 +403,6 @@ county_choropleth(start_deathrate_df, title = "Drug Overdose Death Rates of Coun
 highlight_county(start_county_df[which.max(pull(start_county_df, death_rate)),]) +
 add_text_county(start_county_df[which.max(pull(start_county_df, death_rate)),])
 ```
+
 
 Back to [homepage](index.html)
