@@ -6,8 +6,8 @@ output:
 <body background="images/drug_opc.jpg">
 </body>
 <body>
-<h1>**Drug Overdose Across the US States**</h1>
-<h3>Map and explore drug overdose facts in the US across years</h3>
+<h2>**Prevention Better than Cure: Drug Overdose Deaths in US**</h2>
+<h3>Map and explore drug overdose deaths in the US jurisdictions across years</h3>
 <h4>*Jinghan Liu | Paula Wu | Yuxuan Chen | Yuan Meng | Yijia Chen*</h4>
 </body>
 <br>
