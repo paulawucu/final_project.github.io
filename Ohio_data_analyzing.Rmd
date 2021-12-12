@@ -125,7 +125,7 @@ ggplot(Ohio_df, aes(x = indicator, y = data_value, fill = indicator)) +
     caption = "Data comes from VSRR_Provisional_Drug_Overdose_Death_Counts dataset."
   ) 
 ```
-From this graph we can see that highest drug overdose death for Ohio is caused by  Cocaine and Synthetic opioids,methadone . The following Drug Categories cause high overdose death is opioids.
+From this graph we can see that highest drug overdose death for Ohio is caused by Cocaine, Synthetic opioids and opioids.
 
 <br><br>
 
@@ -160,7 +160,7 @@ oh_death_by_year %>%
     caption = "Data comes from VSRR_Provisional_Drug_Overdose_Death_Counts dataset from 2015 to 2021)."
   )
 ```
-In the graph of Drug Overdose Deaths with Drug Categories by Year, I can observe that year 2017 have higher number of drug overdose death than other years.
+In the graph of Drug Overdose Deaths with Drug Categories by Year, we observe that year 2017 have highest number of drug overdose death than other years.
 
 
 
@@ -180,7 +180,7 @@ oh_death_by_year %>%
   theme(axis.text.x = element_text(angle = 90, hjust = 1)) 
 ```
 
-In the graph of Each month Drug Overdose Death Within a Year, we are able to see the trend changing of drug overdose in continuous years. The highest percentage of drug overdose death is 2017. There is increase percentage of cause drug overdose death in 2020 which is by the COVID-19.
+In the graph of Each month Drug Overdose Death Within a Year, we are able to see the trend changing of drug overdose in continuous years. The highest percentage of drug overdose death is 2017. There is increase percentage of cause drug overdose death in 2020 which is cause by the COVID-19.
 
 <br><br>
 
@@ -202,7 +202,7 @@ In the graph of Each month Drug Overdose Death Within a Year, we are able to see
 ```
 
 
-In the graph of Number of Drug Overdose Deaths with Drug Categories by Year, we can see that drug overdose death in Ohio keep increasing over the years with Heroin, Opioids, Synthetic Opioids.Since we miss data from 2015-2018, so we just include 2019-2021 in this graph.
+In the graph of Number of Drug Overdose Deaths with Drug Categories by Year, we can see that drug overdose death in Ohio keep increasing over 2019-2021 with specific drug types like Heroin, Opioids and Synthetic Opioids. Since we miss data from 2015-2018, so we just include 2019-2021 in this graph.
 
 <br><br>
 
@@ -254,7 +254,7 @@ OH_income_df %>%
          yaxis = list(title = "Median Household Income"))
 ```
 
-Ohio around Cincinnati,KY,IN have the higher income compare to other part of Ohio and US.
+Ohio around Cincinnati, Kentucky, Indiana have the higher income compare to other part of Ohio and US.
 
 <br>
 
@@ -326,7 +326,8 @@ abc = county.fips %>%
   as_tibble()
 ```
 
-We can see that the highest death rate occur in south Ohio across the years. From the income graph, OH around Cincinnati,KY,IN have the higher income compare to other part of Ohio, which is close to the region have higher death rate. 
+
+Our drug map shows that highest death rate occur in south Ohio region, which is close to the region have higher income in Ohio. This finding can imply the association between high income and high drug overdose death rate. 
 
 
 ### Counties change, 5-yr interval{.tabset}

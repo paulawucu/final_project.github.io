@@ -372,13 +372,7 @@ div.tocify {
   <a href="regression_us.html">Regression</a>
 </li>
 <li>
-  <a href="food.html">Facts About</a>
-</li>
-<li>
-  <a href="mailto:pw2551@cumc.columbia.edu">
-    <span class="fa fa-envelope fa-lg"></span>
-     
-  </a>
+  <a href="fact.html">Facts About</a>
 </li>
 <li>
   <a href="https://github.com/paulawucu/final_project">
@@ -511,7 +505,7 @@ population_us =
     population = as.numeric(B01003_001E)
   ) %&gt;% 
 select(state, population)</code></pre>
-<p><strong>Education Rate:</strong> The education data is from <a href="https://data.census.gov/cedsci/">United States Census Bureau</a>. We imported the date for fifty states and Washington D.C. from 2015 - 2019. It contains the number of population with different education level. We consider bachelor’s education as the threshold of “high education”. Therefore, we sum-up the number of people who has a bachelor or above degree. Then, we take an average of the number for 5 years. And the education rate can be calculated by dividing the high-educated population with the total population. Here education rate means that the proportion of population who receive bachelor’s or higher education.</p>
+<p><strong>Education Rate:</strong> The education data is from <a href="https://data.census.gov/cedsci/">United States Census Bureau</a>. We imported the data for fifty states and Washington D.C. from 2015 - 2019. It contains the number of population with different education level. We consider bachelor’s education as the threshold of “high education”. Therefore, we sum-up the number of people who has a bachelor or above degree. Then, we take an average of the number for 5 years. And the education rate can be calculated by dividing the high-educated population with the total population. Here education rate means that the proportion of population who receive bachelor’s or higher education.</p>
 <pre class="r"><code>## load the education data from 2015-2019
 
 education_2015 =
@@ -700,7 +694,7 @@ unemployment_overall =
   mutate(sum_of_rows = rowSums((unemployment_overall[,2:6]), na.rm = TRUE),
          mean_unemployment_rate = 0.01 * sum_of_rows/5) %&gt;% 
   select(state, mean_unemployment_rate)</code></pre>
-<p><strong>Crude Divorce Rate:</strong> The divorce data is from <a href="https://data.census.gov/cedsci/">United States Census Bureau</a>. We imported the date for fifty states and Washington D.C. from 2015 - 2019. It contains the number of population who divorce with their partners. We take an average of the number for 5 years. And the crude divorce rate can be calculated by dividing the divorced population with the total population.</p>
+<p><strong>Crude Divorce Rate:</strong> The divorce data is from <a href="https://data.census.gov/cedsci/">United States Census Bureau</a>. We imported the data for fifty states and Washington D.C. from 2015 - 2019. It contains the number of population who divorce with their partners. We take an average of the number for 5 years. And the crude divorce rate can be calculated by dividing the divorced population with the total population.</p>
 <pre class="r"><code>## load the divorce count data from 2015-2019
 
 divorce_2015 =
@@ -708,9 +702,12 @@ divorce_2015 =
 
 divorce_2015 = 
   divorce_2015[-1,] %&gt;% 
-  select(NAME, B12503_001E) %&gt;% 
+  select(NAME, B12503_004E, B12503_009E) %&gt;% 
   mutate(
-    divorce_num_2015 = as.numeric(B12503_001E),
+    B12503_004E = as.numeric(B12503_004E),
+    B12503_009E = as.numeric(B12503_009E),
+    num_divorce = B12503_004E + B12503_009E,
+    divorce_num_2015 = as.numeric(num_divorce),
     state = NAME
   ) %&gt;% 
   select(state, divorce_num_2015)
@@ -721,9 +718,12 @@ divorce_2016 =
 
 divorce_2016 = 
   divorce_2016[-1,] %&gt;% 
-  select(NAME, B12503_001E) %&gt;% 
+  select(NAME, B12503_004E, B12503_009E) %&gt;% 
   mutate(
-    divorce_num_2016 = as.numeric(B12503_001E),
+    B12503_004E = as.numeric(B12503_004E),
+    B12503_009E = as.numeric(B12503_009E),
+    num_divorce = B12503_004E + B12503_009E,
+    divorce_num_2016 = as.numeric(num_divorce),
     state = NAME
   ) %&gt;% 
   select(state, divorce_num_2016)
@@ -734,9 +734,12 @@ divorce_2017 =
 
 divorce_2017 = 
   divorce_2017[-1,] %&gt;% 
-  select(NAME, B12503_001E) %&gt;% 
+  select(NAME, B12503_004E, B12503_009E) %&gt;% 
   mutate(
-    divorce_num_2017 = as.numeric(B12503_001E),
+    B12503_004E = as.numeric(B12503_004E),
+    B12503_009E = as.numeric(B12503_009E),
+    num_divorce = B12503_004E + B12503_009E,
+    divorce_num_2017 = as.numeric(num_divorce),
     state = NAME
   ) %&gt;% 
   select(state, divorce_num_2017)
@@ -747,9 +750,12 @@ divorce_2018 =
 
 divorce_2018 = 
   divorce_2018[-1,] %&gt;% 
-  select(NAME, B12503_001E) %&gt;% 
+  select(NAME, B12503_004E, B12503_009E) %&gt;% 
   mutate(
-    divorce_num_2018 = as.numeric(B12503_001E),
+    B12503_004E = as.numeric(B12503_004E),
+    B12503_009E = as.numeric(B12503_009E),
+    num_divorce = B12503_004E + B12503_009E,
+    divorce_num_2018 = as.numeric(num_divorce),
     state = NAME
   ) %&gt;% 
   select(state, divorce_num_2018)
@@ -760,9 +766,12 @@ divorce_2019 =
 
 divorce_2019 = 
   divorce_2019[-1,] %&gt;% 
-  select(NAME, B12503_001E) %&gt;% 
+  select(NAME, B12503_004E, B12503_009E) %&gt;% 
   mutate(
-    divorce_num_2019 = as.numeric(B12503_001E),
+    B12503_004E = as.numeric(B12503_004E),
+    B12503_009E = as.numeric(B12503_009E),
+    num_divorce = B12503_004E + B12503_009E,
+    divorce_num_2019 = as.numeric(num_divorce),
     state = NAME
   ) %&gt;% 
   select(state, divorce_num_2019)
@@ -860,7 +869,7 @@ overall_regression_view %&gt;% head(10) %&gt;% knitr::kable(caption = &quot;The 
 <td align="left">Alabama</td>
 <td align="right">0.2270304</td>
 <td align="right">0.136</td>
-<td align="right">0.8151100</td>
+<td align="right">0.5606409</td>
 <td align="right">0.0598</td>
 <td align="right">0.1718737</td>
 <td align="right">0.1696</td>
@@ -870,7 +879,7 @@ overall_regression_view %&gt;% head(10) %&gt;% knitr::kable(caption = &quot;The 
 <td align="left">Alaska</td>
 <td align="right">0.2663021</td>
 <td align="right">0.182</td>
-<td align="right">0.7901922</td>
+<td align="right">0.5173449</td>
 <td align="right">0.0722</td>
 <td align="right">0.1932690</td>
 <td align="right">0.1046</td>
@@ -880,7 +889,7 @@ overall_regression_view %&gt;% head(10) %&gt;% knitr::kable(caption = &quot;The 
 <td align="left">Arizona</td>
 <td align="right">0.2960310</td>
 <td align="right">0.165</td>
-<td align="right">0.8070829</td>
+<td align="right">0.5365614</td>
 <td align="right">0.0594</td>
 <td align="right">0.1959374</td>
 <td align="right">0.1524</td>
@@ -890,7 +899,7 @@ overall_regression_view %&gt;% head(10) %&gt;% knitr::kable(caption = &quot;The 
 <td align="left">Arkansas</td>
 <td align="right">0.2089063</td>
 <td align="right">0.149</td>
-<td align="right">0.8054663</td>
+<td align="right">0.5776714</td>
 <td align="right">0.0516</td>
 <td align="right">0.1530968</td>
 <td align="right">0.1722</td>
@@ -900,7 +909,7 @@ overall_regression_view %&gt;% head(10) %&gt;% knitr::kable(caption = &quot;The 
 <td align="left">California</td>
 <td align="right">0.1640786</td>
 <td align="right">0.183</td>
-<td align="right">0.8119989</td>
+<td align="right">0.5099043</td>
 <td align="right">0.0606</td>
 <td align="right">0.2273319</td>
 <td align="right">0.1350</td>
@@ -910,7 +919,7 @@ overall_regression_view %&gt;% head(10) %&gt;% knitr::kable(caption = &quot;The 
 <td align="left">Colorado</td>
 <td align="right">0.2309491</td>
 <td align="right">0.196</td>
-<td align="right">0.8134724</td>
+<td align="right">0.5524384</td>
 <td align="right">0.0434</td>
 <td align="right">0.2791094</td>
 <td align="right">0.1034</td>
@@ -920,7 +929,7 @@ overall_regression_view %&gt;% head(10) %&gt;% knitr::kable(caption = &quot;The 
 <td align="left">Connecticut</td>
 <td align="right">0.4042932</td>
 <td align="right">0.177</td>
-<td align="right">0.8321996</td>
+<td align="right">0.5388083</td>
 <td align="right">0.0604</td>
 <td align="right">0.2712121</td>
 <td align="right">0.1006</td>
@@ -930,7 +939,7 @@ overall_regression_view %&gt;% head(10) %&gt;% knitr::kable(caption = &quot;The 
 <td align="left">Delaware</td>
 <td align="right">0.6017141</td>
 <td align="right">0.189</td>
-<td align="right">0.6596654</td>
+<td align="right">0.4362088</td>
 <td align="right">0.0542</td>
 <td align="right">0.2215250</td>
 <td align="right">0.1230</td>
@@ -940,7 +949,7 @@ overall_regression_view %&gt;% head(10) %&gt;% knitr::kable(caption = &quot;The 
 <td align="left">District of Columbia</td>
 <td align="right">0.8842317</td>
 <td align="right">0.272</td>
-<td align="right">0.8416479</td>
+<td align="right">0.3632256</td>
 <td align="right">0.0692</td>
 <td align="right">0.4124074</td>
 <td align="right">0.1644</td>
@@ -950,7 +959,7 @@ overall_regression_view %&gt;% head(10) %&gt;% knitr::kable(caption = &quot;The 
 <td align="left">Florida</td>
 <td align="right">0.2746527</td>
 <td align="right">0.180</td>
-<td align="right">0.8358681</td>
+<td align="right">0.5690009</td>
 <td align="right">0.0564</td>
 <td align="right">0.2120040</td>
 <td align="right">0.1414</td>
@@ -991,7 +1000,7 @@ overall_regression_view %&gt;% head(10) %&gt;% knitr::kable(caption = &quot;The 
 <td align="left">Length:51</td>
 <td align="left">Min. :0.1182</td>
 <td align="left">Min. :0.1200</td>
-<td align="left">Min. :0.6597</td>
+<td align="left">Min. :0.3632</td>
 <td align="left">Min. :0.02740</td>
 <td align="left">Min. :0.1449</td>
 <td align="left">Min. :0.0762</td>
@@ -1002,7 +1011,7 @@ overall_regression_view %&gt;% head(10) %&gt;% knitr::kable(caption = &quot;The 
 <td align="left">Class :character</td>
 <td align="left">1st Qu.:0.2057</td>
 <td align="left">1st Qu.:0.1653</td>
-<td align="left">1st Qu.:0.8043</td>
+<td align="left">1st Qu.:0.5256</td>
 <td align="left">1st Qu.:0.04270</td>
 <td align="left">1st Qu.:0.1873</td>
 <td align="left">1st Qu.:0.1092</td>
@@ -1013,7 +1022,7 @@ overall_regression_view %&gt;% head(10) %&gt;% knitr::kable(caption = &quot;The 
 <td align="left">Mode :character</td>
 <td align="left">Median :0.2710</td>
 <td align="left">Median :0.1865</td>
-<td align="left">Median :0.8143</td>
+<td align="left">Median :0.5497</td>
 <td align="left">Median :0.05320</td>
 <td align="left">Median :0.2061</td>
 <td align="left">Median :0.1306</td>
@@ -1024,7 +1033,7 @@ overall_regression_view %&gt;% head(10) %&gt;% knitr::kable(caption = &quot;The 
 <td align="left">NA</td>
 <td align="left">Mean :0.3015</td>
 <td align="left">Mean :0.1858</td>
-<td align="left">Mean :0.8110</td>
+<td align="left">Mean :0.5441</td>
 <td align="left">Mean :0.05128</td>
 <td align="left">Mean :0.2153</td>
 <td align="left">Mean :0.1321</td>
@@ -1035,7 +1044,7 @@ overall_regression_view %&gt;% head(10) %&gt;% knitr::kable(caption = &quot;The 
 <td align="left">NA</td>
 <td align="left">3rd Qu.:0.3561</td>
 <td align="left">3rd Qu.:0.2010</td>
-<td align="left">3rd Qu.:0.8223</td>
+<td align="left">3rd Qu.:0.5649</td>
 <td align="left">3rd Qu.:0.05900</td>
 <td align="left">3rd Qu.:0.2357</td>
 <td align="left">3rd Qu.:0.1502</td>
@@ -1046,7 +1055,7 @@ overall_regression_view %&gt;% head(10) %&gt;% knitr::kable(caption = &quot;The 
 <td align="left">NA</td>
 <td align="left">Max. :0.8842</td>
 <td align="left">Max. :0.2720</td>
-<td align="left">Max. :0.8478</td>
+<td align="left">Max. :0.6018</td>
 <td align="left">Max. :0.07460</td>
 <td align="left">Max. :0.4124</td>
 <td align="left">Max. :0.2038</td>
@@ -1073,10 +1082,11 @@ overall_regression_view %&gt;% head(10) %&gt;% knitr::kable(caption = &quot;The 
   chart.Correlation(histogram = TRUE, method = &quot;pearson&quot;)</code></pre>
 <p><img src="regression_us_files/figure-html/correlation_table-1.png" width="90%" /></p>
 <p><em>Comments:</em></p>
-<p>For those variables that are strongly correlated with each other, we add their interaction into the regression model for further analysis.</p>
+<p>For those variables that are strongly correlated (***) with each other, we add their interaction into the regression model for further analysis.</p>
 <p>Two-ways interaction we consider:</p>
 <ol style="list-style-type: decimal">
 <li><p>binge_drink_rate * education_rate</p></li>
+<li><p>divorce_rate * education_rate</p></li>
 <li><p>mean_unemployment_rate * mean_poverty_rate</p></li>
 <li><p>education_rate * mean_poverty_rate</p></li>
 <li><p>education_rate * mean_smoke_rate</p></li>
@@ -1087,14 +1097,14 @@ overall_regression_view %&gt;% head(10) %&gt;% knitr::kable(caption = &quot;The 
 <h2>Regression Modeling</h2>
 <p><strong>Method:</strong></p>
 <p>The initial full model for crude death rate consists of all possible predictors and reasonable interaction.</p>
-<p><em>Model_full:</em> crudedeath_rate ~ binge_drink_rate + divorce_rate + mean_unemployment_rate + education_rate + mean_poverty_rate + mean_smoke_rate + binge_drink_rate * education_rate + mean_unemployment_rate * mean_poverty_rate + education_rate * mean_poverty_rate + education_rate * mean_smoke_rate + mean_poverty_rate * mean_smoke_rate</p>
+<p><em>Model_full:</em> crudedeath_rate ~ binge_drink_rate + divorce_rate + mean_unemployment_rate + education_rate + mean_poverty_rate + mean_smoke_rate + binge_drink_rate * education_rate + mean_unemployment_rate * mean_poverty_rate + education_rate * mean_poverty_rate + education_rate * mean_smoke_rate + mean_poverty_rate * mean_smoke_rate + divorce_rate * education_rate</p>
 <p>Here we are going to use two modeling method and try to generate a better regression model to explain crude death rate.</p>
 <div id="stepwise-modeling" class="section level3">
 <h3>Stepwise Modeling</h3>
 <pre class="r"><code>stepwise = 
-  step(lm(crudedeath_rate ~ binge_drink_rate + divorce_rate + mean_unemployment_rate + education_rate + mean_poverty_rate + mean_smoke_rate + binge_drink_rate * education_rate + mean_unemployment_rate * mean_poverty_rate + education_rate * mean_poverty_rate + education_rate * mean_smoke_rate + mean_poverty_rate * mean_smoke_rate, data = overall_regression),direction = &quot;both&quot;, trace = 0)</code></pre>
+  step(lm(crudedeath_rate ~ binge_drink_rate + divorce_rate + mean_unemployment_rate + education_rate + mean_poverty_rate + mean_smoke_rate + binge_drink_rate * education_rate + mean_unemployment_rate * mean_poverty_rate + education_rate * mean_poverty_rate + education_rate * mean_smoke_rate + mean_poverty_rate * mean_smoke_rate + divorce_rate * education_rate, data = overall_regression),direction = &quot;both&quot;, trace = 0)</code></pre>
 <p>Based on the stepwise results, the best model is model_1.</p>
-<p><strong>Model_1:</strong> crudedeath_rate ~ binge_drink_rate + divorce_rate + mean_unemployment_rate + education_rate + mean_poverty_rate + mean_smoke_rate + binge_drink_rate:education_rate.</p>
+<p><strong>Model_1:</strong> crudedeath_rate ~ binge_drink_rate + divorce_rate + mean_unemployment_rate + education_rate + mean_poverty_rate + mean_smoke_rate + mean_poverty_rate:mean_smoke_rate + divorce_rate:education_rate</p>
 <p>This model can be described in the following parameter:</p>
 <pre class="r"><code>summary(stepwise) %&gt;% broom::tidy() %&gt;% knitr::kable()</code></pre>
 <table>
@@ -1110,59 +1120,66 @@ overall_regression_view %&gt;% head(10) %&gt;% knitr::kable(caption = &quot;The 
 <tbody>
 <tr class="odd">
 <td align="left">(Intercept)</td>
-<td align="right">1.0862671</td>
-<td align="right">0.6386930</td>
-<td align="right">1.7007656</td>
-<td align="right">0.0963811</td>
+<td align="right">-0.1823514</td>
+<td align="right">0.7988419</td>
+<td align="right">-0.2282697</td>
+<td align="right">0.8205712</td>
 </tr>
 <tr class="even">
 <td align="left">binge_drink_rate</td>
-<td align="right">-5.0101976</td>
-<td align="right">1.9933174</td>
-<td align="right">-2.5134972</td>
-<td align="right">0.0158762</td>
+<td align="right">-0.9643137</td>
+<td align="right">0.6718818</td>
+<td align="right">-1.4352432</td>
+<td align="right">0.1588030</td>
 </tr>
 <tr class="odd">
 <td align="left">divorce_rate</td>
-<td align="right">-0.8038224</td>
-<td align="right">0.5669148</td>
-<td align="right">-1.4178894</td>
-<td align="right">0.1636001</td>
+<td align="right">1.1058355</td>
+<td align="right">1.4478464</td>
+<td align="right">0.7637795</td>
+<td align="right">0.4493718</td>
 </tr>
 <tr class="even">
 <td align="left">mean_unemployment_rate</td>
-<td align="right">4.3611925</td>
-<td align="right">1.9917000</td>
-<td align="right">2.1896834</td>
-<td align="right">0.0341538</td>
+<td align="right">3.1693281</td>
+<td align="right">2.1249877</td>
+<td align="right">1.4914571</td>
+<td align="right">0.1434962</td>
 </tr>
 <tr class="odd">
 <td align="left">education_rate</td>
-<td align="right">-1.8449213</td>
-<td align="right">2.1508996</td>
-<td align="right">-0.8577441</td>
-<td align="right">0.3959022</td>
+<td align="right">6.4472365</td>
+<td align="right">2.3587499</td>
+<td align="right">2.7333277</td>
+<td align="right">0.0092123</td>
 </tr>
 <tr class="even">
 <td align="left">mean_poverty_rate</td>
-<td align="right">-1.3177944</td>
-<td align="right">0.9920769</td>
-<td align="right">-1.3283188</td>
-<td align="right">0.1912459</td>
+<td align="right">-5.7853504</td>
+<td align="right">3.0285863</td>
+<td align="right">-1.9102478</td>
+<td align="right">0.0631129</td>
 </tr>
 <tr class="odd">
 <td align="left">mean_smoke_rate</td>
-<td align="right">2.0074717</td>
-<td align="right">0.6351739</td>
-<td align="right">3.1605074</td>
-<td align="right">0.0029198</td>
+<td align="right">-1.0370218</td>
+<td align="right">2.3260266</td>
+<td align="right">-0.4458340</td>
+<td align="right">0.6580627</td>
 </tr>
 <tr class="even">
-<td align="left">binge_drink_rate:education_rate</td>
-<td align="right">19.5408814</td>
-<td align="right">8.8477530</td>
-<td align="right">2.2085700</td>
-<td align="right">0.0327154</td>
+<td align="left">mean_poverty_rate:mean_smoke_rate</td>
+<td align="right">23.4829679</td>
+<td align="right">15.8225164</td>
+<td align="right">1.4841488</td>
+<td align="right">0.1454173</td>
+</tr>
+<tr class="odd">
+<td align="left">divorce_rate:education_rate</td>
+<td align="right">-9.4598001</td>
+<td align="right">4.9459427</td>
+<td align="right">-1.9126384</td>
+<td align="right">0.0627972</td>
 </tr>
 </tbody>
 </table>
@@ -1182,13 +1199,13 @@ overall_regression_view %&gt;% head(10) %&gt;% knitr::kable(caption = &quot;The 
 </thead>
 <tbody>
 <tr class="odd">
-<td align="right">0.5775355</td>
-<td align="right">0.5071248</td>
-<td align="right">0.101727</td>
-<td align="right">8.202378</td>
-<td align="right">2.8e-06</td>
-<td align="right">7</td>
-<td align="right">42</td>
+<td align="right">0.6163078</td>
+<td align="right">0.541441</td>
+<td align="right">0.0981217</td>
+<td align="right">8.23206</td>
+<td align="right">1.4e-06</td>
+<td align="right">8</td>
+<td align="right">41</td>
 <td align="right">50</td>
 </tr>
 </tbody>
@@ -1197,7 +1214,7 @@ overall_regression_view %&gt;% head(10) %&gt;% knitr::kable(caption = &quot;The 
 <div id="regsubset-compare-all-possible-models" class="section level3">
 <h3>Regsubset() Compare All Possible Models</h3>
 <pre class="r"><code>reg_subsets = 
-  regsubsets(crudedeath_rate ~ binge_drink_rate + divorce_rate + mean_unemployment_rate + education_rate + mean_poverty_rate + mean_smoke_rate + binge_drink_rate * education_rate + mean_unemployment_rate * mean_poverty_rate + education_rate * mean_poverty_rate + education_rate * mean_smoke_rate + mean_poverty_rate * mean_smoke_rate, data = overall_regression, nvmax = 11)
+  regsubsets(crudedeath_rate ~ binge_drink_rate + divorce_rate + mean_unemployment_rate + education_rate + mean_poverty_rate + mean_smoke_rate + binge_drink_rate * education_rate + mean_unemployment_rate * mean_poverty_rate + education_rate * mean_poverty_rate + education_rate * mean_smoke_rate + mean_poverty_rate * mean_smoke_rate + divorce_rate * education_rate, data = overall_regression, nvmax = 12)
 
 summary(reg_subsets)</code></pre>
 <p><strong>Method: </strong>This table describes the different statistics value for different number of predictors the model contains. For each number, regsubset() produces the best model and outputs the statistics in the following.</p>
@@ -1211,32 +1228,26 @@ summary(reg_subsets)</code></pre>
 
 cri_measure</code></pre>
 <pre><code>##              cp        r2    adj_r2         BIC
-##  [1,] 20.445661 0.3055733 0.2911061 -10.4093868
-##  [2,] 11.206452 0.4230348 0.3984831 -15.7625966
-##  [3,]  6.025456 0.4980837 0.4653500 -18.8180053
-##  [4,]  4.252493 0.5375151 0.4964054 -18.9969573
-##  [5,]  3.707594 0.5641120 0.5145793 -18.0463581
-##  [6,]  3.253801 0.5897567 0.5325134 -17.1660816
-##  [7,]  4.874002 0.5937260 0.5260137 -13.7401882
-##  [8,]  6.364832 0.5990473 0.5208127 -10.4873898
-##  [9,]  8.056179 0.6022731 0.5127845  -6.9792544
-## [10,] 10.000000 0.6028602 0.5010295  -3.1410960
-## [11,] 12.000000 0.6028602 0.4878987   0.7709268</code></pre>
-<p>Based on <strong>cp</strong> and <strong>adjusted r</strong> square, the “best” model contain six predictors.</p>
-<p><strong>Model_2:</strong> crudedeath_rate ~ mean_poverty_rate + mean_unemployment_rate:mean_poverty_rate + education_rate:mean_poverty_rate + mean_poverty_rate:mean_smoke_rate</p>
+##  [1,] 24.568548 0.3055733 0.2911061 -10.4093868
+##  [2,] 14.151243 0.4277652 0.4034148 -16.1742284
+##  [3,]  6.317893 0.5245299 0.4935210 -21.5244707
+##  [4,]  3.981957 0.5671975 0.5287261 -22.3135710
+##  [5,]  3.236676 0.5942123 0.5481001 -21.6241191
+##  [6,]  3.301372 0.6132566 0.5592924 -20.1155275
+##  [7,]  4.689757 0.6192751 0.5558210 -16.9877323
+##  [8,]  6.326699 0.6228478 0.5492571 -13.5471160
+##  [9,]  7.034735 0.6355613 0.5535626 -11.3496172
+## [10,]  9.007389 0.6358304 0.5424536  -7.4745279
+## [11,] 11.001814 0.6358853 0.5304836  -3.5700381
+## [12,] 13.000000 0.6359031 0.5178176   0.3395343</code></pre>
+<p>Based on <strong>cp</strong>, the “best” model contains five predictors.</p>
+<p><strong>Model_2:</strong> crudedeath_rate ~ binge_drink_rate + education_rate + mean_poverty_rate + mean_poverty_rate:mean_smoke_rate + divorce_rate:education_rate</p>
 <p>This model can be described in the following parameter:</p>
-<pre class="r"><code>model_2 = lm(data = overall_regression, formula = crudedeath_rate ~ mean_poverty_rate + mean_unemployment_rate:mean_poverty_rate + education_rate:mean_poverty_rate + mean_poverty_rate:mean_smoke_rate)
+<pre class="r"><code>model_2 = lm(data = overall_regression, formula = crudedeath_rate ~ binge_drink_rate + education_rate + mean_poverty_rate + mean_poverty_rate:mean_smoke_rate + divorce_rate:education_rate)
 
 
 summary(model_2) %&gt;% broom::tidy() %&gt;% knitr::kable()</code></pre>
 <table>
-<colgroup>
-<col width="50%" />
-<col width="13%" />
-<col width="12%" />
-<col width="12%" />
-<col width="12%" />
-</colgroup>
 <thead>
 <tr class="header">
 <th align="left">term</th>
@@ -1249,38 +1260,45 @@ summary(model_2) %&gt;% broom::tidy() %&gt;% knitr::kable()</code></pre>
 <tbody>
 <tr class="odd">
 <td align="left">(Intercept)</td>
-<td align="right">0.4515386</td>
-<td align="right">0.113453</td>
-<td align="right">3.979962</td>
-<td align="right">0.0002426</td>
+<td align="right">0.3219639</td>
+<td align="right">0.2096655</td>
+<td align="right">1.535607</td>
+<td align="right">0.1317951</td>
+</tr>
+<tr class="even">
+<td align="left">binge_drink_rate</td>
+<td align="right">-1.4348310</td>
+<td align="right">0.5377575</td>
+<td align="right">-2.668175</td>
+<td align="right">0.0106366</td>
+</tr>
+<tr class="odd">
+<td align="left">education_rate</td>
+<td align="right">5.2963056</td>
+<td align="right">0.7760553</td>
+<td align="right">6.824650</td>
+<td align="right">0.0000000</td>
 </tr>
 <tr class="even">
 <td align="left">mean_poverty_rate</td>
-<td align="right">-9.9417459</td>
-<td align="right">1.908559</td>
-<td align="right">-5.209033</td>
-<td align="right">0.0000043</td>
-</tr>
-<tr class="odd">
-<td align="left">mean_poverty_rate:mean_unemployment_rate</td>
-<td align="right">47.3280285</td>
-<td align="right">14.203792</td>
-<td align="right">3.332070</td>
-<td align="right">0.0017075</td>
-</tr>
-<tr class="even">
-<td align="left">mean_poverty_rate:education_rate</td>
-<td align="right">15.3892473</td>
-<td align="right">2.762120</td>
-<td align="right">5.571534</td>
-<td align="right">0.0000013</td>
+<td align="right">-4.1019627</td>
+<td align="right">1.2793286</td>
+<td align="right">-3.206340</td>
+<td align="right">0.0025056</td>
 </tr>
 <tr class="odd">
 <td align="left">mean_poverty_rate:mean_smoke_rate</td>
-<td align="right">17.1090654</td>
-<td align="right">4.248474</td>
-<td align="right">4.027108</td>
-<td align="right">0.0002093</td>
+<td align="right">18.0807105</td>
+<td align="right">4.0391521</td>
+<td align="right">4.476363</td>
+<td align="right">0.0000532</td>
+</tr>
+<tr class="even">
+<td align="left">education_rate:divorce_rate</td>
+<td align="right">-6.7196736</td>
+<td align="right">1.8057116</td>
+<td align="right">-3.721344</td>
+<td align="right">0.0005592</td>
 </tr>
 </tbody>
 </table>
@@ -1300,21 +1318,21 @@ summary(model_2) %&gt;% broom::tidy() %&gt;% knitr::kable()</code></pre>
 </thead>
 <tbody>
 <tr class="odd">
-<td align="right">0.5400631</td>
-<td align="right">0.5000686</td>
-<td align="right">0.1017048</td>
-<td align="right">13.50343</td>
-<td align="right">2e-07</td>
-<td align="right">4</td>
-<td align="right">46</td>
-<td align="right">51</td>
+<td align="right">0.5942123</td>
+<td align="right">0.5481001</td>
+<td align="right">0.0974067</td>
+<td align="right">12.88622</td>
+<td align="right">1e-07</td>
+<td align="right">5</td>
+<td align="right">44</td>
+<td align="right">50</td>
 </tr>
 </tbody>
 </table>
-<p>Based on <strong>BIC</strong>, we get model_3 as the “best” model.</p>
-<p><strong>Model_3:</strong> crudedeath_rate ~ binge_drink_rate + divorce_rate + mean_poverty_rate + binge_drink_rate:education_rate +mean_unemployment_rate:mean_poverty_rate + mean_poverty_rate:mean_smoke_rate</p>
+<p>Based on <strong>adjusted r square</strong>, we get model_3 as the “best” model.</p>
+<p><strong>Model_3:</strong> crudedeath_rate ~ binge_drink_rate + education_rate + mean_poverty_rate + mean_poverty_rate:mean_smoke_rate + divorce_rate:education_rate + mean_unemployment_rate:mean_poverty_rate</p>
 <p>This model can be described in the following parameter:</p>
-<pre class="r"><code>model_3 = lm(data = overall_regression, formula = crudedeath_rate ~ binge_drink_rate + divorce_rate + mean_poverty_rate + binge_drink_rate:education_rate +mean_unemployment_rate:mean_poverty_rate + mean_poverty_rate:mean_smoke_rate)
+<pre class="r"><code>model_3 = lm(data = overall_regression, formula = crudedeath_rate ~ binge_drink_rate + education_rate + mean_poverty_rate + mean_poverty_rate:mean_smoke_rate + divorce_rate:education_rate + mean_unemployment_rate:mean_poverty_rate)
 
 
 summary(model_3) %&gt;% broom::tidy() %&gt;% knitr::kable()</code></pre>
@@ -1338,52 +1356,52 @@ summary(model_3) %&gt;% broom::tidy() %&gt;% knitr::kable()</code></pre>
 <tbody>
 <tr class="odd">
 <td align="left">(Intercept)</td>
-<td align="right">1.3111049</td>
-<td align="right">0.4582567</td>
-<td align="right">2.861071</td>
-<td align="right">0.0064940</td>
+<td align="right">0.3801708</td>
+<td align="right">0.2108814</td>
+<td align="right">1.802771</td>
+<td align="right">0.0784354</td>
 </tr>
 <tr class="even">
 <td align="left">binge_drink_rate</td>
-<td align="right">-3.0906522</td>
-<td align="right">0.8495998</td>
-<td align="right">-3.637774</td>
-<td align="right">0.0007317</td>
+<td align="right">-1.0853390</td>
+<td align="right">0.5828431</td>
+<td align="right">-1.862146</td>
+<td align="right">0.0694250</td>
 </tr>
 <tr class="odd">
-<td align="left">divorce_rate</td>
-<td align="right">-0.9438728</td>
-<td align="right">0.5401661</td>
-<td align="right">-1.747375</td>
-<td align="right">0.0877112</td>
+<td align="left">education_rate</td>
+<td align="right">4.7397334</td>
+<td align="right">0.8565289</td>
+<td align="right">5.533653</td>
+<td align="right">0.0000017</td>
 </tr>
 <tr class="even">
 <td align="left">mean_poverty_rate</td>
-<td align="right">-5.8558173</td>
-<td align="right">1.8504849</td>
-<td align="right">-3.164477</td>
-<td align="right">0.0028517</td>
-</tr>
-<tr class="odd">
-<td align="left">binge_drink_rate:education_rate</td>
-<td align="right">11.7665809</td>
-<td align="right">1.9885416</td>
-<td align="right">5.917191</td>
-<td align="right">0.0000005</td>
-</tr>
-<tr class="even">
-<td align="left">mean_poverty_rate:mean_unemployment_rate</td>
-<td align="right">35.9982332</td>
-<td align="right">15.2759818</td>
-<td align="right">2.356525</td>
-<td align="right">0.0230726</td>
+<td align="right">-5.9904343</td>
+<td align="right">1.8111909</td>
+<td align="right">-3.307456</td>
+<td align="right">0.0019082</td>
 </tr>
 <tr class="odd">
 <td align="left">mean_poverty_rate:mean_smoke_rate</td>
-<td align="right">15.8243553</td>
-<td align="right">3.9971993</td>
-<td align="right">3.958861</td>
-<td align="right">0.0002781</td>
+<td align="right">17.9418971</td>
+<td align="right">3.9899597</td>
+<td align="right">4.496761</td>
+<td align="right">0.0000516</td>
+</tr>
+<tr class="even">
+<td align="left">education_rate:divorce_rate</td>
+<td align="right">-5.9249642</td>
+<td align="right">1.8649682</td>
+<td align="right">-3.176979</td>
+<td align="right">0.0027542</td>
+</tr>
+<tr class="odd">
+<td align="left">mean_poverty_rate:mean_unemployment_rate</td>
+<td align="right">22.6088897</td>
+<td align="right">15.5372534</td>
+<td align="right">1.455141</td>
+<td align="right">0.1528923</td>
 </tr>
 </tbody>
 </table>
@@ -1403,13 +1421,188 @@ summary(model_3) %&gt;% broom::tidy() %&gt;% knitr::kable()</code></pre>
 </thead>
 <tbody>
 <tr class="odd">
-<td align="right">0.5897567</td>
-<td align="right">0.5325134</td>
-<td align="right">0.0990723</td>
-<td align="right">10.30264</td>
-<td align="right">5e-07</td>
+<td align="right">0.6132566</td>
+<td align="right">0.5592924</td>
+<td align="right">0.0961929</td>
+<td align="right">11.36414</td>
+<td align="right">1e-07</td>
 <td align="right">6</td>
 <td align="right">43</td>
+<td align="right">50</td>
+</tr>
+</tbody>
+</table>
+<p>Based on <strong>BIC</strong>, we get model_4 as the “best” model.</p>
+<p><strong>Model_4:</strong> crudedeath_rate ~ binge_drink_rate + education_rate + mean_smoke_rate + divorce_rate:education_rate</p>
+<p>This model can be described in the following parameter:</p>
+<pre class="r"><code>model_4 = lm(data = overall_regression, formula = crudedeath_rate ~ binge_drink_rate + education_rate + mean_smoke_rate + divorce_rate:education_rate)
+
+
+summary(model_4) %&gt;% broom::tidy() %&gt;% knitr::kable()</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="left">term</th>
+<th align="right">estimate</th>
+<th align="right">std.error</th>
+<th align="right">statistic</th>
+<th align="right">p.value</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">(Intercept)</td>
+<td align="right">-0.214375</td>
+<td align="right">0.1768821</td>
+<td align="right">-1.211965</td>
+<td align="right">0.2318510</td>
+</tr>
+<tr class="even">
+<td align="left">binge_drink_rate</td>
+<td align="right">-1.565518</td>
+<td align="right">0.5413276</td>
+<td align="right">-2.891997</td>
+<td align="right">0.0058775</td>
+</tr>
+<tr class="odd">
+<td align="left">education_rate</td>
+<td align="right">4.874933</td>
+<td align="right">0.6976179</td>
+<td align="right">6.987970</td>
+<td align="right">0.0000000</td>
+</tr>
+<tr class="even">
+<td align="left">mean_smoke_rate</td>
+<td align="right">2.212329</td>
+<td align="right">0.5296644</td>
+<td align="right">4.176850</td>
+<td align="right">0.0001339</td>
+</tr>
+<tr class="odd">
+<td align="left">education_rate:divorce_rate</td>
+<td align="right">-5.427036</td>
+<td align="right">1.4483395</td>
+<td align="right">-3.747074</td>
+<td align="right">0.0005074</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code>summary(model_4) %&gt;% broom::glance() %&gt;% knitr::kable()</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="right">r.squared</th>
+<th align="right">adj.r.squared</th>
+<th align="right">sigma</th>
+<th align="right">statistic</th>
+<th align="right">p.value</th>
+<th align="right">df</th>
+<th align="right">df.residual</th>
+<th align="right">nobs</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="right">0.5671975</td>
+<td align="right">0.5287261</td>
+<td align="right">0.0994728</td>
+<td align="right">14.74338</td>
+<td align="right">1e-07</td>
+<td align="right">4</td>
+<td align="right">45</td>
+<td align="right">50</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div id="regression-modeling-without-interaction" class="section level2">
+<h2>Regression Modeling without Interaction</h2>
+<p><strong>Method:</strong></p>
+<p>The initial full model for crude death rate consists of all possible predictors.</p>
+<p><em>Model_full:</em> crudedeath_rate ~ binge_drink_rate + divorce_rate + mean_unemployment_rate + education_rate + mean_poverty_rate + mean_smoke_rate</p>
+<p>Here we are going to use two modeling method and try to generate a better regression model to explain crude death rate.</p>
+<div id="stepwise-modeling-1" class="section level3">
+<h3>Stepwise Modeling</h3>
+<pre class="r"><code>stepwise_no_inter = 
+  step(lm(crudedeath_rate ~ binge_drink_rate + divorce_rate + mean_unemployment_rate + education_rate + mean_poverty_rate + mean_smoke_rate, data = overall_regression),direction = &quot;both&quot;, trace = 0)</code></pre>
+<p>Based on the stepwise results, the best model is model_1.</p>
+<p><strong>Model_5:</strong> crudedeath_rate ~ binge_drink_rate + divorce_rate + education_rate + mean_smoke_rate</p>
+<p><strong>Comment:</strong></p>
+<p>Since the model from regsubset() without considering the interaction is the same as model_5, we will not discuss the details of that method here.</p>
+<p>This model can be described in the following parameter:</p>
+<pre class="r"><code>summary(stepwise_no_inter) %&gt;% broom::tidy() %&gt;% knitr::kable()</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="left">term</th>
+<th align="right">estimate</th>
+<th align="right">std.error</th>
+<th align="right">statistic</th>
+<th align="right">p.value</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">(Intercept)</td>
+<td align="right">0.4646221</td>
+<td align="right">0.3226392</td>
+<td align="right">1.440067</td>
+<td align="right">0.1567697</td>
+</tr>
+<tr class="even">
+<td align="left">binge_drink_rate</td>
+<td align="right">-1.5395071</td>
+<td align="right">0.5520224</td>
+<td align="right">-2.788849</td>
+<td align="right">0.0077258</td>
+</tr>
+<tr class="odd">
+<td align="left">divorce_rate</td>
+<td align="right">-1.5061409</td>
+<td align="right">0.4402422</td>
+<td align="right">-3.421165</td>
+<td align="right">0.0013370</td>
+</tr>
+<tr class="even">
+<td align="left">education_rate</td>
+<td align="right">2.2751208</td>
+<td align="right">0.4591017</td>
+<td align="right">4.955592</td>
+<td align="right">0.0000107</td>
+</tr>
+<tr class="odd">
+<td align="left">mean_smoke_rate</td>
+<td align="right">2.5809509</td>
+<td align="right">0.5356159</td>
+<td align="right">4.818660</td>
+<td align="right">0.0000168</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code>summary(stepwise_no_inter) %&gt;% broom::glance() %&gt;% knitr::kable()</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="right">r.squared</th>
+<th align="right">adj.r.squared</th>
+<th align="right">sigma</th>
+<th align="right">statistic</th>
+<th align="right">p.value</th>
+<th align="right">df</th>
+<th align="right">df.residual</th>
+<th align="right">nobs</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="right">0.5493662</td>
+<td align="right">0.5093098</td>
+<td align="right">0.1015012</td>
+<td align="right">13.71484</td>
+<td align="right">2e-07</td>
+<td align="right">4</td>
+<td align="right">45</td>
 <td align="right">50</td>
 </tr>
 </tbody>
@@ -1418,11 +1611,13 @@ summary(model_3) %&gt;% broom::tidy() %&gt;% knitr::kable()</code></pre>
 </div>
 <div id="cross-validation" class="section level2">
 <h2>Cross Validation</h2>
-<p>We now have three candidates as considered possible “best” model for drug overdose crude death rate:</p>
+<p>We now have five candidates as considered possible “best” model for drug overdose crude death rate:</p>
 <p><em>Model_1:</em> crudedeath_rate ~ binge_drink_rate + divorce_rate + mean_unemployment_rate + education_rate + mean_poverty_rate + mean_smoke_rate + binge_drink_rate:education_rate.</p>
 <p><em>Model_2:</em> crudedeath_rate ~ mean_poverty_rate + mean_unemployment_rate:mean_poverty_rate + education_rate:mean_poverty_rate + mean_poverty_rate:mean_smoke_rate</p>
 <p><em>Model_3:</em> crudedeath_rate ~ binge_drink_rate + divorce_rate + mean_poverty_rate + binge_drink_rate:education_rate +mean_unemployment_rate:mean_poverty_rate + mean_poverty_rate:mean_smoke_rate</p>
-<p>In cross validation process, we are going to compare the cross-validated prediction error for three model and their result with initial full model.</p>
+<p><em>Model_4:</em> crudedeath_rate ~ binge_drink_rate + education_rate + mean_smoke_rate + divorce_rate:education_rate</p>
+<p><em>Model_5:</em> crudedeath_rate ~ binge_drink_rate + divorce_rate + education_rate + mean_smoke_rate</p>
+<p>In cross validation process, we are going to compare the cross-validated prediction error for these five model and their result with initial full model.</p>
 <pre class="r"><code>train_df = sample_n(overall_regression, 41)
 test_df = anti_join(overall_regression, train_df)
 
@@ -1438,12 +1633,16 @@ cv_modeling_df =
     model_1 = map(.x = train, ~lm(crudedeath_rate ~ binge_drink_rate + divorce_rate +  mean_unemployment_rate + education_rate + mean_poverty_rate +  mean_smoke_rate + binge_drink_rate:education_rate, data = .x)),
     model_2 = map(.x = train, ~lm(crudedeath_rate ~ mean_poverty_rate + mean_unemployment_rate:mean_poverty_rate + education_rate:mean_poverty_rate + mean_poverty_rate:mean_smoke_rate, data = .x)),
     model_3 = map(.x = train, ~lm(crudedeath_rate ~ binge_drink_rate + divorce_rate + mean_poverty_rate + binge_drink_rate:education_rate +mean_unemployment_rate:mean_poverty_rate + mean_poverty_rate:mean_smoke_rate, data = .x)),
+    model_4 = map(.x = train, ~lm(crudedeath_rate ~ binge_drink_rate + education_rate + mean_smoke_rate + divorce_rate:education_rate, data = .x)),
+    model_5 = map(.x = train, ~lm(crudedeath_rate ~ binge_drink_rate + divorce_rate + education_rate + mean_smoke_rate, data = .x)),
     model_full = map(.x = train, ~lm(crudedeath_rate ~ binge_drink_rate + divorce_rate + mean_unemployment_rate + education_rate + mean_poverty_rate + mean_smoke_rate + binge_drink_rate * education_rate + mean_unemployment_rate * mean_poverty_rate + education_rate * mean_poverty_rate + education_rate * mean_smoke_rate + mean_poverty_rate * mean_smoke_rate, data = .x))
   ) %&gt;% 
   mutate(
     rmse_model_1 = map2_dbl(.x = model_1, .y = test, ~rmse(model = .x, data = .y)),
     rmse_model_2 = map2_dbl(.x = model_2, .y = test, ~rmse(model = .x, data = .y)),
     rmse_model_3 = map2_dbl(.x = model_3, .y = test, ~rmse(model = .x, data = .y)),
+    rmse_model_4 = map2_dbl(.x = model_4, .y = test, ~rmse(model = .x, data = .y)),
+    rmse_model_5 = map2_dbl(.x = model_5, .y = test, ~rmse(model = .x, data = .y)),
     rmse_model_full = map2_dbl(.x = model_full, .y = test, ~rmse(model = .x, data = .y))
   )
 
@@ -1460,16 +1659,16 @@ cv_modeling_output =
   geom_violin(aes(fill = model), alpha = 0.5)
 
 cv_modeling_output</code></pre>
-<p><img src="regression_us_files/figure-html/unnamed-chunk-17-1.png" width="90%" /></p>
+<p><img src="regression_us_files/figure-html/unnamed-chunk-20-1.png" width="90%" /></p>
 <p><em>Comments:</em></p>
-<p>All three models we select are better than the initial model. Model_1 may be slightly better than other two.</p>
+<p>All five models we select are better than the initial model. Model_5 may be slightly better than other four.</p>
 </div>
 </div>
 <div id="conclusion" class="section level1">
 <h1>Conclusion</h1>
-<p>The better model to explain the variances (from 2015 - 2019) of crude death rate of drug overdose for fifty states and Washington D.C. is model 1.</p>
-<p><strong>Model_1:</strong> crudedeath_rate ~ binge_drink_rate + divorce_rate + mean_unemployment_rate + education_rate + mean_poverty_rate + mean_smoke_rate + binge_drink_rate:education_rate.</p>
-<pre class="r"><code>summary(stepwise) %&gt;% broom::tidy() %&gt;% knitr::kable()</code></pre>
+<p>The better model to explain the variances (from 2015 - 2019) of crude death rate of drug overdose for fifty states and Washington D.C. is model 5.</p>
+<p><strong>Model_5:</strong> crudedeath_rate ~ binge_drink_rate + divorce_rate + education_rate + mean_smoke_rate</p>
+<pre class="r"><code>summary(stepwise_no_inter) %&gt;% broom::tidy() %&gt;% knitr::kable()</code></pre>
 <table>
 <thead>
 <tr class="header">
@@ -1483,64 +1682,43 @@ cv_modeling_output</code></pre>
 <tbody>
 <tr class="odd">
 <td align="left">(Intercept)</td>
-<td align="right">1.0862671</td>
-<td align="right">0.6386930</td>
-<td align="right">1.7007656</td>
-<td align="right">0.0963811</td>
+<td align="right">0.4646221</td>
+<td align="right">0.3226392</td>
+<td align="right">1.440067</td>
+<td align="right">0.1567697</td>
 </tr>
 <tr class="even">
 <td align="left">binge_drink_rate</td>
-<td align="right">-5.0101976</td>
-<td align="right">1.9933174</td>
-<td align="right">-2.5134972</td>
-<td align="right">0.0158762</td>
+<td align="right">-1.5395071</td>
+<td align="right">0.5520224</td>
+<td align="right">-2.788849</td>
+<td align="right">0.0077258</td>
 </tr>
 <tr class="odd">
 <td align="left">divorce_rate</td>
-<td align="right">-0.8038224</td>
-<td align="right">0.5669148</td>
-<td align="right">-1.4178894</td>
-<td align="right">0.1636001</td>
+<td align="right">-1.5061409</td>
+<td align="right">0.4402422</td>
+<td align="right">-3.421165</td>
+<td align="right">0.0013370</td>
 </tr>
 <tr class="even">
-<td align="left">mean_unemployment_rate</td>
-<td align="right">4.3611925</td>
-<td align="right">1.9917000</td>
-<td align="right">2.1896834</td>
-<td align="right">0.0341538</td>
-</tr>
-<tr class="odd">
 <td align="left">education_rate</td>
-<td align="right">-1.8449213</td>
-<td align="right">2.1508996</td>
-<td align="right">-0.8577441</td>
-<td align="right">0.3959022</td>
-</tr>
-<tr class="even">
-<td align="left">mean_poverty_rate</td>
-<td align="right">-1.3177944</td>
-<td align="right">0.9920769</td>
-<td align="right">-1.3283188</td>
-<td align="right">0.1912459</td>
+<td align="right">2.2751208</td>
+<td align="right">0.4591017</td>
+<td align="right">4.955592</td>
+<td align="right">0.0000107</td>
 </tr>
 <tr class="odd">
 <td align="left">mean_smoke_rate</td>
-<td align="right">2.0074717</td>
-<td align="right">0.6351739</td>
-<td align="right">3.1605074</td>
-<td align="right">0.0029198</td>
-</tr>
-<tr class="even">
-<td align="left">binge_drink_rate:education_rate</td>
-<td align="right">19.5408814</td>
-<td align="right">8.8477530</td>
-<td align="right">2.2085700</td>
-<td align="right">0.0327154</td>
+<td align="right">2.5809509</td>
+<td align="right">0.5356159</td>
+<td align="right">4.818660</td>
+<td align="right">0.0000168</td>
 </tr>
 </tbody>
 </table>
-<p><strong>Predictor evaluation:</strong> Binge drink rate, divorce rate, education rate, poverty rate are negatively associated with crude death rate of drug overdose. This means states with the higher value of these predictors may have a lower death rate for drug overdose. Unemployment rate and smoke rate are positively associated with crude death rate of drug overdose. This means that states which have higher prevalence of adult smokers or higher unemployment rate may also have a higher rate of death induced by drug overdose.</p>
-<pre class="r"><code>summary(stepwise) %&gt;% broom::glance() %&gt;% knitr::kable()</code></pre>
+<p><strong>Predictor evaluation:</strong> Binge drink rate and divorce rate are negatively associated with crude death rate of drug overdose. This means states with the higher value of these predictors may have a lower death rate for drug overdose. Education rate and smoke rate are positively associated with crude death rate of drug overdose. This means that states which have higher proportion of population with bachelor’s degree or above, or states with higher prevalence of adult smokers may also have a higher rate of death induced by drug overdose. All four predictors are significant in this models.</p>
+<pre class="r"><code>summary(stepwise_no_inter) %&gt;% broom::glance() %&gt;% knitr::kable()</code></pre>
 <table>
 <thead>
 <tr class="header">
@@ -1556,13 +1734,13 @@ cv_modeling_output</code></pre>
 </thead>
 <tbody>
 <tr class="odd">
-<td align="right">0.5775355</td>
-<td align="right">0.5071248</td>
-<td align="right">0.101727</td>
-<td align="right">8.202378</td>
-<td align="right">2.8e-06</td>
-<td align="right">7</td>
-<td align="right">42</td>
+<td align="right">0.5493662</td>
+<td align="right">0.5093098</td>
+<td align="right">0.1015012</td>
+<td align="right">13.71484</td>
+<td align="right">2e-07</td>
+<td align="right">4</td>
+<td align="right">45</td>
 <td align="right">50</td>
 </tr>
 </tbody>

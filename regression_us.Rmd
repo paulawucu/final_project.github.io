@@ -367,9 +367,12 @@ divorce_2015 =
 
 divorce_2015 = 
   divorce_2015[-1,] %>% 
-  select(NAME, B12503_001E) %>% 
+  select(NAME, B12503_004E, B12503_009E) %>% 
   mutate(
-    divorce_num_2015 = as.numeric(B12503_001E),
+    B12503_004E = as.numeric(B12503_004E),
+    B12503_009E = as.numeric(B12503_009E),
+    num_divorce = B12503_004E + B12503_009E,
+    divorce_num_2015 = as.numeric(num_divorce),
     state = NAME
   ) %>% 
   select(state, divorce_num_2015)
@@ -380,9 +383,12 @@ divorce_2016 =
 
 divorce_2016 = 
   divorce_2016[-1,] %>% 
-  select(NAME, B12503_001E) %>% 
+  select(NAME, B12503_004E, B12503_009E) %>% 
   mutate(
-    divorce_num_2016 = as.numeric(B12503_001E),
+    B12503_004E = as.numeric(B12503_004E),
+    B12503_009E = as.numeric(B12503_009E),
+    num_divorce = B12503_004E + B12503_009E,
+    divorce_num_2016 = as.numeric(num_divorce),
     state = NAME
   ) %>% 
   select(state, divorce_num_2016)
@@ -393,9 +399,12 @@ divorce_2017 =
 
 divorce_2017 = 
   divorce_2017[-1,] %>% 
-  select(NAME, B12503_001E) %>% 
+  select(NAME, B12503_004E, B12503_009E) %>% 
   mutate(
-    divorce_num_2017 = as.numeric(B12503_001E),
+    B12503_004E = as.numeric(B12503_004E),
+    B12503_009E = as.numeric(B12503_009E),
+    num_divorce = B12503_004E + B12503_009E,
+    divorce_num_2017 = as.numeric(num_divorce),
     state = NAME
   ) %>% 
   select(state, divorce_num_2017)
@@ -406,9 +415,12 @@ divorce_2018 =
 
 divorce_2018 = 
   divorce_2018[-1,] %>% 
-  select(NAME, B12503_001E) %>% 
+  select(NAME, B12503_004E, B12503_009E) %>% 
   mutate(
-    divorce_num_2018 = as.numeric(B12503_001E),
+    B12503_004E = as.numeric(B12503_004E),
+    B12503_009E = as.numeric(B12503_009E),
+    num_divorce = B12503_004E + B12503_009E,
+    divorce_num_2018 = as.numeric(num_divorce),
     state = NAME
   ) %>% 
   select(state, divorce_num_2018)
@@ -419,9 +431,12 @@ divorce_2019 =
 
 divorce_2019 = 
   divorce_2019[-1,] %>% 
-  select(NAME, B12503_001E) %>% 
+  select(NAME, B12503_004E, B12503_009E) %>% 
   mutate(
-    divorce_num_2019 = as.numeric(B12503_001E),
+    B12503_004E = as.numeric(B12503_004E),
+    B12503_009E = as.numeric(B12503_009E),
+    num_divorce = B12503_004E + B12503_009E,
+    divorce_num_2019 = as.numeric(num_divorce),
     state = NAME
   ) %>% 
   select(state, divorce_num_2019)
@@ -523,19 +538,21 @@ corr_matrix =
 
 *Comments:*
 
-For those variables that are strongly correlated with each other, we add their interaction into the regression model for further analysis. 
+For those variables that are strongly correlated (***) with each other, we add their interaction into the regression model for further analysis. 
 
 Two-ways interaction we consider:
 
 1. binge_drink_rate * education_rate
 
-2. mean_unemployment_rate * mean_poverty_rate
+2. divorce_rate * education_rate
 
-3. education_rate * mean_poverty_rate
+3. mean_unemployment_rate * mean_poverty_rate
 
-4. education_rate * mean_smoke_rate
+4. education_rate * mean_poverty_rate
 
-5. mean_poverty_rate * mean_smoke_rate
+5. education_rate * mean_smoke_rate
+
+6. mean_poverty_rate * mean_smoke_rate
 
 
 ## Regression Modeling
@@ -544,7 +561,7 @@ Two-ways interaction we consider:
 
 The initial full model for crude death rate consists of all possible predictors and reasonable interaction.
 
-*Model_full:* crudedeath_rate ~ binge_drink_rate + divorce_rate + mean_unemployment_rate + education_rate + mean_poverty_rate + mean_smoke_rate + binge_drink_rate * education_rate + mean_unemployment_rate * mean_poverty_rate + education_rate * mean_poverty_rate + education_rate * mean_smoke_rate + mean_poverty_rate * mean_smoke_rate
+*Model_full:* crudedeath_rate ~ binge_drink_rate + divorce_rate + mean_unemployment_rate + education_rate + mean_poverty_rate + mean_smoke_rate + binge_drink_rate * education_rate + mean_unemployment_rate * mean_poverty_rate + education_rate * mean_poverty_rate + education_rate * mean_smoke_rate + mean_poverty_rate * mean_smoke_rate + divorce_rate * education_rate
 
 Here we are going to use two modeling method and try to generate a better regression model to explain crude death rate.
 
@@ -552,12 +569,12 @@ Here we are going to use two modeling method and try to generate a better regres
 ### Stepwise Modeling
 ```{r, message = FALSE, warning = FALSE}
 stepwise = 
-  step(lm(crudedeath_rate ~ binge_drink_rate + divorce_rate + mean_unemployment_rate + education_rate + mean_poverty_rate + mean_smoke_rate + binge_drink_rate * education_rate + mean_unemployment_rate * mean_poverty_rate + education_rate * mean_poverty_rate + education_rate * mean_smoke_rate + mean_poverty_rate * mean_smoke_rate, data = overall_regression),direction = "both", trace = 0)
+  step(lm(crudedeath_rate ~ binge_drink_rate + divorce_rate + mean_unemployment_rate + education_rate + mean_poverty_rate + mean_smoke_rate + binge_drink_rate * education_rate + mean_unemployment_rate * mean_poverty_rate + education_rate * mean_poverty_rate + education_rate * mean_smoke_rate + mean_poverty_rate * mean_smoke_rate + divorce_rate * education_rate, data = overall_regression),direction = "both", trace = 0)
 
 ```
 Based on the stepwise results, the best model is model_1.
 
-**Model_1:** crudedeath_rate ~ binge_drink_rate + divorce_rate +  mean_unemployment_rate + education_rate + mean_poverty_rate +  mean_smoke_rate + binge_drink_rate:education_rate.
+**Model_1:** crudedeath_rate ~ binge_drink_rate + divorce_rate + mean_unemployment_rate + education_rate + mean_poverty_rate + mean_smoke_rate + mean_poverty_rate:mean_smoke_rate + divorce_rate:education_rate
 
 
 This model can be described in the following parameter:
@@ -571,7 +588,7 @@ summary(stepwise) %>% broom::glance() %>% knitr::kable()
 
 ```{r, message = FALSE, warning = FALSE, results = 'hide'}
 reg_subsets = 
-  regsubsets(crudedeath_rate ~ binge_drink_rate + divorce_rate + mean_unemployment_rate + education_rate + mean_poverty_rate + mean_smoke_rate + binge_drink_rate * education_rate + mean_unemployment_rate * mean_poverty_rate + education_rate * mean_poverty_rate + education_rate * mean_smoke_rate + mean_poverty_rate * mean_smoke_rate, data = overall_regression, nvmax = 11)
+  regsubsets(crudedeath_rate ~ binge_drink_rate + divorce_rate + mean_unemployment_rate + education_rate + mean_poverty_rate + mean_smoke_rate + binge_drink_rate * education_rate + mean_unemployment_rate * mean_poverty_rate + education_rate * mean_poverty_rate + education_rate * mean_smoke_rate + mean_poverty_rate * mean_smoke_rate + divorce_rate * education_rate, data = overall_regression, nvmax = 12)
 
 summary(reg_subsets)
 ```
@@ -590,14 +607,14 @@ cri_measure =
 cri_measure
 ```
 
-Based on **cp** and **adjusted r** square, the "best" model contain six predictors.
+Based on **cp**, the "best" model contains five predictors.
 
-**Model_2:** crudedeath_rate ~ mean_poverty_rate + mean_unemployment_rate:mean_poverty_rate + education_rate:mean_poverty_rate + mean_poverty_rate:mean_smoke_rate
+**Model_2:** crudedeath_rate ~ binge_drink_rate + education_rate + mean_poverty_rate + mean_poverty_rate:mean_smoke_rate + divorce_rate:education_rate
 
 This model can be described in the following parameter:
 
 ```{r}
-model_2 = lm(data = overall_regression, formula = crudedeath_rate ~ mean_poverty_rate + mean_unemployment_rate:mean_poverty_rate + education_rate:mean_poverty_rate + mean_poverty_rate:mean_smoke_rate)
+model_2 = lm(data = overall_regression, formula = crudedeath_rate ~ binge_drink_rate + education_rate + mean_poverty_rate + mean_poverty_rate:mean_smoke_rate + divorce_rate:education_rate)
 
 
 summary(model_2) %>% broom::tidy() %>% knitr::kable()
@@ -605,23 +622,68 @@ summary(model_2) %>% broom::glance() %>% knitr::kable()
 
 ```
 
-Based on **BIC**, we get model_3 as the "best" model.
+Based on **adjusted r square**, we get model_3 as the "best" model.
 
-**Model_3:** crudedeath_rate ~ binge_drink_rate + divorce_rate + mean_poverty_rate + binge_drink_rate:education_rate +mean_unemployment_rate:mean_poverty_rate + mean_poverty_rate:mean_smoke_rate
+**Model_3:** crudedeath_rate ~ binge_drink_rate + education_rate + mean_poverty_rate + mean_poverty_rate:mean_smoke_rate + divorce_rate:education_rate + mean_unemployment_rate:mean_poverty_rate
 
 This model can be described in the following parameter:
 
 ```{r}
-model_3 = lm(data = overall_regression, formula = crudedeath_rate ~ binge_drink_rate + divorce_rate + mean_poverty_rate + binge_drink_rate:education_rate +mean_unemployment_rate:mean_poverty_rate + mean_poverty_rate:mean_smoke_rate)
+model_3 = lm(data = overall_regression, formula = crudedeath_rate ~ binge_drink_rate + education_rate + mean_poverty_rate + mean_poverty_rate:mean_smoke_rate + divorce_rate:education_rate + mean_unemployment_rate:mean_poverty_rate)
 
 
 summary(model_3) %>% broom::tidy() %>% knitr::kable()
 summary(model_3) %>% broom::glance() %>% knitr::kable()
 ```
 
+Based on **BIC**, we get model_4 as the "best" model.
+
+**Model_4:** crudedeath_rate ~ binge_drink_rate + education_rate + mean_smoke_rate + divorce_rate:education_rate
+
+This model can be described in the following parameter:
+
+```{r}
+model_4 = lm(data = overall_regression, formula = crudedeath_rate ~ binge_drink_rate + education_rate + mean_smoke_rate + divorce_rate:education_rate)
+
+
+summary(model_4) %>% broom::tidy() %>% knitr::kable()
+summary(model_4) %>% broom::glance() %>% knitr::kable()
+```
+
+## Regression Modeling without Interaction
+
+**Method:**
+
+The initial full model for crude death rate consists of all possible predictors.
+
+*Model_full:* crudedeath_rate ~ binge_drink_rate + divorce_rate + mean_unemployment_rate + education_rate + mean_poverty_rate + mean_smoke_rate
+
+Here we are going to use two modeling method and try to generate a better regression model to explain crude death rate.
+
+
+### Stepwise Modeling
+```{r, message = FALSE, warning = FALSE}
+stepwise_no_inter = 
+  step(lm(crudedeath_rate ~ binge_drink_rate + divorce_rate + mean_unemployment_rate + education_rate + mean_poverty_rate + mean_smoke_rate, data = overall_regression),direction = "both", trace = 0)
+
+```
+Based on the stepwise results, the best model is model_1.
+
+**Model_5:** crudedeath_rate ~ binge_drink_rate + divorce_rate + education_rate + mean_smoke_rate
+
+**Comment:**
+
+Since the model from regsubset() without considering the interaction is the same as model_5, we will not discuss the details of that method here. 
+
+This model can be described in the following parameter:
+```{r, message = FALSE, warning = FALSE}
+summary(stepwise_no_inter) %>% broom::tidy() %>% knitr::kable()
+summary(stepwise_no_inter) %>% broom::glance() %>% knitr::kable()
+```
+
 
 ## Cross Validation
-We now have three candidates as considered possible "best" model for drug overdose crude death rate:
+We now have five candidates as considered possible "best" model for drug overdose crude death rate:
 
 *Model_1:* crudedeath_rate ~ binge_drink_rate + divorce_rate +  mean_unemployment_rate + education_rate + mean_poverty_rate +  mean_smoke_rate + binge_drink_rate:education_rate.
 
@@ -629,7 +691,11 @@ We now have three candidates as considered possible "best" model for drug overdo
 
 *Model_3:* crudedeath_rate ~ binge_drink_rate + divorce_rate + mean_poverty_rate + binge_drink_rate:education_rate +mean_unemployment_rate:mean_poverty_rate + mean_poverty_rate:mean_smoke_rate
 
-In cross validation process, we are going to compare the cross-validated prediction error for three model and their result with initial full model.
+*Model_4:* crudedeath_rate ~ binge_drink_rate + education_rate + mean_smoke_rate + divorce_rate:education_rate
+
+*Model_5:* crudedeath_rate ~ binge_drink_rate + divorce_rate + education_rate + mean_smoke_rate
+
+In cross validation process, we are going to compare the cross-validated prediction error for these five model and their result with initial full model.
 
 ```{r, message = FALSE, warning = FALSE}
 train_df = sample_n(overall_regression, 41)
@@ -647,12 +713,16 @@ cv_modeling_df =
     model_1 = map(.x = train, ~lm(crudedeath_rate ~ binge_drink_rate + divorce_rate +  mean_unemployment_rate + education_rate + mean_poverty_rate +  mean_smoke_rate + binge_drink_rate:education_rate, data = .x)),
     model_2 = map(.x = train, ~lm(crudedeath_rate ~ mean_poverty_rate + mean_unemployment_rate:mean_poverty_rate + education_rate:mean_poverty_rate + mean_poverty_rate:mean_smoke_rate, data = .x)),
     model_3 = map(.x = train, ~lm(crudedeath_rate ~ binge_drink_rate + divorce_rate + mean_poverty_rate + binge_drink_rate:education_rate +mean_unemployment_rate:mean_poverty_rate + mean_poverty_rate:mean_smoke_rate, data = .x)),
+    model_4 = map(.x = train, ~lm(crudedeath_rate ~ binge_drink_rate + education_rate + mean_smoke_rate + divorce_rate:education_rate, data = .x)),
+    model_5 = map(.x = train, ~lm(crudedeath_rate ~ binge_drink_rate + divorce_rate + education_rate + mean_smoke_rate, data = .x)),
     model_full = map(.x = train, ~lm(crudedeath_rate ~ binge_drink_rate + divorce_rate + mean_unemployment_rate + education_rate + mean_poverty_rate + mean_smoke_rate + binge_drink_rate * education_rate + mean_unemployment_rate * mean_poverty_rate + education_rate * mean_poverty_rate + education_rate * mean_smoke_rate + mean_poverty_rate * mean_smoke_rate, data = .x))
   ) %>% 
   mutate(
     rmse_model_1 = map2_dbl(.x = model_1, .y = test, ~rmse(model = .x, data = .y)),
     rmse_model_2 = map2_dbl(.x = model_2, .y = test, ~rmse(model = .x, data = .y)),
     rmse_model_3 = map2_dbl(.x = model_3, .y = test, ~rmse(model = .x, data = .y)),
+    rmse_model_4 = map2_dbl(.x = model_4, .y = test, ~rmse(model = .x, data = .y)),
+    rmse_model_5 = map2_dbl(.x = model_5, .y = test, ~rmse(model = .x, data = .y)),
     rmse_model_full = map2_dbl(.x = model_full, .y = test, ~rmse(model = .x, data = .y))
   )
 
@@ -673,23 +743,23 @@ cv_modeling_output
 
 *Comments:*
 
-All three models we select are better than the initial model. Model_1 may be slightly better than other two. 
+All five models we select are better than the initial model. Model_5 may be slightly better than other four. 
 
 # Conclusion
 
-The better model to explain the variances (from 2015 - 2019) of crude death rate of drug overdose for fifty states and Washington D.C. is model 1. 
+The better model to explain the variances (from 2015 - 2019) of crude death rate of drug overdose for fifty states and Washington D.C. is model 5. 
 
-**Model_1:** crudedeath_rate ~ binge_drink_rate + divorce_rate +  mean_unemployment_rate + education_rate + mean_poverty_rate +  mean_smoke_rate + binge_drink_rate:education_rate.
+**Model_5:** crudedeath_rate ~ binge_drink_rate + divorce_rate + education_rate + mean_smoke_rate
 
 ```{r}
-summary(stepwise) %>% broom::tidy() %>% knitr::kable()
+summary(stepwise_no_inter) %>% broom::tidy() %>% knitr::kable()
 ```
 
-**Predictor evaluation:** Binge drink rate, divorce rate, education rate, poverty rate are negatively associated with crude death rate of drug overdose. This means states with the higher value of these predictors may have a lower death rate for drug overdose. Unemployment rate and smoke rate are positively associated with crude death rate of drug overdose. This means that states which have higher prevalence of adult smokers or higher unemployment rate may also have a higher rate of death induced by drug overdose.
+**Predictor evaluation:** Binge drink rate and divorce rate are negatively associated with crude death rate of drug overdose. This means states with the higher value of these predictors may have a lower death rate for drug overdose. Education rate and smoke rate are positively associated with crude death rate of drug overdose. This means that states which have higher proportion of population with bachelor's degree or above, or states with higher prevalence of adult smokers may also have a higher rate of death induced by drug overdose. All four predictors are significant in this models.
 
 
 ```{r}
-summary(stepwise) %>% broom::glance() %>% knitr::kable()
+summary(stepwise_no_inter) %>% broom::glance() %>% knitr::kable()
 ```
 
 **Model description:** Overall, this model explains around 50% of the difference of crude death rate of drug overdose among fifty states and Washington D.C.. However, since the sample size we use is quite small(50 + 1 = 51), this model might not be very reliable.
