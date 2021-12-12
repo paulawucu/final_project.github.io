@@ -209,7 +209,7 @@ In the graph of Number of Drug Overdose Deaths with Drug Categories by Year, we 
 ## By Age and Race
 
 ```{r message=FALSE}
-ca_death_by_age = 
+oh_death_by_age = 
   read_csv("./data/agegroup_race_state_year_99-19.csv") %>%
   janitor::clean_names() %>% 
   select(state, year, ten_year_age_groups, race, deaths, population) %>% 
@@ -217,12 +217,13 @@ ca_death_by_age =
   mutate(year = factor(year),
          crude_rate = deaths/population * 100000)
   
-ca_death_by_age %>% 
+oh_death_by_age %>% 
   mutate(ten_year_age_groups = gsub("years", "", ten_year_age_groups)) %>% 
   ggplot(aes(x = ten_year_age_groups , y = crude_rate, fill = race)) + 
   geom_boxplot(alpha = 0.5)+
   facet_grid(~race)+
   labs(y = "Drug Overdose Death Crude Rates", x = "Age Groups") +
+  ggtitle("Crude Death Rate in Ohio Across Race and Age Groups") +
   theme(axis.text.x = element_text(angle = 90, vjust = 0.4, hjust = 1))
 ```
 
