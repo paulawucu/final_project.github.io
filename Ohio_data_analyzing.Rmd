@@ -222,6 +222,7 @@ ca_death_by_age %>%
   ggplot(aes(x = ten_year_age_groups , y = crude_rate, fill = race)) + 
   geom_boxplot(alpha = 0.5)+
   facet_grid(~race)+
+  labs(y = "Drug Overdose Death Crude Rates", x = "Age Groups") +
   theme(axis.text.x = element_text(angle = 90, vjust = 0.4, hjust = 1))
 ```
 
