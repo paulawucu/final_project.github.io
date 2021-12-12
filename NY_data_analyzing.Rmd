@@ -1,5 +1,9 @@
 ---
+<<<<<<< HEAD
+title: "NYC data analyzing"
+=======
 title: "New York City Data Analyzing"
+>>>>>>> 7e5ebe4cd30262faf611f70d5adca9e0ab41ef12
 output: 
   html_document:
     code_folding: hide
@@ -303,7 +307,7 @@ smooth =
 (year_death + income_year)/smooth
 ```
 
-Based on the above income vs. percent of drug overdose death by year, we can see that in NYC, the overdose death rate and household income are positively correlated. People with a higher income would have a higher drug overdose death rate.
+Based on the above income vs. percent of drug overdose death by year, we can see that in NYC, the overdose death rate and household income are positively related. People with a higher income would have a higher drug overdose death rate.
 
 <br><br>
 

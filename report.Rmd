@@ -264,8 +264,15 @@ overview_year_plot =
    ggplot(aes(x = year, y = death, color = state)) +
   geom_point() +
   geom_line()+
-  theme_set(theme_minimal() + theme(legend.position = "bottom"))
+  theme_set(theme_minimal() + theme(legend.position = "bottom")) +
+  labs(
+    title = "Number of Drug Overdose Deaths over Year by State",
+    x = "Years",
+    y = "Number of Drug Overdose Deaths"
+  )
 ggplotly(overview_year_plot)
+  
+  
 ```
   
 In order to further and more accurately study the trend of drug overdose in the United States, we obtained the three states with the highest number of deaths each year by mapping the total number of deaths of drug overdose in each state from 2015 to 2021. At the same time, we further selected California, Florida, NYC, and Ohio as the representative of each census region - West, South, East, Midwest - and conducted more details analyses on each of the region.
@@ -1443,19 +1450,29 @@ year_death =
   OHincome_drug_df %>% 
   ggplot(aes(x = year, y = overdose_death_rate, group = NA))+
   geom_point()+
-  geom_line()
+  geom_line()+
+  ggtitle("Crude Death Rate Across Years in OH") +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  labs(y = "Drug Overdose Death Crude Rates", x = "Year")
 income_year = 
   OHincome_drug_df %>% 
   ggplot(aes(x = year, y = household_income_by_race, group = NA))+
   geom_point()+
-  geom_line()
+  geom_line() +
+  ggtitle("Median Household Income Across Years in OH") +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  labs(y = "Median Household Income ", x = "Year")
 
 smooth = 
   OHincome_drug_df %>% 
   ggplot(aes(x = household_income_by_race, y = overdose_death_rate, group = NA))+
   geom_point()+
-  geom_smooth(method = "lm", se = FALSE, color = "royalblue4")
+  geom_smooth(method = "lm", se = FALSE, color = "royalblue4") +
+  ggtitle("Crude Death Rate vs. Median Household Income") +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  labs(y = "Drug Overdose Death Crude Rates", x = "Median Household Income")
 (year_death + income_year)/smooth
+
 ```
 
 OH Drug Map 
