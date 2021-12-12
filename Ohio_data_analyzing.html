@@ -13,8 +13,8 @@
 
 <title>Ohio Data analyzing</title>
 
-<script src="site_libs/header-attrs-2.11/header-attrs.js"></script>
-<script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<script src="site_libs/header-attrs-2.10/header-attrs.js"></script>
+<script src="site_libs/jquery-3.5.1/jquery.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link href="site_libs/bootstrap-3.3.5/css/yeti.min.css" rel="stylesheet" />
 <script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
@@ -460,7 +460,7 @@ ggplot(Ohio_df, aes(x = indicator, y = data_value, fill = indicator)) +
     y = &quot;Number of Drug Overdose Deaths&quot;,
     caption = &quot;Data comes from VSRR_Provisional_Drug_Overdose_Death_Counts dataset.&quot;
   ) </code></pre>
-<p><img src="Ohio_data_analyzing_files/figure-html/unnamed-chunk-6-1.png" width="90%" /> From this graph we can see that highest drug overdose death for Ohio is caused by Cocaine and Synthetic opioids,methadone . The following Drug Categories cause high overdose death is opioids.</p>
+<p><img src="Ohio_data_analyzing_files/figure-html/unnamed-chunk-6-1.png" width="90%" /> From this graph we can see that highest drug overdose death for Ohio is caused by Cocaine, Synthetic opioids and opioids.</p>
 <p><br><br></p>
 </div>
 <div id="by-year" class="section level2">
@@ -492,7 +492,7 @@ oh_death_by_year %&gt;%
     y = &quot;Percent of Drug Overdose Deaths&quot;,
     caption = &quot;Data comes from VSRR_Provisional_Drug_Overdose_Death_Counts dataset from 2015 to 2021).&quot;
   )</code></pre>
-<p><img src="Ohio_data_analyzing_files/figure-html/unnamed-chunk-7-1.png" width="100%" /> In the graph of Drug Overdose Deaths with Drug Categories by Year, I can observe that year 2017 have higher number of drug overdose death than other years.</p>
+<p><img src="Ohio_data_analyzing_files/figure-html/unnamed-chunk-7-1.png" width="100%" /> In the graph of Drug Overdose Deaths with Drug Categories by Year, we observe that year 2017 have highest number of drug overdose death than other years.</p>
 <pre class="r"><code>oh_death_by_year %&gt;%
   ungroup() %&gt;% 
   ggplot(aes(x = month, y = percent_overdose_death, group = NA, color = year)) +
@@ -507,13 +507,13 @@ oh_death_by_year %&gt;%
   ) +
   theme(axis.text.x = element_text(angle = 90, hjust = 1)) </code></pre>
 <p><img src="Ohio_data_analyzing_files/figure-html/unnamed-chunk-8-1.png" width="90%" /></p>
-<p>In the graph of Each month Drug Overdose Death Within a Year, we are able to see the trend changing of drug overdose in continuous years. The highest percentage of drug overdose death is 2017. There is increase percentage of cause drug overdose death in 2020 which is by the COVID-19.</p>
+<p>In the graph of Each month Drug Overdose Death Within a Year, we are able to see the trend changing of drug overdose in continuous years. The highest percentage of drug overdose death is 2017. There is increase percentage of cause drug overdose death in 2020 which is cause by the COVID-19.</p>
 <p><br><br></p>
 </div>
 <div id="drug-year" class="section level2">
 <h2>Drug ~ Year</h2>
 <p><img src="Ohio_data_analyzing_files/figure-html/unnamed-chunk-9-1.png" width="90%" /></p>
-<p>In the graph of Number of Drug Overdose Deaths with Drug Categories by Year, we can see that drug overdose death in Ohio keep increasing over the years with Heroin, Opioids, Synthetic Opioids.Since we miss data from 2015-2018, so we just include 2019-2021 in this graph.</p>
+<p>In the graph of Number of Drug Overdose Deaths with Drug Categories by Year, we can see that drug overdose death in Ohio keep increasing over 2019-2021 with specific drug types like Heroin, Opioids and Synthetic Opioids. Since we miss data from 2015-2018, so we just include 2019-2021 in this graph.</p>
 <p><br><br></p>
 </div>
 <div id="by-age-and-race" class="section level2">
@@ -557,9 +557,9 @@ OH_income_df %&gt;%
     title = &quot;Median Household Income: OH vs. The U.S&quot;,
          xaxis = list(title = &quot;Year&quot;),
          yaxis = list(title = &quot;Median Household Income&quot;))</code></pre>
-<div id="htmlwidget-1fd1631a9643e757a0af" style="width:90%;height:576px;" class="plotly html-widget"></div>
-<script type="application/json" data-for="htmlwidget-1fd1631a9643e757a0af">{"x":{"visdat":{"afbbdcdeaf2":["function () ","plotlyVisDat"]},"cur_data":"afbbdcdeaf2","attrs":{"afbbdcdeaf2":{"x":{},"y":{},"text":{},"mode":"markers+lines","error_y":{},"color":{},"colors":"viridis","alpha":0.5,"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"scatter"}},"layout":{"margin":{"b":40,"l":60,"t":25,"r":10},"title":"Median Household Income: OH vs. The U.S","xaxis":{"domain":[0,1],"automargin":true,"title":"Year","type":"category","categoryorder":"array","categoryarray":["2015","2016","2017","2018","2019"]},"yaxis":{"domain":[0,1],"automargin":true,"title":"Median Household Income"},"hovermode":"closest","showlegend":true},"source":"A","config":{"modeBarButtonsToAdd":["hoverclosest","hovercompare"],"showSendToCloud":false},"data":[{"x":["2019","2018","2017","2016","2015"],"y":[66825,62743,61653,60260,56826],"text":["Year: 2019<br />Median Household Income: $66825<br />Margin of error: ± $1322","Year: 2018<br />Median Household Income: $62743<br />Margin of error: ± $1087","Year: 2017<br />Median Household Income: $61653<br />Margin of error: ± $967","Year: 2016<br />Median Household Income: $60260<br />Margin of error: ± $1049","Year: 2015<br />Median Household Income: $56826<br />Margin of error: ± $895"],"mode":"markers+lines","error_y":{"color":"rgba(68,1,84,0.5)","array":[118,563,1322,94,425]},"type":"scatter","name":"Cincinnati, OH-KY-IN","marker":{"color":"rgba(68,1,84,0.5)","line":{"color":"rgba(68,1,84,1)"}},"textfont":{"color":"rgba(68,1,84,0.5)"},"error_x":{"color":"rgba(68,1,84,0.5)"},"line":{"color":"rgba(68,1,84,0.5)"},"xaxis":"x","yaxis":"y","frame":null},{"x":["2019","2018","2017","2016","2015"],"y":[58642,56111,54021,52334,51075],"text":["Year: 2019<br />Median Household Income: $58642<br />Margin of error: ± $563","Year: 2018<br />Median Household Income: $56111<br />Margin of error: ± $425","Year: 2017<br />Median Household Income: $54021<br />Margin of error: ± $411","Year: 2016<br />Median Household Income: $52334<br />Margin of error: ± $275","Year: 2015<br />Median Household Income: $51075<br />Margin of error: ± $233"],"mode":"markers+lines","error_y":{"color":"rgba(33,144,141,0.5)","array":[1087,86,411,967,115]},"type":"scatter","name":"Ohio","marker":{"color":"rgba(33,144,141,0.5)","line":{"color":"rgba(33,144,141,1)"}},"textfont":{"color":"rgba(33,144,141,0.5)"},"error_x":{"color":"rgba(33,144,141,0.5)"},"line":{"color":"rgba(33,144,141,0.5)"},"xaxis":"x","yaxis":"y","frame":null},{"x":["2019","2018","2017","2016","2015"],"y":[65712,61937,60336,57617,55775],"text":["Year: 2019<br />Median Household Income: $65712<br />Margin of error: ± $118","Year: 2018<br />Median Household Income: $61937<br />Margin of error: ± $94","Year: 2017<br />Median Household Income: $60336<br />Margin of error: ± $86","Year: 2016<br />Median Household Income: $57617<br />Margin of error: ± $115","Year: 2015<br />Median Household Income: $55775<br />Margin of error: ± $85"],"mode":"markers+lines","error_y":{"color":"rgba(253,231,37,0.5)","array":[275,1049,85,233,895]},"type":"scatter","name":"United States","marker":{"color":"rgba(253,231,37,0.5)","line":{"color":"rgba(253,231,37,1)"}},"textfont":{"color":"rgba(253,231,37,0.5)"},"error_x":{"color":"rgba(253,231,37,0.5)"},"line":{"color":"rgba(253,231,37,0.5)"},"xaxis":"x","yaxis":"y","frame":null}],"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.2,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":[]}</script>
-<p>Ohio around Cincinnati,KY,IN have the higher income compare to other part of Ohio and US.</p>
+<div id="htmlwidget-25f9196d90bb1ece5e6e" style="width:90%;height:576px;" class="plotly html-widget"></div>
+<script type="application/json" data-for="htmlwidget-25f9196d90bb1ece5e6e">{"x":{"visdat":{"102d27d59f68e":["function () ","plotlyVisDat"]},"cur_data":"102d27d59f68e","attrs":{"102d27d59f68e":{"x":{},"y":{},"text":{},"mode":"markers+lines","error_y":{},"color":{},"colors":"viridis","alpha":0.5,"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"scatter"}},"layout":{"margin":{"b":40,"l":60,"t":25,"r":10},"title":"Median Household Income: OH vs. The U.S","xaxis":{"domain":[0,1],"automargin":true,"title":"Year","type":"category","categoryorder":"array","categoryarray":["2015","2016","2017","2018","2019"]},"yaxis":{"domain":[0,1],"automargin":true,"title":"Median Household Income"},"hovermode":"closest","showlegend":true},"source":"A","config":{"modeBarButtonsToAdd":["hoverclosest","hovercompare"],"showSendToCloud":false},"data":[{"x":["2019","2018","2017","2016","2015"],"y":[66825,62743,61653,60260,56826],"text":["Year: 2019<br />Median Household Income: $66825<br />Margin of error: ± $1322","Year: 2018<br />Median Household Income: $62743<br />Margin of error: ± $1087","Year: 2017<br />Median Household Income: $61653<br />Margin of error: ± $967","Year: 2016<br />Median Household Income: $60260<br />Margin of error: ± $1049","Year: 2015<br />Median Household Income: $56826<br />Margin of error: ± $895"],"mode":"markers+lines","error_y":{"color":"rgba(68,1,84,0.5)","array":[118,563,1322,94,425]},"type":"scatter","name":"Cincinnati, OH-KY-IN","marker":{"color":"rgba(68,1,84,0.5)","line":{"color":"rgba(68,1,84,1)"}},"textfont":{"color":"rgba(68,1,84,0.5)"},"error_x":{"color":"rgba(68,1,84,0.5)"},"line":{"color":"rgba(68,1,84,0.5)"},"xaxis":"x","yaxis":"y","frame":null},{"x":["2019","2018","2017","2016","2015"],"y":[58642,56111,54021,52334,51075],"text":["Year: 2019<br />Median Household Income: $58642<br />Margin of error: ± $563","Year: 2018<br />Median Household Income: $56111<br />Margin of error: ± $425","Year: 2017<br />Median Household Income: $54021<br />Margin of error: ± $411","Year: 2016<br />Median Household Income: $52334<br />Margin of error: ± $275","Year: 2015<br />Median Household Income: $51075<br />Margin of error: ± $233"],"mode":"markers+lines","error_y":{"color":"rgba(33,144,141,0.5)","array":[1087,86,411,967,115]},"type":"scatter","name":"Ohio","marker":{"color":"rgba(33,144,141,0.5)","line":{"color":"rgba(33,144,141,1)"}},"textfont":{"color":"rgba(33,144,141,0.5)"},"error_x":{"color":"rgba(33,144,141,0.5)"},"line":{"color":"rgba(33,144,141,0.5)"},"xaxis":"x","yaxis":"y","frame":null},{"x":["2019","2018","2017","2016","2015"],"y":[65712,61937,60336,57617,55775],"text":["Year: 2019<br />Median Household Income: $65712<br />Margin of error: ± $118","Year: 2018<br />Median Household Income: $61937<br />Margin of error: ± $94","Year: 2017<br />Median Household Income: $60336<br />Margin of error: ± $86","Year: 2016<br />Median Household Income: $57617<br />Margin of error: ± $115","Year: 2015<br />Median Household Income: $55775<br />Margin of error: ± $85"],"mode":"markers+lines","error_y":{"color":"rgba(253,231,37,0.5)","array":[275,1049,85,233,895]},"type":"scatter","name":"United States","marker":{"color":"rgba(253,231,37,0.5)","line":{"color":"rgba(253,231,37,1)"}},"textfont":{"color":"rgba(253,231,37,0.5)"},"error_x":{"color":"rgba(253,231,37,0.5)"},"line":{"color":"rgba(253,231,37,0.5)"},"xaxis":"x","yaxis":"y","frame":null}],"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.2,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":[]}</script>
+<p>Ohio around Cincinnati, Kentucky, Indiana have the higher income compare to other part of Ohio and US.</p>
 <p><br></p>
 <p><strong>Income and drug overdose death percent by year</strong></p>
 <pre class="r"><code>OHincome_drug_df = 
@@ -598,7 +598,7 @@ abc = county.fips %&gt;%
   filter(state %in% &quot;ohio&quot;) %&gt;% 
   select(-state) %&gt;% 
   as_tibble()</code></pre>
-<p>We can see that the highest death rate occur in south Ohio across the years. From the income graph, OH around Cincinnati,KY,IN have the higher income compare to other part of Ohio, which is close to the region have higher death rate.</p>
+<p>Our drug map shows that highest death rate occur in south Ohio region, which is close to the region have higher income in Ohio. This finding can imply the association between high income and high drug overdose death rate.</p>
 <div id="counties-change-5-yr-interval" class="section level3 tabset">
 <h3 class="tabset">Counties change, 5-yr interval</h3>
 <div id="section" class="section level4">
