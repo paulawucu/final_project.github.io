@@ -1,9 +1,5 @@
 ---
-<<<<<<< HEAD
-title: "NYC data analyzing"
-=======
 title: "New York City Data Analyzing"
->>>>>>> 7e5ebe4cd30262faf611f70d5adca9e0ab41ef12
 output: 
   html_document:
     code_folding: hide
