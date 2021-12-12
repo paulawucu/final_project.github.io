@@ -202,6 +202,7 @@ ca_death_by_age %>%
   mutate(ten_year_age_groups = gsub("years", "", ten_year_age_groups)) %>% 
   ggplot(aes(x = ten_year_age_groups , y = crude_rate, fill = race)) + 
   geom_boxplot(alpha = 0.5)+
+  labs(y = "Drug Overdose Death Crude Rates", x = "Age Groups")+
   facet_grid(~race) +
   labs(
     title = "Number of Drug Overdose Deaths with Drug Categories by Age and Race in CA")  +
@@ -270,7 +271,8 @@ income_year =
 smooth = 
   CAincome_drug_df %>% 
   ggplot(aes(x = household_income_by_race, y = overdose_death_rate, group = NA))+
-  geom_point()+
+  geom_point() +
+  labs(y = "Drug Overdose Death Crude Rates", x = "Median Household Income") +
   geom_smooth(method = "lm", se = FALSE, color = "royalblue4")
 (year_death + income_year)/smooth
 
