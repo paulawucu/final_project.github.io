@@ -53,9 +53,18 @@ Our reports is [here](report.html)
 
 ## Data Sources
 
+- [CDC Wonder](https://wonder.cdc.gov/)
+ - [Data USA](https://datausa.io/)
+ - [United States Census Bureau](https://data.census.gov/cedsci/)
+ - [America's Health Rankings](https://www.americashealthrankings.org/)
+ - [Statista](https://www.statista.com/statistics/378966/us-binge-drinking-rate-adults-by-state/)
+ - [VSRR Provisional Drug Overdose Death Counts](https://data.cdc.gov/NCHS/VSRR-Provisional-Drug-Overdose-Death-Counts/xkb8-kh2a)
+ 
 <br>
 
 ## Videos
+
+See our videos [here](https://youtu.be/nDrmCsTRqqs)
 
 <br>
 
