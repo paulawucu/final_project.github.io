@@ -27,6 +27,8 @@ navbar:
       href: regression_us.html
     - text: "Facts About"
       href: fact.html
+    - icon: fa-play-circle fa-sm 
+      href: https://youtu.be/nDrmCsTRqqs
     - icon: fa-github fa-lg
       href: https://github.com/paulawucu/final_project
       

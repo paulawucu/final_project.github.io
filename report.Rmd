@@ -2290,13 +2290,32 @@ summary(stepwise_no_inter) %>% broom::glance() %>% knitr::kable()
 
 **Model description:** Overall, this model explains around 50% of the difference of crude death rate of drug overdose among fifty states and Washington D.C.. However, since the sample size we use is quite small(50 + 1 = 51), this model might not be very reliable.
 
-
+<br><br>
 
 ## Discussion
+
+According to CDC,  since 1999, nearly 841,000 people have died from a drug overdose. Drug overdose deaths in the US appear to rise before the coronavirus pandemic hits the country. Because of the stress and the care challenge coming with the Covid -19, the opioid abuse crisis in the United States has been exacerbated. According to the provisional data from CDC’s National Center for Health Statistics, there were an estimated 100,306 drug overdose deaths in the United States during the 12 month period ending in April 2021, an increase of 28.5% from the 78,056 deaths during the same period the year before. These astonishing numbers are truly remarkable and thought-provoking.
+<br>
+
+From our investigation, we do find some overarching trends in the drug overdose death rate across states in the U.S. Overall, from 2015 to 2020, the number of deaths in the U.S. for most types of drug overdose increased. Also, from 2015 to 2020, the death rate of drug overdose showed an upward trend in almost every state. Let NYC, Ohio, Floria, and California be representatives, from 1999-2019 the crude death rate increased significantly in the younger (25-34) and older population (55-64). Based on the changes in the spread of crude death rates over different age groups, drug overdose is now spreading to younger and older populations. The spread of drug overdose crude death rate by race is dependent on the state. Our findings were not completely consistent with what we had expected. For instance, we were not expecting the people with higher income would have higher drug overdose death possibilities.
+<br>
+
+Based on our regression analysis, four indexes are closely related to the death rate of drug overdose across fifty states and Washington D.C.. Generally, binge drinking is one of the risky behaviors. People usually consider the abuse behaviors to be positively associated. However, the prevalence of binge drinking is surprisingly negative associated with the death rate. Also, states with higher divorce rates have a lower death rate induced by drug overdose. We do not expect that the education rate is strongly positively associated with the death rate. States with larger highly educated populations also face a more severe threat of drug overdose. This association might relate to the looser and more liberal preference in policy and legislation in these states, especially those in the east and the west coast. The population of the east and the west coast is well-educated; this state, in the meantime, is the first set of states to enact policy or law to decriminalize or legalize the recreational use of some psychoactive substances. We are not surprised to identify the positive association between the death rate of drug overdose and the prevalence of smokers. Nowaday, many smokers believe smoking marijuana weed is safer and healthier than smoking cigarettes.  These smokers usually consume some marijuana as the substitute for cigarettes. This group of people are risky for further trying of other drugs and being trapped into drug overdose. 
+<br>
+
+Now there are 18 states where marijuana is legal (Colorado, Washington, Alaska, Oregon, California, Maine, Massachusetts, Nevada, Vermont, Michigan, Illinois, New Jersey, Montana, Arizona, New York, Virginia, New Mexico, Connecticut). According to the “Survey of U.S. adults conducted Spet, 3-15, 2019”, U.S public opinion is turning into the side of legalizing marijuana [3]. This survey also found that younger generations are more likely to “say the use of marijuana should be made legal”. Although recreational marijuana differs from drug overdose, this change still indicates a looser view of psychoactive substances in the society. Compared with the trend of losing restrictions on marijuana, at the federal level, however, this drug is still classified as a Schedule I drug by the Drug Enforcement Administration, which indicates the high potential for abuse for marijuana[4]. 
+<br>
+
+“Prevention is better than cure.” Because of the trend of marijuana legalization, it might be impossible to prevent everyone from using drugs but we can all prevent and avoid the happens of drug abuse and drug overdose. We hope that our project can be a piece of the drug misuse and drug overdose prevention activities. 
+
+<br><br>
 
 ## Reference
 [1] Wide-ranging online data for epidemiologic research (WONDER). Atlanta, GA: CDC, National Center for Health Statistics; 2020. Available at [CDC](http://wonder.cdc.gov)
 
 [2] Drug Overdose Death [CDC Website](https://www.cdc.gov/drugoverdose/deaths/index.html)
 
+[3] Daniller, A. (2020, May 30). Two-thirds of Americans support marijuana legalization. Pew Research Center. Retrieved December 11, 2021, [from](https://www.pewresearch.org/fact-tank/2019/11/14/americans-support-marijuana-legalization/)
+
+[4] Leins, C., Alas, H., & Davis Jr., E. (n.d.). States Where Recreational Marijuana Is Legal. Retrieved October 14, 2021, [from](https://www.usnews.com/news/best-states/slideshows/where-is-pot-legal)
 
